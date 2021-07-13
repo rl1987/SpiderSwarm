@@ -67,6 +67,7 @@ Vagrant.configure("2") do |config|
      apt-get update
      apt-get install -y golang libxml2-dev curl git vim
      echo "export GOPATH=/home/vagrant/go" >> /etc/profile
+     echo "export GIT_TERMINAL_PROMPT=1" >> /etc/profile
      chown -R vagrant:vagrant /home/vagrant/go
      curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
      echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
