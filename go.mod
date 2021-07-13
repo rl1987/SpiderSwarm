@@ -1,6 +1,6 @@
 module github.com/rl1987/SpiderSwarm
 
-go 1.15
+go 1.14
 
 require (
 	github.com/antchfx/htmlquery v1.2.3 // indirect

@@ -1,6 +1,6 @@
 module github.com/rl1987/SpiderSwarm/workflow
 
-go 1.15
+go 1.14
 
 require (
 	github.com/davecgh/go-spew v1.1.1
