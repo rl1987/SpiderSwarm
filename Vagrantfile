@@ -65,7 +65,10 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
    config.vm.provision "shell", inline: <<-SHELL
      apt-get update
-     apt-get install -y golang libxml2-dev curl git vim
+     apt-get install -y libxml2-dev curl git vim
+     wget https://golang.org/dl/go1.16.6.linux-amd64.tar.gz -O /tmp/go1.16.6.linux-amd64.tar.gz
+     tar -C /usr/local -xzf /tmp/go1.16.6.linux-amd64.tar.gz
+     echo "export PATH=\$PATH:/usr/local/go/bin" >> /etc/profile
      echo "export GOPATH=/home/vagrant/go" >> /etc/profile
      echo "export GIT_TERMINAL_PROMPT=1" >> /etc/profile
      chown -R vagrant:vagrant /home/vagrant/go
