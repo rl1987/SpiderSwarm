@@ -16,4 +16,4 @@
 
 SpiderSwarm
 *.swp
-
+.vagrant
