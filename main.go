@@ -238,6 +238,45 @@ func (ua *UTF8DecodeAction) Run() error {
 	return nil
 }
 
+type UTF8EncodeAction struct {
+	AbstractAction
+}
+
+const UTF8EncodeActionInputStr = "UTF8EncodeActionInputStr"
+const UTF8EncodeActionOutputBytes = "UTF8EncodeActionOutputBytes"
+
+func NewUTF8EncodeAction() *UTF8EncodeAction {
+	return &UTF8EncodeAction{
+		AbstractAction: AbstractAction{
+			CanFail:    false,
+			ExpectMany: false,
+			AllowedInputNames: []string{
+				UTF8EncodeActionInputStr,
+			},
+			AllowedOutputNames: []string{
+				UTF8EncodeActionOutputBytes,
+			},
+			Inputs:  map[string]*DataPipe{},
+			Outputs: map[string]*DataPipe{},
+		},
+	}
+}
+
+func (ua *UTF8EncodeAction) Run() error {
+	// TODO: check if data pipes are actually connected
+
+	str, ok := ua.Inputs[UTF8EncodeActionInputStr].Remove().(string)
+	if !ok {
+		return errors.New("Failed to get string")
+	}
+
+	binData := []byte(str)
+
+	ua.Outputs[UTF8EncodeActionOutputBytes].Add(binData)
+
+	return nil
+}
+
 type Task struct {
 	Inputs  map[string]*DataPipe
 	Outputs map[string]*DataPipe
@@ -289,7 +328,16 @@ func main() {
 
 	utf8DecodeAction.Run()
 
-	htmlStr := strOut.Remove()
+	utf8EncodeAction := NewUTF8EncodeAction()
 
-	spew.Dump(htmlStr)
+	utf8EncodeAction.AddInput(UTF8EncodeActionInputStr, strOut)
+	utf8EncodeAction.AddOutput(UTF8EncodeActionOutputBytes, bodyOut)
+
+	err = utf8EncodeAction.Run()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	spew.Dump(bodyOut)
+
 }
