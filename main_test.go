@@ -23,7 +23,7 @@ func TestNewHTTPAction(t *testing.T) {
 	assert.Equal(t, len(httpAction.AbstractAction.AllowedOutputNames), 3)
 	assert.Equal(t, httpAction.AbstractAction.AllowedOutputNames[0], HTTPActionOutputBody)
 	assert.Equal(t, httpAction.AbstractAction.AllowedOutputNames[1], HTTPActionOutputHeaders)
-	assert.Equal(t, httpAction.AbstractAction.AllowedOutputNames[2], HTTPActionOuputStatusCode)
+	assert.Equal(t, httpAction.AbstractAction.AllowedOutputNames[2], HTTPActionOutputStatusCode)
 
 }
 

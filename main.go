@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/davecgh/go-spew/spew"
@@ -17,56 +18,36 @@ func NewDataPipe() *DataPipe {
 	return &DataPipe{false, []interface{}{}}
 }
 
+func (dp *DataPipe) Add(x interface{}) {
+	dp.Queue = append(dp.Queue, x)
+}
+
+func (dp *DataPipe) Remove() interface{} {
+	if len(dp.Queue) == 0 {
+		return nil
+	}
+
+	lastIdx := len(dp.Queue) - 1
+	x := dp.Queue[lastIdx]
+	dp.Queue = dp.Queue[:lastIdx]
+
+	return x
+}
+
+type Action interface {
+	Run() error
+	AddInput(name string, dataPipe DataPipe)
+	AddOutput(name string, dataPipe DataPipe)
+}
+
 type AbstractAction struct {
+	Action
 	Inputs             map[string]*DataPipe
 	Outputs            map[string]*DataPipe
 	CanFail            bool
 	ExpectMany         bool
 	AllowedInputNames  []string
 	AllowedOutputNames []string
-}
-
-type Action interface {
-	Run() bool
-	AddInput(name string, dataPipe DataPipe)
-	AddOutput(name string, dataPipe DataPipe)
-}
-
-const HTTPActionInputURLParams = "HTTPActionInputURLParams"
-const HTTPActionInputHeaders = "HTTPActionInputHeaders"
-const HTTPActionInputCookies = "HTTPActionInputCookies"
-
-const HTTPActionOutputBody = "HTTPActionOutputBody"
-const HTTPActionOutputHeaders = "HTTPActionOutputHeaders"
-const HTTPActionOuputStatusCode = "HTTPActionOuputStatusCode"
-
-type HTTPAction struct {
-	AbstractAction
-	BaseURL string
-	Method  string
-}
-
-func NewHTTPAction(baseURL string, method string, canFail bool) *HTTPAction {
-	return &HTTPAction{
-		AbstractAction: AbstractAction{
-			CanFail:    canFail,
-			ExpectMany: false,
-			AllowedInputNames: []string{
-				HTTPActionInputURLParams,
-				HTTPActionInputHeaders,
-				HTTPActionInputCookies,
-			},
-			AllowedOutputNames: []string{
-				HTTPActionOutputBody,
-				HTTPActionOutputHeaders,
-				HTTPActionOuputStatusCode,
-			},
-			Inputs:  map[string]*DataPipe{},
-			Outputs: map[string]*DataPipe{},
-		},
-		BaseURL: baseURL,
-		Method:  method,
-	}
 }
 
 func (a *AbstractAction) AddInput(name string, dataPipe *DataPipe) error {
@@ -89,12 +70,142 @@ func (a *AbstractAction) AddOutput(name string, dataPipe *DataPipe) error {
 	}
 
 	return errors.New("input name not in AllowedOutputNames")
+}
 
+func (a *AbstractAction) Run() error {
+	// To be implemented by concrete actions.
+	return nil
+}
+
+const HTTPActionInputURLParams = "HTTPActionInputURLParams"
+const HTTPActionInputHeaders = "HTTPActionInputHeaders"
+const HTTPActionInputCookies = "HTTPActionInputCookies"
+
+const HTTPActionOutputBody = "HTTPActionOutputBody"
+const HTTPActionOutputHeaders = "HTTPActionOutputHeaders"
+const HTTPActionOutputStatusCode = "HTTPActionOutputStatusCode"
+
+type HTTPAction struct {
+	AbstractAction
+	BaseURL string
+	Method  string
+}
+
+func NewHTTPAction(baseURL string, method string, canFail bool) *HTTPAction {
+	return &HTTPAction{
+		AbstractAction: AbstractAction{
+			CanFail:    canFail,
+			ExpectMany: false,
+			AllowedInputNames: []string{
+				HTTPActionInputURLParams,
+				HTTPActionInputHeaders,
+				HTTPActionInputCookies,
+			},
+			AllowedOutputNames: []string{
+				HTTPActionOutputBody,
+				HTTPActionOutputHeaders,
+				HTTPActionOutputStatusCode,
+			},
+			Inputs:  map[string]*DataPipe{},
+			Outputs: map[string]*DataPipe{},
+		},
+		BaseURL: baseURL,
+		Method:  method,
+	}
+}
+
+func (ha *HTTPAction) Run() error {
+	request, err := http.NewRequest(ha.BaseURL, ha.Method, nil)
+	if err != nil {
+		return err
+	}
+
+	var urlParams map[string][]string
+	var headers map[string][]string
+	var cookies map[string]string
+
+	q := request.URL.Query()
+
+	if ha.Inputs[HTTPActionInputURLParams] != nil {
+		for {
+			urlParams = ha.Inputs[HTTPActionInputURLParams].Remove().(map[string][]string)
+			if urlParams == nil {
+				break
+			}
+
+			for key, values := range urlParams {
+				for _, value := range values {
+					q.Add(key, value)
+				}
+			}
+		}
+	}
+
+	if ha.Inputs[HTTPActionInputHeaders] != nil {
+		for {
+			headers = ha.Inputs[HTTPActionInputHeaders].Remove().(map[string][]string)
+
+			if headers == nil {
+				break
+			}
+
+			for key, values := range headers {
+				for _, value := range values {
+					request.Header.Add(key, value)
+				}
+			}
+
+		}
+	}
+
+	if ha.Inputs[HTTPActionInputCookies] != nil {
+		for {
+			cookies = ha.Inputs[HTTPActionInputCookies].Remove().(map[string]string)
+
+			if cookies == nil {
+				break
+			}
+
+			for key, value := range cookies {
+				c := &http.Cookie{Name: key, Value: value}
+				request.AddCookie(c)
+			}
+
+		}
+	}
+
+	request.URL.RawQuery = q.Encode()
+
+	client := &http.Client{}
+
+	resp, err := client.Do(request)
+	if err != nil {
+		return err
+	}
+
+	if ha.Outputs[HTTPActionOutputBody] != nil {
+		body, err := ioutil.ReadAll(resp.Body)
+		if err == nil {
+			ha.Outputs[HTTPActionOutputBody].Add(body)
+		}
+	}
+
+	if ha.Outputs[HTTPActionOutputHeaders] != nil {
+		headers := resp.Header
+		ha.Outputs[HTTPActionOutputHeaders].Add(headers)
+	}
+
+	if ha.Outputs[HTTPActionOutputStatusCode] != nil {
+		statusCode := resp.StatusCode
+		ha.Outputs[HTTPActionOutputStatusCode].Add(statusCode)
+	}
+
+	return nil
 }
 
 type Task struct {
-	Inputs  map[string]DataPipe
-	Outputs map[string]DataPipe
+	Inputs  map[string]*DataPipe
+	Outputs map[string]*DataPipe
 }
 
 type Workflow struct {
