@@ -115,21 +115,17 @@ func NewHTTPAction(baseURL string, method string, canFail bool) *HTTPAction {
 }
 
 func (ha *HTTPAction) Run() error {
-	request, err := http.NewRequest(ha.BaseURL, ha.Method, nil)
+	request, err := http.NewRequest(ha.Method, ha.BaseURL, nil)
 	if err != nil {
 		return err
 	}
-
-	var urlParams map[string][]string
-	var headers map[string][]string
-	var cookies map[string]string
 
 	q := request.URL.Query()
 
 	if ha.Inputs[HTTPActionInputURLParams] != nil {
 		for {
-			urlParams = ha.Inputs[HTTPActionInputURLParams].Remove().(map[string][]string)
-			if urlParams == nil {
+			urlParams, ok := ha.Inputs[HTTPActionInputURLParams].Remove().(map[string][]string)
+			if !ok {
 				break
 			}
 
@@ -143,9 +139,9 @@ func (ha *HTTPAction) Run() error {
 
 	if ha.Inputs[HTTPActionInputHeaders] != nil {
 		for {
-			headers = ha.Inputs[HTTPActionInputHeaders].Remove().(map[string][]string)
+			headers, ok := ha.Inputs[HTTPActionInputHeaders].Remove().(map[string][]string)
 
-			if headers == nil {
+			if !ok {
 				break
 			}
 
@@ -160,9 +156,9 @@ func (ha *HTTPAction) Run() error {
 
 	if ha.Inputs[HTTPActionInputCookies] != nil {
 		for {
-			cookies = ha.Inputs[HTTPActionInputCookies].Remove().(map[string]string)
+			cookies, ok := ha.Inputs[HTTPActionInputCookies].Remove().(map[string]string)
 
-			if cookies == nil {
+			if !ok {
 				break
 			}
 
@@ -216,9 +212,33 @@ type Workflow struct {
 
 func main() {
 	fmt.Println("SpiderSwarm")
-	httpClient := &http.Client{}
-	spew.Dump(httpClient)
+	httpAction := NewHTTPAction("https://ifconfig.me/", "GET", true)
 
-	w := Workflow{}
-	spew.Dump(w)
+	headers := map[string][]string{
+		"User-Agent": []string{"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"},
+	}
+
+	headersIn := NewDataPipe()
+
+	headersIn.Add(headers)
+
+	httpAction.AddInput(HTTPActionInputHeaders, headersIn)
+
+	bodyOut := NewDataPipe()
+	httpAction.AddOutput(HTTPActionOutputBody, bodyOut)
+
+	headersOut := NewDataPipe()
+	httpAction.AddOutput(HTTPActionOutputHeaders, headersOut)
+
+	statusCodeOut := NewDataPipe()
+	httpAction.AddOutput(HTTPActionOutputStatusCode, statusCodeOut)
+
+	spew.Dump(httpAction)
+
+	err := httpAction.Run()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	spew.Dump(httpAction)
 }
