@@ -199,6 +199,45 @@ func (ha *HTTPAction) Run() error {
 	return nil
 }
 
+type UTF8DecodeAction struct {
+	AbstractAction
+}
+
+const UTF8DecodeActionInputBytes = "UTF8DecodeActionInputBytes"
+const UTF8DecodeActionOutputStr = "UTF8DecodeActionOutputStr"
+
+func NewUTF8DecodeAction() *UTF8DecodeAction {
+	return &UTF8DecodeAction{
+		AbstractAction: AbstractAction{
+			CanFail:    false,
+			ExpectMany: false,
+			AllowedInputNames: []string{
+				UTF8DecodeActionInputBytes,
+			},
+			AllowedOutputNames: []string{
+				UTF8DecodeActionOutputStr,
+			},
+			Inputs:  map[string]*DataPipe{},
+			Outputs: map[string]*DataPipe{},
+		},
+	}
+}
+
+func (ua *UTF8DecodeAction) Run() error {
+	// TODO: check if data pipes are actually connected
+
+	binData, ok := ua.Inputs[UTF8DecodeActionInputBytes].Remove().([]byte)
+	if !ok {
+		return errors.New("Failed to get binary data")
+	}
+
+	str := string(binData)
+
+	ua.Outputs[UTF8DecodeActionOutputStr].Add(str)
+
+	return nil
+}
+
 type Task struct {
 	Inputs  map[string]*DataPipe
 	Outputs map[string]*DataPipe
@@ -240,5 +279,17 @@ func main() {
 		fmt.Println(err)
 	}
 
-	spew.Dump(httpAction)
+	utf8DecodeAction := NewUTF8DecodeAction()
+
+	utf8DecodeAction.AddInput(UTF8DecodeActionInputBytes, bodyOut)
+
+	strOut := NewDataPipe()
+
+	utf8DecodeAction.AddOutput(UTF8DecodeActionOutputStr, strOut)
+
+	utf8DecodeAction.Run()
+
+	htmlStr := strOut.Remove()
+
+	spew.Dump(htmlStr)
 }
