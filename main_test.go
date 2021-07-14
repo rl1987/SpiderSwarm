@@ -59,3 +59,25 @@ func TestAddOutput(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, httpAction.AbstractAction.Outputs[HTTPActionOutputBody], dp)
 }
+
+func TestUTF8EncodeActionRun(t *testing.T) {
+	str := "abc"
+
+	dataPipeIn := NewDataPipe()
+	dataPipeOut := NewDataPipe()
+
+	dataPipeIn.Add(str)
+
+	utf8EncodeAction := NewUTF8EncodeAction()
+
+	utf8EncodeAction.AddInput(UTF8EncodeActionInputStr, dataPipeIn)
+	utf8EncodeAction.AddOutput(UTF8EncodeActionOutputBytes, dataPipeOut)
+
+	err := utf8EncodeAction.Run()
+	assert.Nil(t, err)
+
+	binData, ok := dataPipeOut.Remove().([]byte)
+	assert.True(t, ok)
+
+	assert.Equal(t, binData, []byte{0x61, 0x62, 0x63})
+}
