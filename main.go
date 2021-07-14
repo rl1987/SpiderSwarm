@@ -224,7 +224,13 @@ func NewUTF8DecodeAction() *UTF8DecodeAction {
 }
 
 func (ua *UTF8DecodeAction) Run() error {
-	// TODO: check if data pipes are actually connected
+	if ua.Inputs[UTF8DecodeActionInputBytes] == nil {
+		return errors.New("Input not connected")
+	}
+
+	if ua.Outputs[UTF8DecodeActionOutputStr] == nil {
+		return errors.New("Output not connected")
+	}
 
 	binData, ok := ua.Inputs[UTF8DecodeActionInputBytes].Remove().([]byte)
 	if !ok {
@@ -263,7 +269,13 @@ func NewUTF8EncodeAction() *UTF8EncodeAction {
 }
 
 func (ua *UTF8EncodeAction) Run() error {
-	// TODO: check if data pipes are actually connected
+	if ua.Inputs[UTF8EncodeActionInputStr] == nil {
+		return errors.New("Input not connected")
+	}
+
+	if ua.Outputs[UTF8EncodeActionOutputBytes] == nil {
+		return errors.New("Output not connected")
+	}
 
 	str, ok := ua.Inputs[UTF8EncodeActionInputStr].Remove().(string)
 	if !ok {
