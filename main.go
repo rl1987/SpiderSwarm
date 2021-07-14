@@ -25,6 +25,19 @@ type Action interface {
 
 type HTTPAction struct {
 	AbstractAction
+	BaseURL string
+	Method  string
+}
+
+func NewHTTPAction(baseURL string, method string, canFail bool) *HTTPAction {
+	return &HTTPAction{
+		AbstractAction: AbstractAction{
+			CanFail:    canFail,
+			ExpectMany: false,
+		},
+		BaseURL: baseURL,
+		Method:  method,
+	}
 }
 
 type Task struct {
