@@ -103,3 +103,35 @@ func TestXPathActionRunBasic(t *testing.T) {
 
 	assert.Equal(t, "This is title!", resultStr)
 }
+
+func TestXPathActionRunMultipleResults(t *testing.T) {
+	htmlStr := "<p>1</p><p>2</p><p>3</p>"
+
+	dataPipeIn := NewDataPipe()
+	dataPipeOut := NewDataPipe()
+
+	dataPipeIn.Add(htmlStr)
+
+	xpathAction := NewXPathAction("//p/text()", true)
+
+	xpathAction.AddInput(XPathActionInputHTMLStr, dataPipeIn)
+	xpathAction.AddOutput(XPathActionOutputStr, dataPipeOut)
+
+	err := xpathAction.Run()
+	assert.Nil(t, err)
+
+	resultStr, ok := dataPipeOut.Remove().(string)
+	assert.True(t, ok)
+	assert.Equal(t, "3", resultStr)
+
+	resultStr, ok = dataPipeOut.Remove().(string)
+	assert.True(t, ok)
+	assert.Equal(t, "2", resultStr)
+
+	resultStr, ok = dataPipeOut.Remove().(string)
+	assert.True(t, ok)
+	assert.Equal(t, "1", resultStr)
+
+	_, ok = dataPipeOut.Remove().(string)
+	assert.False(t, ok)
+}

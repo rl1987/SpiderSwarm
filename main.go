@@ -355,7 +355,7 @@ func (xa *XPathAction) Run() error {
 		return err
 	}
 
-	if xa.ExpectMany {
+	if !xa.ExpectMany {
 		n := htmlquery.FindOne(doc, xa.XPath)
 
 		result := renderNode(n)
