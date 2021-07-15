@@ -9,9 +9,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/antchfx/htmlquery"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/google/uuid"
 )
 
 type DataPipe struct {
@@ -381,14 +383,32 @@ func (xa *XPathAction) Run() error {
 }
 
 type Task struct {
-	Inputs  map[string]*DataPipe
-	Outputs map[string]*DataPipe
+	Name         string
+	UUID         string
+	CreatedAt    time.Time
+	WorkflowName string
+	WorkflowUUID string
+
+	Inputs    map[string]*DataPipe
+	Outputs   map[string]*DataPipe
+	Actions   []Action
+	DataPipes []DataPipe
+}
+
+func NewTask(name string, workflowName string, workflowUUID string) *Task {
+	return &Task{
+		Name:         name,
+		UUID:         uuid.New().String(),
+		CreatedAt:    time.Now(),
+		WorkflowName: workflowName,
+		WorkflowUUID: workflowUUID,
+	}
 }
 
 type Workflow struct {
 	Name    string
 	Version string
-	Tasks   []Task
+	Tasks   []Task // XXX: task templates?
 }
 
 func main() {
