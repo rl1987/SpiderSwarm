@@ -17,12 +17,23 @@ import (
 )
 
 type DataPipe struct {
-	Done  bool
-	Queue []interface{}
+	Done       bool
+	Queue      []interface{}
+	FromAction Action
+	ToAction   Action
 }
 
 func NewDataPipe() *DataPipe {
-	return &DataPipe{false, []interface{}{}}
+	return &DataPipe{false, []interface{}{}, nil, nil}
+}
+
+func NewDataPipeBetweenActions(fromAction Action, toAction Action) *DataPipe {
+	return &DataPipe{
+		Done:       false,
+		Queue:      []interface{}{},
+		FromAction: fromAction,
+		ToAction:   toAction,
+	}
 }
 
 func (dp *DataPipe) Add(x interface{}) {
