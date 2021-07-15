@@ -1,11 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"golang.org/x/net/html" // XXX
+	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
+	"github.com/antchfx/htmlquery"
 	"github.com/davecgh/go-spew/spew"
 )
 
@@ -289,6 +294,88 @@ func (ua *UTF8EncodeAction) Run() error {
 	return nil
 }
 
+const XPathActionInputHTMLStr = "XPathActionInputHTMLStr"
+const XPathActionInputHTMLBytes = "XPathActionInputHTMLBytes"
+const XPathActionOutputStr = "XPathActionOutputStr"
+
+type XPathAction struct {
+	AbstractAction
+	XPath string
+}
+
+func NewXPathAction(xpath string, expectMany bool) *XPathAction {
+	return &XPathAction{
+		AbstractAction: AbstractAction{
+			CanFail:    false,
+			ExpectMany: expectMany,
+			AllowedInputNames: []string{
+				XPathActionInputHTMLStr,
+				XPathActionInputHTMLBytes,
+			},
+			AllowedOutputNames: []string{
+				XPathActionOutputStr,
+			},
+			Inputs:  map[string]*DataPipe{},
+			Outputs: map[string]*DataPipe{},
+		},
+		XPath: xpath,
+	}
+}
+
+// https://stackoverflow.com/a/38855264
+func renderNode(n *html.Node) string {
+	var buf bytes.Buffer
+	w := io.Writer(&buf)
+	html.Render(w, n)
+	return buf.String()
+}
+
+func (xa *XPathAction) Run() error {
+	if xa.Inputs[XPathActionInputHTMLStr] == nil && xa.Inputs[XPathActionInputHTMLBytes] == nil {
+		return errors.New("Input not connected")
+	}
+
+	if xa.Outputs[XPathActionOutputStr] == nil {
+		return errors.New("Output not connected")
+	}
+
+	var htmlStr string
+
+	if xa.Inputs[XPathActionInputHTMLStr] != nil {
+		htmlStr, _ = xa.Inputs[XPathActionInputHTMLStr].Remove().(string)
+	} else if xa.Inputs[XPathActionInputHTMLBytes] != nil {
+		htmlBytes, ok := xa.Inputs[XPathActionInputHTMLBytes].Remove().([]byte)
+		if ok {
+			htmlStr = string(htmlBytes)
+		}
+	}
+
+	doc, err := htmlquery.Parse(strings.NewReader(htmlStr))
+	if err != nil {
+		return err
+	}
+
+	if xa.ExpectMany {
+		n := htmlquery.FindOne(doc, xa.XPath)
+
+		result := renderNode(n)
+		xa.Outputs[XPathActionOutputStr].Add(result)
+	} else {
+		var nodes []*html.Node
+		nodes, err = htmlquery.QueryAll(doc, xa.XPath)
+		if err != nil {
+			return err
+		}
+
+		for _, n := range nodes {
+			result := renderNode(n)
+			xa.Outputs[XPathActionOutputStr].Add(result)
+		}
+	}
+
+	return nil
+}
+
 type Task struct {
 	Inputs  map[string]*DataPipe
 	Outputs map[string]*DataPipe
@@ -323,33 +410,23 @@ func main() {
 	statusCodeOut := NewDataPipe()
 	httpAction.AddOutput(HTTPActionOutputStatusCode, statusCodeOut)
 
-	spew.Dump(httpAction)
-
 	err := httpAction.Run()
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	utf8DecodeAction := NewUTF8DecodeAction()
+	xpathAction := NewXPathAction("//title/text()", false)
 
-	utf8DecodeAction.AddInput(UTF8DecodeActionInputBytes, bodyOut)
+	xpathAction.AddInput(XPathActionInputHTMLBytes, bodyOut)
 
-	strOut := NewDataPipe()
+	resultOut := NewDataPipe()
 
-	utf8DecodeAction.AddOutput(UTF8DecodeActionOutputStr, strOut)
+	xpathAction.AddOutput(XPathActionOutputStr, resultOut)
 
-	utf8DecodeAction.Run()
-
-	utf8EncodeAction := NewUTF8EncodeAction()
-
-	utf8EncodeAction.AddInput(UTF8EncodeActionInputStr, strOut)
-	utf8EncodeAction.AddOutput(UTF8EncodeActionOutputBytes, bodyOut)
-
-	err = utf8EncodeAction.Run()
+	err = xpathAction.Run()
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	spew.Dump(bodyOut)
-
+	spew.Dump(xpathAction)
 }
