@@ -356,7 +356,11 @@ func (xa *XPathAction) Run() error {
 	}
 
 	if !xa.ExpectMany {
-		n := htmlquery.FindOne(doc, xa.XPath)
+		var n *html.Node
+		n, err = htmlquery.Query(doc, xa.XPath)
+		if err != nil {
+			return err
+		}
 
 		result := renderNode(n)
 		xa.Outputs[XPathActionOutputStr].Add(result)
