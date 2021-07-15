@@ -81,3 +81,25 @@ func TestUTF8EncodeActionRun(t *testing.T) {
 
 	assert.Equal(t, binData, []byte{0x61, 0x62, 0x63})
 }
+
+func TestXPathActionRunBasic(t *testing.T) {
+	htmlStr := "<html><body><title>This is title!</title></body></html>"
+
+	dataPipeIn := NewDataPipe()
+	dataPipeOut := NewDataPipe()
+
+	dataPipeIn.Add(htmlStr)
+
+	xpathAction := NewXPathAction("//title/text()", false)
+
+	xpathAction.AddInput(XPathActionInputHTMLStr, dataPipeIn)
+	xpathAction.AddOutput(XPathActionOutputStr, dataPipeOut)
+
+	err := xpathAction.Run()
+	assert.Nil(t, err)
+
+	resultStr, ok := dataPipeOut.Remove().(string)
+	assert.True(t, ok)
+
+	assert.Equal(t, "This is title!", resultStr)
+}
