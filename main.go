@@ -393,6 +393,10 @@ func (xa *XPathAction) Run() error {
 	return nil
 }
 
+type NullAction struct {
+	AbstractAction
+}
+
 type Task struct {
 	Name         string
 	UUID         string
