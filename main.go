@@ -57,6 +57,8 @@ type Action interface {
 	Run() error
 	AddInput(name string, dataPipe DataPipe)
 	AddOutput(name string, dataPipe DataPipe)
+	GetUniqueID() string
+	GetPrecedingActions() []Action
 }
 
 type AbstractAction struct {
@@ -90,6 +92,23 @@ func (a *AbstractAction) AddOutput(name string, dataPipe *DataPipe) error {
 	}
 
 	return errors.New("input name not in AllowedOutputNames")
+}
+
+func (a *AbstractAction) GetUniqueID() string {
+	return a.UUID
+}
+
+func (a *AbstractAction) GetPrecedingActions() []Action {
+	actions := make([]Action, len(a.Inputs))
+
+	for _, dp := range a.Inputs {
+		if dp.FromAction != nil {
+			actions = append(actions, dp.FromAction)
+		}
+	}
+
+	return actions
+
 }
 
 func (a *AbstractAction) Run() error {
@@ -431,7 +450,55 @@ func NewTask(name string, workflowName string, workflowUUID string) *Task {
 		CreatedAt:    time.Now(),
 		WorkflowName: workflowName,
 		WorkflowUUID: workflowUUID,
+
+		Inputs:    map[string]*DataPipe{},
+		Outputs:   map[string]*DataPipe{},
+		Actions:   []Action{},
+		DataPipes: []DataPipe{},
 	}
+}
+
+func (t *Task) indexActions() map[string]*Action {
+	var index map[string]*Action
+
+	for _, a := range t.Actions {
+		actionUUID := a.GetUniqueID()
+		index[actionUUID] = &a
+	}
+
+	return index
+}
+
+func (t *Task) sortActionsTopologically() []Action {
+	order := make([]Action, len(t.Actions))
+	seen := make(map[string]bool)
+	var visitAll func(items []Action)
+
+	visitAll = func(actions []Action) {
+		for _, action := range actions {
+			if !seen[action.GetUniqueID()] {
+				seen[action.GetUniqueID()] = true
+				precedingActions := action.GetPrecedingActions()
+				visitAll(precedingActions)
+				order = append(order, action)
+			}
+		}
+	}
+
+	lastActions := make([]Action, len(t.Outputs))
+
+	for _, output := range t.Outputs {
+		lastActions = append(lastActions, output.FromAction)
+	}
+
+	visitAll(lastActions)
+
+	return order
+}
+
+func (t *Task) Run() error {
+
+	return nil
 }
 
 type Workflow struct {
