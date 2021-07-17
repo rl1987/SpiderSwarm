@@ -204,5 +204,5 @@ func TestSortActionsTopologically(t *testing.T) {
 	assert.NotNil(t, actions)
 	assert.Equal(t, 4, len(actions))
 	assert.Equal(t, a1, actions[0])
-	assert.True(t, actions[3] == a4 || actions[2] == a4)
+	assert.True(t, actions[3] == a4 || actions[3] == a2)
 }
