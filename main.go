@@ -403,6 +403,14 @@ type NullAction struct {
 	AbstractAction
 }
 
+func NewNullAction() *NullAction {
+	return &NullAction{
+		AbstractAction: AbstractAction{
+			UUID: uuid.New().String(),
+		},
+	}
+}
+
 type Task struct {
 	Name         string
 	UUID         string
