@@ -195,15 +195,14 @@ func TestSortActionsTopologically(t *testing.T) {
 	dpA3ToA4 := NewDataPipeBetweenActions(a3, a4)
 	err = a3.AddOutput(XPathActionOutputStr, dpA3ToA4)
 	assert.Nil(t, err)
-	a4.AddInput(XPathActionOutputStr, dpA3ToA4)
+	err = a4.AddInput(XPathActionInputHTMLStr, dpA3ToA4)
 	assert.Nil(t, err)
 	task.DataPipes = append(task.DataPipes, dpA3ToA4)
 
 	actions := task.sortActionsTopologically()
 
 	assert.NotNil(t, actions)
-	assert.Equal(t, len(actions), 4)
-	assert.Equal(t, actions[0], a1)
-	assert.True(t, actions[3] == a2 || actions[2] == a2)
+	assert.Equal(t, 4, len(actions))
+	assert.Equal(t, a1, actions[0])
 	assert.True(t, actions[3] == a4 || actions[2] == a4)
 }

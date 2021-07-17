@@ -99,7 +99,7 @@ func (a *AbstractAction) GetUniqueID() string {
 }
 
 func (a *AbstractAction) GetPrecedingActions() []Action {
-	actions := make([]Action, len(a.Inputs))
+	actions := []Action{}
 
 	for _, dp := range a.Inputs {
 		if dp.FromAction != nil {
@@ -471,13 +471,14 @@ func (t *Task) indexActions() map[string]*Action {
 
 // Based on: https://github.com/adonovan/gopl.io/blob/master/ch5/toposort/main.go
 func (t *Task) sortActionsTopologically() []Action {
-	order := make([]Action, len(t.Actions))
+	order := []Action{}
 	seen := make(map[string]bool)
 	var visitAll func(items []Action)
 
 	visitAll = func(actions []Action) {
+		//spew.Dump(actions)
 		for _, action := range actions {
-			if !seen[action.GetUniqueID()] {
+			if action != nil && !seen[action.GetUniqueID()] {
 				seen[action.GetUniqueID()] = true
 				precedingActions := action.GetPrecedingActions()
 				visitAll(precedingActions)
@@ -486,20 +487,24 @@ func (t *Task) sortActionsTopologically() []Action {
 		}
 	}
 
-	lastActions := make([]Action, len(t.Outputs))
+	lastActions := []Action{}
 
 	for _, output := range t.Outputs {
-		lastActions = append(lastActions, output.FromAction)
+		if output.FromAction != nil {
+			lastActions = append(lastActions, output.FromAction)
+		}
 	}
 
 	visitAll(lastActions)
+
+	spew.Dump(order)
 
 	return order
 }
 
 func (t *Task) Run() error {
 
-	return nil
+	return errors.New("Not implemented")
 }
 
 type Workflow struct {
