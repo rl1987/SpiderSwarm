@@ -21,10 +21,11 @@ type DataPipe struct {
 	Queue      []interface{}
 	FromAction Action
 	ToAction   Action
+	UUID       string
 }
 
 func NewDataPipe() *DataPipe {
-	return &DataPipe{false, []interface{}{}, nil, nil}
+	return &DataPipe{false, []interface{}{}, nil, nil, uuid.New().String()}
 }
 
 func NewDataPipeBetweenActions(fromAction Action, toAction Action) *DataPipe {
@@ -66,6 +67,7 @@ type AbstractAction struct {
 	ExpectMany         bool
 	AllowedInputNames  []string
 	AllowedOutputNames []string
+	UUID               string
 }
 
 func (a *AbstractAction) AddInput(name string, dataPipe *DataPipe) error {
@@ -126,6 +128,7 @@ func NewHTTPAction(baseURL string, method string, canFail bool) *HTTPAction {
 			},
 			Inputs:  map[string]*DataPipe{},
 			Outputs: map[string]*DataPipe{},
+			UUID:    uuid.New().String(),
 		},
 		BaseURL: baseURL,
 		Method:  method,
@@ -237,6 +240,7 @@ func NewUTF8DecodeAction() *UTF8DecodeAction {
 			},
 			Inputs:  map[string]*DataPipe{},
 			Outputs: map[string]*DataPipe{},
+			UUID:    uuid.New().String(),
 		},
 	}
 }
@@ -282,6 +286,7 @@ func NewUTF8EncodeAction() *UTF8EncodeAction {
 			},
 			Inputs:  map[string]*DataPipe{},
 			Outputs: map[string]*DataPipe{},
+			UUID:    uuid.New().String(),
 		},
 	}
 }
@@ -330,6 +335,7 @@ func NewXPathAction(xpath string, expectMany bool) *XPathAction {
 			},
 			Inputs:  map[string]*DataPipe{},
 			Outputs: map[string]*DataPipe{},
+			UUID:    uuid.New().String(),
 		},
 		XPath: xpath,
 	}
@@ -423,6 +429,7 @@ func NewTask(name string, workflowName string, workflowUUID string) *Task {
 type Workflow struct {
 	Name    string
 	Version string
+	UUID    string
 	Tasks   []Task // XXX: task templates?
 }
 
