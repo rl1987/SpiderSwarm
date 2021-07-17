@@ -469,6 +469,7 @@ func (t *Task) indexActions() map[string]*Action {
 	return index
 }
 
+// Based on: https://github.com/adonovan/gopl.io/blob/master/ch5/toposort/main.go
 func (t *Task) sortActionsTopologically() []Action {
 	order := make([]Action, len(t.Actions))
 	seen := make(map[string]bool)
