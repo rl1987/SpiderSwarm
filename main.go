@@ -55,8 +55,8 @@ func (dp *DataPipe) Remove() interface{} {
 
 type Action interface {
 	Run() error
-	AddInput(name string, dataPipe DataPipe)
-	AddOutput(name string, dataPipe DataPipe)
+	AddInput(name string, dataPipe *DataPipe) error
+	AddOutput(name string, dataPipe *DataPipe) error
 	GetUniqueID() string
 	GetPrecedingActions() []Action
 }
@@ -440,7 +440,7 @@ type Task struct {
 	Inputs    map[string]*DataPipe
 	Outputs   map[string]*DataPipe
 	Actions   []Action
-	DataPipes []DataPipe
+	DataPipes []*DataPipe
 }
 
 func NewTask(name string, workflowName string, workflowUUID string) *Task {
@@ -454,7 +454,7 @@ func NewTask(name string, workflowName string, workflowUUID string) *Task {
 		Inputs:    map[string]*DataPipe{},
 		Outputs:   map[string]*DataPipe{},
 		Actions:   []Action{},
-		DataPipes: []DataPipe{},
+		DataPipes: []*DataPipe{},
 	}
 }
 
@@ -539,11 +539,11 @@ func main() {
 
 	xpathAction := NewXPathAction("//title/text()", false)
 
-	xpathAction.AddInput(XPathActionInputHTMLBytes, bodyOut)
+	_ = xpathAction.AddInput(XPathActionInputHTMLBytes, bodyOut)
 
 	resultOut := NewDataPipe()
 
-	xpathAction.AddOutput(XPathActionOutputStr, resultOut)
+	_ = xpathAction.AddOutput(XPathActionOutputStr, resultOut)
 
 	err = xpathAction.Run()
 	if err != nil {
