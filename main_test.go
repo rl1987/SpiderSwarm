@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -35,16 +36,20 @@ func TestHTTPActionRunGET(t *testing.T) {
 		"Accept":     []string{"text/plain"},
 	}
 
-	//testParams := map[string][]string{
-	//	"a": []string{"1"},
-	//	"b": []string{"2"},
-	//}
+	testParams := map[string][]string{
+		"a": []string{"1"},
+		"b": []string{"2"},
+	}
 
 	expectedBody := []byte("Test Payload")
 
 	testServer := httptest.NewServer(
 		http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-			// TODO: check URL params
+			u := req.URL
+			m, _ := url.ParseQuery(u.RawQuery)
+			assert.Equal(t, 2, len(m))
+			assert.Equal(t, "1", m["a"][0])
+			assert.Equal(t, "2", m["b"][0])
 
 			assert.Equal(t, "spiderswarm", req.Header["User-Agent"][0])
 			assert.Equal(t, "text/plain", req.Header["Accept"][0])
@@ -65,7 +70,7 @@ func TestHTTPActionRunGET(t *testing.T) {
 	assert.Nil(t, err)
 
 	paramsIn := NewDataPipe()
-	//paramsIn.Add(testParams)
+	paramsIn.Add(testParams)
 
 	err = httpAction.AddInput(HTTPActionInputURLParams, paramsIn)
 	assert.Nil(t, err)
