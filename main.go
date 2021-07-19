@@ -178,8 +178,9 @@ func (ha *HTTPAction) Run() error {
 	}
 
 	if ha.Inputs[HTTPActionInputHeaders] != nil {
+		request.Header = http.Header{}
 		for {
-			headers, ok := ha.Inputs[HTTPActionInputHeaders].Remove().(map[string][]string)
+			headers, ok := ha.Inputs[HTTPActionInputHeaders].Remove().(http.Header)
 
 			if !ok {
 				break
