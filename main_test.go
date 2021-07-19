@@ -105,6 +105,22 @@ func TestHTTPActionRunGET(t *testing.T) {
 
 }
 
+func TestHTTPActionRunHEAD(t *testing.T) {
+	testServer := httptest.NewServer(
+		http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+			assert.Equal(t, http.MethodHead, req.Method)
+
+			res.WriteHeader(200)
+		}))
+
+	httpAction := NewHTTPAction(testServer.URL, http.MethodHead, false)
+
+	err := httpAction.Run()
+	assert.Nil(t, err)
+
+	defer testServer.Close()
+}
+
 func TestAddInput(t *testing.T) {
 	baseURL := "https://httpbin.org/post"
 	method := "POST"
