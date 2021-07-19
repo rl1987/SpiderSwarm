@@ -151,7 +151,7 @@ func TestAddOutput(t *testing.T) {
 
 	err = httpAction.AddOutput(HTTPActionOutputBody, dp)
 	assert.Nil(t, err)
-	assert.Equal(t, httpAction.AbstractAction.Outputs[HTTPActionOutputBody], dp)
+	assert.Equal(t, dp, httpAction.AbstractAction.Outputs[HTTPActionOutputBody][0])
 }
 
 func TestUTF8EncodeActionRun(t *testing.T) {

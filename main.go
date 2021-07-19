@@ -64,7 +64,7 @@ type Action interface {
 type AbstractAction struct {
 	Action
 	Inputs             map[string]*DataPipe
-	Outputs            map[string]*DataPipe
+	Outputs            map[string][]*DataPipe
 	CanFail            bool
 	ExpectMany         bool
 	AllowedInputNames  []string
@@ -86,7 +86,11 @@ func (a *AbstractAction) AddInput(name string, dataPipe *DataPipe) error {
 func (a *AbstractAction) AddOutput(name string, dataPipe *DataPipe) error {
 	for _, n := range a.AllowedOutputNames {
 		if n == name {
-			a.Outputs[name] = dataPipe
+			if _, ok := a.Outputs[name]; ok {
+				a.Outputs[name] = append(a.Outputs[name], dataPipe)
+			} else {
+				a.Outputs[name] = []*DataPipe{dataPipe}
+			}
 			return nil
 		}
 	}
@@ -146,7 +150,7 @@ func NewHTTPAction(baseURL string, method string, canFail bool) *HTTPAction {
 				HTTPActionOutputStatusCode,
 			},
 			Inputs:  map[string]*DataPipe{},
-			Outputs: map[string]*DataPipe{},
+			Outputs: map[string][]*DataPipe{},
 			UUID:    uuid.New().String(),
 		},
 		BaseURL: baseURL,
@@ -223,18 +227,26 @@ func (ha *HTTPAction) Run() error {
 	if ha.Outputs[HTTPActionOutputBody] != nil {
 		body, err := ioutil.ReadAll(resp.Body)
 		if err == nil {
-			ha.Outputs[HTTPActionOutputBody].Add(body)
+			for _, outDP := range ha.Outputs[HTTPActionOutputBody] {
+				outDP.Add(body)
+			}
 		}
 	}
 
 	if ha.Outputs[HTTPActionOutputHeaders] != nil {
 		headers := resp.Header
-		ha.Outputs[HTTPActionOutputHeaders].Add(headers)
+
+		for _, outDP := range ha.Outputs[HTTPActionOutputHeaders] {
+			outDP.Add(headers)
+		}
 	}
 
 	if ha.Outputs[HTTPActionOutputStatusCode] != nil {
 		statusCode := resp.StatusCode
-		ha.Outputs[HTTPActionOutputStatusCode].Add(statusCode)
+
+		for _, outDP := range ha.Outputs[HTTPActionOutputStatusCode] {
+			outDP.Add(statusCode)
+		}
 	}
 
 	return nil
@@ -258,9 +270,11 @@ func NewUTF8DecodeAction() *UTF8DecodeAction {
 			AllowedOutputNames: []string{
 				UTF8DecodeActionOutputStr,
 			},
-			Inputs:  map[string]*DataPipe{},
-			Outputs: map[string]*DataPipe{},
-			UUID:    uuid.New().String(),
+			Inputs: map[string]*DataPipe{},
+			Outputs: map[string][]*DataPipe{
+				UTF8DecodeActionOutputStr: []*DataPipe{},
+			},
+			UUID: uuid.New().String(),
 		},
 	}
 }
@@ -281,7 +295,9 @@ func (ua *UTF8DecodeAction) Run() error {
 
 	str := string(binData)
 
-	ua.Outputs[UTF8DecodeActionOutputStr].Add(str)
+	for _, outDP := range ua.Outputs[UTF8DecodeActionOutputStr] {
+		outDP.Add(str)
+	}
 
 	return nil
 }
@@ -304,9 +320,11 @@ func NewUTF8EncodeAction() *UTF8EncodeAction {
 			AllowedOutputNames: []string{
 				UTF8EncodeActionOutputBytes,
 			},
-			Inputs:  map[string]*DataPipe{},
-			Outputs: map[string]*DataPipe{},
-			UUID:    uuid.New().String(),
+			Inputs: map[string]*DataPipe{},
+			Outputs: map[string][]*DataPipe{
+				UTF8EncodeActionOutputBytes: []*DataPipe{},
+			},
+			UUID: uuid.New().String(),
 		},
 	}
 }
@@ -327,7 +345,9 @@ func (ua *UTF8EncodeAction) Run() error {
 
 	binData := []byte(str)
 
-	ua.Outputs[UTF8EncodeActionOutputBytes].Add(binData)
+	for _, outDP := range ua.Outputs[UTF8EncodeActionOutputBytes] {
+		outDP.Add(binData)
+	}
 
 	return nil
 }
@@ -353,9 +373,11 @@ func NewXPathAction(xpath string, expectMany bool) *XPathAction {
 			AllowedOutputNames: []string{
 				XPathActionOutputStr,
 			},
-			Inputs:  map[string]*DataPipe{},
-			Outputs: map[string]*DataPipe{},
-			UUID:    uuid.New().String(),
+			Inputs: map[string]*DataPipe{},
+			Outputs: map[string][]*DataPipe{
+				XPathActionOutputStr: []*DataPipe{},
+			},
+			UUID: uuid.New().String(),
 		},
 		XPath: xpath,
 	}
@@ -402,7 +424,10 @@ func (xa *XPathAction) Run() error {
 		}
 
 		result := renderNode(n)
-		xa.Outputs[XPathActionOutputStr].Add(result)
+
+		for _, outDP := range xa.Outputs[XPathActionOutputStr] {
+			outDP.Add(result)
+		}
 	} else {
 		var nodes []*html.Node
 		nodes, err = htmlquery.QueryAll(doc, xa.XPath)
@@ -412,7 +437,9 @@ func (xa *XPathAction) Run() error {
 
 		for _, n := range nodes {
 			result := renderNode(n)
-			xa.Outputs[XPathActionOutputStr].Add(result)
+			for _, outDP := range xa.Outputs[XPathActionOutputStr] {
+				outDP.Add(result)
+			}
 		}
 	}
 
