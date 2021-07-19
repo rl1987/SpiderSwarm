@@ -476,7 +476,6 @@ func (t *Task) sortActionsTopologically() []Action {
 	var visitAll func(items []Action)
 
 	visitAll = func(actions []Action) {
-		//spew.Dump(actions)
 		for _, action := range actions {
 			if action != nil && !seen[action.GetUniqueID()] {
 				seen[action.GetUniqueID()] = true
@@ -496,8 +495,6 @@ func (t *Task) sortActionsTopologically() []Action {
 	}
 
 	visitAll(lastActions)
-
-	spew.Dump(order)
 
 	return order
 }
