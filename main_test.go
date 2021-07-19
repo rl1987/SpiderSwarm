@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -45,9 +44,7 @@ func TestHTTPActionRunGET(t *testing.T) {
 
 	testServer := httptest.NewServer(
 		http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-			// TODO: check headers
 			// TODO: check URL params
-			spew.Dump(req)
 
 			assert.Equal(t, "spiderswarm", req.Header["User-Agent"][0])
 			assert.Equal(t, "text/plain", req.Header["Accept"][0])
@@ -82,10 +79,9 @@ func TestHTTPActionRunGET(t *testing.T) {
 	assert.Nil(t, err)
 
 	statusOut := NewDataPipe()
-	err = httpAction.AddOutput(HTTPActionOutputStatusCode, bodyOut)
+	err = httpAction.AddOutput(HTTPActionOutputStatusCode, statusOut)
 	assert.Nil(t, err)
 
-	spew.Dump(httpAction)
 	err = httpAction.Run()
 	assert.Nil(t, err)
 
@@ -95,7 +91,7 @@ func TestHTTPActionRunGET(t *testing.T) {
 
 	gotHeaders, ok2 := headersOut.Remove().(http.Header)
 	assert.True(t, ok2)
-	assert.Equal(t, 1, len(gotHeaders))
+	assert.True(t, len(gotHeaders) > 1)
 	assert.Equal(t, "TestServer", gotHeaders["Server"][0])
 
 	gotStatus, ok3 := statusOut.Remove().(int)
