@@ -1,8 +1,11 @@
 package main
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,6 +27,80 @@ func TestNewHTTPAction(t *testing.T) {
 	assert.Equal(t, httpAction.AbstractAction.AllowedOutputNames[0], HTTPActionOutputBody)
 	assert.Equal(t, httpAction.AbstractAction.AllowedOutputNames[1], HTTPActionOutputHeaders)
 	assert.Equal(t, httpAction.AbstractAction.AllowedOutputNames[2], HTTPActionOutputStatusCode)
+
+}
+
+func TestHTTPActionRunGET(t *testing.T) {
+	testHeaders := http.Header{
+		"User-Agent": []string{"spiderswarm"},
+		"Accept":     []string{"text/plain"},
+	}
+
+	//testParams := map[string][]string{
+	//	"a": []string{"1"},
+	//	"b": []string{"2"},
+	//}
+
+	expectedBody := []byte("Test Payload")
+
+	testServer := httptest.NewServer(
+		http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+			// TODO: check headers
+			// TODO: check URL params
+			spew.Dump(req)
+
+			assert.Equal(t, "spiderswarm", req.Header["User-Agent"][0])
+			assert.Equal(t, "text/plain", req.Header["Accept"][0])
+
+			res.Header()["Server"] = []string{"TestServer"}
+			res.WriteHeader(200)
+			res.Write(expectedBody)
+		}))
+
+	defer testServer.Close()
+
+	httpAction := NewHTTPAction(testServer.URL, http.MethodGet, false)
+
+	headersIn := NewDataPipe()
+	headersIn.Add(testHeaders)
+
+	err := httpAction.AddInput(HTTPActionInputHeaders, headersIn)
+	assert.Nil(t, err)
+
+	paramsIn := NewDataPipe()
+	//paramsIn.Add(testParams)
+
+	err = httpAction.AddInput(HTTPActionInputURLParams, paramsIn)
+	assert.Nil(t, err)
+
+	headersOut := NewDataPipe()
+	err = httpAction.AddOutput(HTTPActionOutputHeaders, headersOut)
+	assert.Nil(t, err)
+
+	bodyOut := NewDataPipe()
+	err = httpAction.AddOutput(HTTPActionOutputBody, bodyOut)
+	assert.Nil(t, err)
+
+	statusOut := NewDataPipe()
+	err = httpAction.AddOutput(HTTPActionOutputStatusCode, bodyOut)
+	assert.Nil(t, err)
+
+	spew.Dump(httpAction)
+	err = httpAction.Run()
+	assert.Nil(t, err)
+
+	gotBody, ok1 := bodyOut.Remove().([]byte)
+	assert.True(t, ok1)
+	assert.Equal(t, expectedBody, gotBody)
+
+	gotHeaders, ok2 := headersOut.Remove().(http.Header)
+	assert.True(t, ok2)
+	assert.Equal(t, 1, len(gotHeaders))
+	assert.Equal(t, "TestServer", gotHeaders["Server"][0])
+
+	gotStatus, ok3 := statusOut.Remove().(int)
+	assert.True(t, ok3)
+	assert.Equal(t, 200, gotStatus)
 
 }
 
