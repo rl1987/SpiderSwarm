@@ -300,3 +300,35 @@ func TestSortActionsTopologically(t *testing.T) {
 	assert.Equal(t, a1, actions[0])
 	assert.True(t, actions[3] == a4 || actions[3] == a2)
 }
+
+func TestUTF8DecodeActionMultipleOutputs(t *testing.T) {
+	action := NewUTF8DecodeAction()
+
+	input := NewDataPipe()
+	output1 := NewDataPipe()
+	output2 := NewDataPipe()
+
+	err := action.AddInput(UTF8DecodeActionInputBytes, input)
+	assert.Nil(t, err)
+
+	err = action.AddOutput(UTF8DecodeActionOutputStr, output1)
+	assert.Nil(t, err)
+
+	err = action.AddOutput(UTF8DecodeActionOutputStr, output2)
+	assert.Nil(t, err)
+
+	b := []byte("123")
+
+	input.Add(b)
+
+	err = action.Run()
+	assert.Nil(t, err)
+
+	s1, ok1 := output1.Remove().(string)
+	assert.True(t, ok1)
+	assert.Equal(t, "123", s1)
+
+	s2, ok2 := output2.Remove().(string)
+	assert.True(t, ok2)
+	assert.Equal(t, "123", s2)
+}
