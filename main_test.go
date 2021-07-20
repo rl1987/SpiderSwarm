@@ -231,7 +231,8 @@ func TestXPathActionRunMultipleResults(t *testing.T) {
 }
 
 func TestXPathActionBadInput(t *testing.T) {
-	inputStr := "5.226.122.218"
+	// https://datatracker.ietf.org/doc/html/rfc5735
+	inputStr := "192.0.2.16"
 
 	dataPipeIn := NewDataPipe()
 	dataPipeOut := NewDataPipe()
