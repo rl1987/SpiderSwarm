@@ -246,6 +246,24 @@ func TestXPathActionBadInput(t *testing.T) {
 	xpathAction.Run() // Must not crash.
 }
 
+func TestXPathActionBadXPath(t *testing.T) {
+	inputStr := "5.226.122.218"
+
+	dataPipeIn := NewDataPipe()
+	dataPipeOut := NewDataPipe()
+
+	dataPipeIn.Add(inputStr)
+
+	// Missing bracket in XPath.
+	xpathAction := NewXPathAction("//a[contains(@href, \"next\")", true)
+
+	xpathAction.AddInput(XPathActionInputHTMLStr, dataPipeIn)
+	xpathAction.AddOutput(XPathActionOutputStr, dataPipeOut)
+
+	err := xpathAction.Run() // Must not crash.
+	assert.NotNil(t, err)
+}
+
 func TestSortActionsTopologically(t *testing.T) {
 	task := NewTask("testTask", "", "")
 
