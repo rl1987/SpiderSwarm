@@ -247,7 +247,7 @@ func TestXPathActionBadInput(t *testing.T) {
 }
 
 func TestXPathActionBadXPath(t *testing.T) {
-	inputStr := "5.226.122.218"
+	inputStr := "<html><body><a href=\"/next-gen-product\">Next gen product</a></body></html>"
 
 	dataPipeIn := NewDataPipe()
 	dataPipeOut := NewDataPipe()
