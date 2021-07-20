@@ -24,7 +24,7 @@ func TestNewHTTPAction(t *testing.T) {
 	assert.Equal(t, httpAction.AbstractAction.AllowedInputNames[0], HTTPActionInputURLParams)
 	assert.Equal(t, httpAction.AbstractAction.AllowedInputNames[1], HTTPActionInputHeaders)
 	assert.Equal(t, httpAction.AbstractAction.AllowedInputNames[2], HTTPActionInputCookies)
-	assert.Equal(t, len(httpAction.AbstractAction.AllowedOutputNames), 3)
+	assert.Equal(t, len(httpAction.AbstractAction.AllowedOutputNames), 4)
 	assert.Equal(t, httpAction.AbstractAction.AllowedOutputNames[0], HTTPActionOutputBody)
 	assert.Equal(t, httpAction.AbstractAction.AllowedOutputNames[1], HTTPActionOutputHeaders)
 	assert.Equal(t, httpAction.AbstractAction.AllowedOutputNames[2], HTTPActionOutputStatusCode)
@@ -191,9 +191,28 @@ func TestHTTPActionRunCookies(t *testing.T) {
 	err := httpAction.AddInput(HTTPActionInputCookies, cookiesIn)
 	assert.Nil(t, err)
 
+	cookiesOut := NewDataPipe()
+	err = httpAction.AddOutput(HTTPActionOutputCookies, cookiesOut)
+	assert.Nil(t, err)
+
 	err = httpAction.Run()
 	assert.Nil(t, err)
 
+	var gotCookies map[string]string
+	var ok bool
+
+	gotCookies, ok = cookiesOut.Remove().(map[string]string)
+	assert.True(t, ok)
+
+	foundExpectedCookie := false
+
+	for name, value := range gotCookies {
+		if name == cookieName && value == cookieValue2 {
+			foundExpectedCookie = true
+		}
+	}
+
+	assert.True(t, foundExpectedCookie)
 }
 
 func TestAddInput(t *testing.T) {
@@ -441,4 +460,47 @@ func TestUTF8DecodeActionMultipleOutputs(t *testing.T) {
 	s2, ok2 := output2.Remove().(string)
 	assert.True(t, ok2)
 	assert.Equal(t, "123", s2)
+}
+
+func TestFieldJoinActionRun(t *testing.T) {
+	action := NewFieldJoinAction([]string{"Name", "Surname", "Phone", "Email"})
+
+	nameIn := NewDataPipe()
+	surnameIn := NewDataPipe()
+	phoneIn := NewDataPipe()
+	emailIn := NewDataPipe()
+
+	nameIn.Add("John")
+	surnameIn.Add("Smith")
+	phoneIn.Add("555-1212")
+	emailIn.Add("john@smith.int")
+
+	err := action.AddInput("Name", nameIn)
+	assert.Nil(t, err)
+	err = action.AddInput("Surname", surnameIn)
+	assert.Nil(t, err)
+	err = action.AddInput("Phone", phoneIn)
+	assert.Nil(t, err)
+	err = action.AddInput("Email", emailIn)
+	assert.Nil(t, err)
+
+	itemOut := NewDataPipe()
+
+	err = action.AddOutput(FieldJoinActionOutputItem, itemOut)
+	assert.Nil(t, err)
+
+	err = action.Run()
+	assert.Nil(t, err)
+
+	expectedItem := map[string]string{
+		"Name":    "John",
+		"Surname": "Smith",
+		"Phone":   "555-1212",
+		"Email":   "john@smith.int",
+	}
+
+	item, ok := itemOut.Remove().(map[string]string)
+	assert.True(t, ok)
+
+	assert.Equal(t, expectedItem, item)
 }
