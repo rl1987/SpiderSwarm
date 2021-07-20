@@ -150,6 +150,52 @@ func TestHTTPActionRunPOST(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestHTTPActionRunCookies(t *testing.T) {
+	cookieName := "SessionID"
+	cookieValue1 := "DFB32DF6-ABB5-4877-9B6A-D7F8D9791880"
+	cookieValue2 := "2FED9EDE-E3DD-40EA-8F53-A9FBD8959F49"
+
+	testServer := httptest.NewServer(
+		http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+			assert.Equal(t, http.MethodGet, req.Method)
+
+			foundExpectedCookie := false
+
+			for _, cookie := range req.Cookies() {
+				if cookie.Name == cookieName && cookie.Value == cookieValue1 {
+					foundExpectedCookie = true
+					break
+				}
+			}
+
+			assert.True(t, foundExpectedCookie)
+
+			newCookie := &http.Cookie{
+				Name:  cookieName,
+				Value: cookieValue2,
+			}
+
+			http.SetCookie(res, newCookie)
+
+			res.WriteHeader(200)
+		}))
+
+	defer testServer.Close()
+
+	cookieDict := map[string]string{cookieName: cookieValue1}
+
+	cookiesIn := NewDataPipe()
+	cookiesIn.Add(cookieDict)
+
+	httpAction := NewHTTPAction(testServer.URL, http.MethodGet, false)
+	err := httpAction.AddInput(HTTPActionInputCookies, cookiesIn)
+	assert.Nil(t, err)
+
+	err = httpAction.Run()
+	assert.Nil(t, err)
+
+}
+
 func TestAddInput(t *testing.T) {
 	baseURL := "https://httpbin.org/post"
 	method := "POST"
