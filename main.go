@@ -123,6 +123,7 @@ func (a *AbstractAction) Run() error {
 const HTTPActionInputURLParams = "HTTPActionInputURLParams"
 const HTTPActionInputHeaders = "HTTPActionInputHeaders"
 const HTTPActionInputCookies = "HTTPActionInputCookies"
+const HTTPActionInputBody = "HTTPActionInputBody"
 
 const HTTPActionOutputBody = "HTTPActionOutputBody"
 const HTTPActionOutputHeaders = "HTTPActionOutputHeaders"
@@ -143,6 +144,7 @@ func NewHTTPAction(baseURL string, method string, canFail bool) *HTTPAction {
 				HTTPActionInputURLParams,
 				HTTPActionInputHeaders,
 				HTTPActionInputCookies,
+				HTTPActionInputBody,
 			},
 			AllowedOutputNames: []string{
 				HTTPActionOutputBody,
@@ -159,12 +161,23 @@ func NewHTTPAction(baseURL string, method string, canFail bool) *HTTPAction {
 }
 
 func (ha *HTTPAction) Run() error {
+	var body *bytes.Buffer
+	body = nil
+
 	request, err := http.NewRequest(ha.Method, ha.BaseURL, nil)
 	if err != nil {
 		return err
 	}
 
 	q := request.URL.Query()
+
+	if ha.Inputs[HTTPActionInputBody] != nil && ha.Method != http.MethodGet {
+		bodyBytes, ok := ha.Inputs[HTTPActionInputBody].Remove().([]byte)
+		if ok {
+			body = bytes.NewBuffer(bodyBytes)
+			request.Body = ioutil.NopCloser(body)
+		}
+	}
 
 	if ha.Inputs[HTTPActionInputURLParams] != nil {
 		for {

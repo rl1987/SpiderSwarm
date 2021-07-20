@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -19,7 +20,7 @@ func TestNewHTTPAction(t *testing.T) {
 	assert.False(t, httpAction.AbstractAction.ExpectMany)
 	assert.Equal(t, httpAction.BaseURL, baseURL)
 	assert.Equal(t, httpAction.Method, method)
-	assert.Equal(t, len(httpAction.AbstractAction.AllowedInputNames), 3)
+	assert.Equal(t, len(httpAction.AbstractAction.AllowedInputNames), 4)
 	assert.Equal(t, httpAction.AbstractAction.AllowedInputNames[0], HTTPActionInputURLParams)
 	assert.Equal(t, httpAction.AbstractAction.AllowedInputNames[1], HTTPActionInputHeaders)
 	assert.Equal(t, httpAction.AbstractAction.AllowedInputNames[2], HTTPActionInputCookies)
@@ -113,12 +114,40 @@ func TestHTTPActionRunHEAD(t *testing.T) {
 			res.WriteHeader(200)
 		}))
 
+	defer testServer.Close()
+
 	httpAction := NewHTTPAction(testServer.URL, http.MethodHead, false)
 
 	err := httpAction.Run()
 	assert.Nil(t, err)
+}
+
+func TestHTTPActionRunPOST(t *testing.T) {
+	expectedBody := []byte("Test Payload")
+
+	testServer := httptest.NewServer(
+		http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+			assert.Equal(t, http.MethodPost, req.Method)
+
+			body, err := io.ReadAll(req.Body)
+			assert.Nil(t, err)
+			assert.Equal(t, expectedBody, body)
+
+			res.WriteHeader(201)
+		}))
 
 	defer testServer.Close()
+
+	bodyIn := NewDataPipe()
+	bodyIn.Add(expectedBody)
+
+	httpAction := NewHTTPAction(testServer.URL, http.MethodPost, false)
+
+	err := httpAction.AddInput(HTTPActionInputBody, bodyIn)
+	assert.Nil(t, err)
+
+	err = httpAction.Run()
+	assert.Nil(t, err)
 }
 
 func TestAddInput(t *testing.T) {
