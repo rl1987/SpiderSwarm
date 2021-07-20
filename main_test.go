@@ -230,6 +230,22 @@ func TestXPathActionRunMultipleResults(t *testing.T) {
 	assert.False(t, ok)
 }
 
+func TestXPathActionBadInput(t *testing.T) {
+	inputStr := "5.226.122.218"
+
+	dataPipeIn := NewDataPipe()
+	dataPipeOut := NewDataPipe()
+
+	dataPipeIn.Add(inputStr)
+
+	xpathAction := NewXPathAction("//a/@href", true)
+
+	xpathAction.AddInput(XPathActionInputHTMLStr, dataPipeIn)
+	xpathAction.AddOutput(XPathActionOutputStr, dataPipeOut)
+
+	xpathAction.Run() // Must not crash.
+}
+
 func TestSortActionsTopologically(t *testing.T) {
 	task := NewTask("testTask", "", "")
 

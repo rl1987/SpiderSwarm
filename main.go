@@ -387,7 +387,9 @@ func NewXPathAction(xpath string, expectMany bool) *XPathAction {
 func renderNode(n *html.Node) string {
 	var buf bytes.Buffer
 	w := io.Writer(&buf)
-	html.Render(w, n)
+	if n != nil {
+		html.Render(w, n)
+	}
 	return buf.String()
 }
 
@@ -436,6 +438,10 @@ func (xa *XPathAction) Run() error {
 		}
 
 		for _, n := range nodes {
+			if n == nil {
+				continue
+			}
+
 			result := renderNode(n)
 			for _, outDP := range xa.Outputs[XPathActionOutputStr] {
 				outDP.Add(result)
@@ -541,7 +547,7 @@ type Workflow struct {
 
 func main() {
 	fmt.Println("SpiderSwarm")
-	httpAction := NewHTTPAction("https://cryptome.org", "GET", true)
+	httpAction := NewHTTPAction("https://ifconfig.me", "GET", true)
 
 	headers := map[string][]string{
 		"User-Agent": []string{"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"},
