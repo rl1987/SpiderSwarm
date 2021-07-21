@@ -24,7 +24,8 @@ jobs:
     - name: Test
       run: go test -v ./...
 
-    - name: Lint Action
-      uses: wearerequired/lint-action@v1.10.0
-      with:
-        golint: true
+    - name: golint
+      run: |
+        go env
+        go install golang.org/x/lint/golint
+        golint ./...
