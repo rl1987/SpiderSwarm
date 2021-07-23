@@ -6,20 +6,20 @@ import (
 
 type DataPipe struct {
 	Done       bool
-	Queue      []interface{}
+	Queue      []*DataChunk
 	FromAction Action
 	ToAction   Action
 	UUID       string
 }
 
 func NewDataPipe() *DataPipe {
-	return &DataPipe{false, []interface{}{}, nil, nil, uuid.New().String()}
+	return &DataPipe{false, []*DataChunk{}, nil, nil, uuid.New().String()}
 }
 
 func NewDataPipeBetweenActions(fromAction Action, toAction Action) *DataPipe {
 	return &DataPipe{
 		Done:       false,
-		Queue:      []interface{}{},
+		Queue:      []*DataChunk{},
 		FromAction: fromAction,
 		ToAction:   toAction,
 		UUID:       uuid.New().String(),
@@ -27,7 +27,9 @@ func NewDataPipeBetweenActions(fromAction Action, toAction Action) *DataPipe {
 }
 
 func (dp *DataPipe) Add(x interface{}) {
-	dp.Queue = append(dp.Queue, x)
+	if chunk, err := NewDataChunk(x); err == nil {
+		dp.Queue = append(dp.Queue, chunk)
+	}
 }
 
 func (dp *DataPipe) Remove() interface{} {
@@ -36,7 +38,7 @@ func (dp *DataPipe) Remove() interface{} {
 	}
 
 	lastIdx := len(dp.Queue) - 1
-	x := dp.Queue[lastIdx]
+	x := dp.Queue[lastIdx].Payload
 	dp.Queue = dp.Queue[:lastIdx]
 
 	return x
