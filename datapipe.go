@@ -22,6 +22,7 @@ func NewDataPipeBetweenActions(fromAction Action, toAction Action) *DataPipe {
 		Queue:      []interface{}{},
 		FromAction: fromAction,
 		ToAction:   toAction,
+		UUID:       uuid.New().String(),
 	}
 }
 
