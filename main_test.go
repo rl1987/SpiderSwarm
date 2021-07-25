@@ -65,9 +65,10 @@ func TestHTTPActionRunGET(t *testing.T) {
 	httpAction := NewHTTPAction(testServer.URL, http.MethodGet, false)
 
 	headersIn := NewDataPipe()
-	headersIn.Add(testHeaders)
+	err := headersIn.Add(testHeaders)
+	assert.Nil(t, err)
 
-	err := httpAction.AddInput(HTTPActionInputHeaders, headersIn)
+	err = httpAction.AddInput(HTTPActionInputHeaders, headersIn)
 	assert.Nil(t, err)
 
 	paramsIn := NewDataPipe()
