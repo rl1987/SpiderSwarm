@@ -96,15 +96,20 @@ func (xa *XPathAction) Run() error {
 			return err
 		}
 
+		var results []string
+
 		for _, n := range nodes {
 			if n == nil {
 				continue
 			}
 
 			result := renderNode(n)
-			for _, outDP := range xa.Outputs[XPathActionOutputStr] {
-				outDP.Add(result)
-			}
+
+			results = append(results, result)
+		}
+
+		for _, outDP := range xa.Outputs[XPathActionOutputStr] {
+			outDP.Add(results)
 		}
 	}
 
