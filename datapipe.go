@@ -26,10 +26,14 @@ func NewDataPipeBetweenActions(fromAction Action, toAction Action) *DataPipe {
 	}
 }
 
-func (dp *DataPipe) Add(x interface{}) {
+func (dp *DataPipe) Add(x interface{}) error {
 	if chunk, err := NewDataChunk(x); err == nil {
 		dp.Queue = append(dp.Queue, chunk)
+	} else {
+		return err
 	}
+
+	return nil
 }
 
 func (dp *DataPipe) Remove() interface{} {
