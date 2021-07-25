@@ -125,5 +125,16 @@ func (t *Task) Run() error {
 		}
 	}
 
+	for _, output := range t.Outputs {
+		if len(output.Queue) >= 1 && output.Queue[0].Type == DataChunkTypeStrings {
+			strings, ok := output.Remove().([]string)
+			if ok {
+				for _, s := range strings {
+					output.Add(s)
+				}
+			}
+		}
+	}
+
 	return nil
 }

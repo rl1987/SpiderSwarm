@@ -18,7 +18,7 @@ func main() {
 	resultOut := NewDataPipe()
 
 	httpAction.AddInput(HTTPActionInputHeaders, headersIn)
-	xpathAction := NewXPathAction("//title/text()", false)
+	xpathAction := NewXPathAction("//a/text()", true)
 
 	task := NewTask("task1", "", "")
 	task.AddAction(httpAction)
