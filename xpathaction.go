@@ -77,6 +77,20 @@ func (xa *XPathAction) Run() error {
 		return err
 	}
 
+	var attribName string
+	var extractAttrib bool
+
+	// HACK to clean up attribute string
+	splitXPath := strings.Split(xa.XPath, "/")
+	if len(splitXPath) > 0 {
+		if len(splitXPath[len(splitXPath)-1]) > 0 {
+			if splitXPath[len(splitXPath)-1][0] == '@' {
+				attribName = splitXPath[len(splitXPath)-1][1:]
+				extractAttrib = true
+			}
+		}
+	}
+
 	if !xa.ExpectMany {
 		var n *html.Node
 		n, err = htmlquery.Query(doc, xa.XPath)
@@ -84,7 +98,12 @@ func (xa *XPathAction) Run() error {
 			return err
 		}
 
+		// HACK to clean up attribute string
 		result := renderNode(n)
+		if extractAttrib {
+			result = strings.Replace(result, "<"+attribName+">", "", -1)
+			result = strings.Replace(result, "<"+attribName+"/>", "", -1)
+		}
 
 		for _, outDP := range xa.Outputs[XPathActionOutputStr] {
 			outDP.Add(result)
@@ -104,6 +123,10 @@ func (xa *XPathAction) Run() error {
 			}
 
 			result := renderNode(n)
+			if extractAttrib {
+				result = strings.Replace(result, "<"+attribName+">", "", -1)
+				result = strings.Replace(result, "<"+attribName+"/>", "", -1)
+			}
 
 			results = append(results, result)
 		}
