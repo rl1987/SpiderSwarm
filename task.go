@@ -1,16 +1,12 @@
 package main
 
 import (
-	"errors"
+	"fmt"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 )
-
-func (t *Task) Run() error {
-
-	return errors.New("Not implemented")
-}
 
 type Task struct {
 	Name         string
@@ -38,6 +34,40 @@ func NewTask(name string, workflowName string, workflowUUID string) *Task {
 		Actions:   []Action{},
 		DataPipes: []*DataPipe{},
 	}
+}
+
+func (t *Task) AddInput(name string, action Action, actionInputName string, dataPipe *DataPipe) {
+	t.Inputs[name] = dataPipe
+	t.DataPipes = append(t.DataPipes, dataPipe)
+
+	action.AddInput(actionInputName, dataPipe)
+
+	dataPipe.ToAction = action
+}
+
+func (t *Task) AddOutput(name string, action Action, actionOutputName string, dataPipe *DataPipe) {
+	t.Outputs[name] = dataPipe
+	t.DataPipes = append(t.DataPipes, dataPipe)
+
+	action.AddOutput(actionOutputName, dataPipe)
+
+	dataPipe.FromAction = action
+}
+
+func (t *Task) AddAction(action Action) {
+	t.Actions = append(t.Actions, action)
+}
+
+func (t *Task) AddDataPipeBetweenActions(fromAction Action, fromOutputName string, toAction Action, toInputName string) {
+	// TODO: check if both actions are in Actions array and if Input/Output names
+	// are allowed.
+
+	dataPipe := NewDataPipeBetweenActions(fromAction, toAction)
+
+	fromAction.AddOutput(fromOutputName, dataPipe)
+	toAction.AddInput(toInputName, dataPipe)
+
+	t.DataPipes = append(t.DataPipes, dataPipe)
 }
 
 func (t *Task) indexActions() map[string]*Action {
@@ -79,4 +109,21 @@ func (t *Task) sortActionsTopologically() []Action {
 	visitAll(lastActions)
 
 	return order
+}
+
+func (t *Task) Run() error {
+	order := t.sortActionsTopologically()
+	fmt.Println("order")
+	spew.Dump(order)
+
+	for _, action := range order {
+		fmt.Println("Running action:")
+		spew.Dump(action)
+		err := action.Run()
+		if err != nil && !action.IsFailureAllowed() {
+			return err
+		}
+	}
+
+	return nil
 }

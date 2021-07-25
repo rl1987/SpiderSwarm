@@ -11,6 +11,7 @@ type Action interface {
 	AddOutput(name string, dataPipe *DataPipe) error
 	GetUniqueID() string
 	GetPrecedingActions() []Action
+	IsFailureAllowed() bool
 }
 
 // AbstractAction an equivalent of abstract class for all structs that will conform to Action interface.
@@ -73,4 +74,8 @@ func (a *AbstractAction) GetPrecedingActions() []Action {
 func (a *AbstractAction) Run() error {
 	// To be implemented by concrete actions.
 	return nil
+}
+
+func (a *AbstractAction) IsFailureAllowed() bool {
+	return a.CanFail
 }
