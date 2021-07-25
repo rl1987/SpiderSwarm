@@ -12,7 +12,8 @@ const DataChunkTypeStrings = "DataChunkTypeStrings"
 const DataChunkTypeMapStringToString = "DataChunkTypeMapStringToString"
 const DataChunkTypeMapStringToStrings = "DataChunkTypeMapStringToStrings"
 const DataChunkTypeBytes = "DataChunkTypeBytes"
-const DataChunkHTTPHeader = "DataChunkHTTPHeader"
+const DataChunkTypeHTTPHeader = "DataChunkTypeHTTPHeader"
+const DataChunkTypeInt = "DataChunkTypeInt"
 
 type DataChunk struct {
 	Type    string
@@ -50,7 +51,11 @@ func NewDataChunk(payload interface{}) (*DataChunk, error) {
 	}
 
 	if _, okHeader := payload.(http.Header); okHeader {
-		return NewDataChunkWithType(DataChunkHTTPHeader, payload), nil
+		return NewDataChunkWithType(DataChunkTypeHTTPHeader, payload), nil
+	}
+
+	if _, okInt := payload.(int); okInt {
+		return NewDataChunkWithType(DataChunkTypeInt, payload), nil
 	}
 
 	return nil, errors.New("Unsupported payload type")

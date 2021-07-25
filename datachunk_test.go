@@ -40,5 +40,15 @@ func TestNewDataChunkHTTPHeader(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, chunk)
 	assert.Equal(t, headers, chunk.Payload)
-	assert.Equal(t, DataChunkHTTPHeader, chunk.Type)
+	assert.Equal(t, DataChunkTypeHTTPHeader, chunk.Type)
+}
+
+func TestNewDataChunkInt(t *testing.T) {
+	i := 123
+
+	chunk, err := NewDataChunk(i)
+	assert.Nil(t, err)
+	assert.NotNil(t, chunk)
+	assert.Equal(t, i, chunk.Payload)
+	assert.Equal(t, DataChunkTypeInt, chunk.Type)
 }
