@@ -8,46 +8,35 @@ import (
 
 func main() {
 	fmt.Println("SpiderSwarm")
-	httpAction := NewHTTPAction("https://ifconfig.me", "GET", true)
+	httpAction := NewHTTPAction("https://cryptome.org", "GET", true)
 
 	headers := map[string][]string{
 		"User-Agent": []string{"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"},
 	}
 
 	headersIn := NewDataPipe()
+	resultOut := NewDataPipe()
+
+	httpAction.AddInput(HTTPActionInputHeaders, headersIn)
+	xpathAction := NewXPathAction("//title/text()", false)
+
+	task := NewTask("task1", "", "")
+	task.AddAction(httpAction)
+	task.AddAction(xpathAction)
+
+	task.AddInput("headersIn", httpAction, HTTPActionInputHeaders, headersIn)
+	task.AddOutput("resultOut", xpathAction, XPathActionOutputStr, resultOut)
+
+	task.AddDataPipeBetweenActions(httpAction, HTTPActionOutputBody, xpathAction, XPathActionInputHTMLBytes)
 
 	headersIn.Add(headers)
 
-	httpAction.AddInput(HTTPActionInputHeaders, headersIn)
+	spew.Dump(task)
 
-	bodyOut := NewDataPipe()
-	httpAction.AddOutput(HTTPActionOutputBody, bodyOut)
-
-	headersOut := NewDataPipe()
-	httpAction.AddOutput(HTTPActionOutputHeaders, headersOut)
-
-	statusCodeOut := NewDataPipe()
-	httpAction.AddOutput(HTTPActionOutputStatusCode, statusCodeOut)
-
-	err := httpAction.Run()
+	err := task.Run()
 	if err != nil {
-		fmt.Println(err)
+		spew.Dump(err)
+	} else {
+		spew.Dump(resultOut)
 	}
-
-	spew.Dump(bodyOut)
-
-	xpathAction := NewXPathAction("//title/text()", false)
-
-	_ = xpathAction.AddInput(XPathActionInputHTMLBytes, bodyOut)
-
-	resultOut := NewDataPipe()
-
-	_ = xpathAction.AddOutput(XPathActionOutputStr, resultOut)
-
-	err = xpathAction.Run()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	spew.Dump(xpathAction)
 }
