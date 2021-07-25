@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"net/http"
 
 	"github.com/google/uuid"
 )
@@ -11,6 +12,7 @@ const DataChunkTypeStrings = "DataChunkTypeStrings"
 const DataChunkTypeMapStringToString = "DataChunkTypeMapStringToString"
 const DataChunkTypeMapStringToStrings = "DataChunkTypeMapStringToStrings"
 const DataChunkTypeBytes = "DataChunkTypeBytes"
+const DataChunkHTTPHeader = "DataChunkHTTPHeader"
 
 type DataChunk struct {
 	Type    string
@@ -45,6 +47,10 @@ func NewDataChunk(payload interface{}) (*DataChunk, error) {
 
 	if _, okBytes := payload.([]byte); okBytes {
 		return NewDataChunkWithType(DataChunkTypeBytes, payload), nil
+	}
+
+	if _, okHeader := payload.(http.Header); okHeader {
+		return NewDataChunkWithType(DataChunkHTTPHeader, payload), nil
 	}
 
 	return nil, errors.New("Unsupported payload type")
