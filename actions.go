@@ -4,6 +4,7 @@ import (
 	"errors"
 )
 
+// Action is a single stateless operation that is used as building block for Task.
 type Action interface {
 	Run() error
 	AddInput(name string, dataPipe *DataPipe) error
@@ -12,6 +13,7 @@ type Action interface {
 	GetPrecedingActions() []Action
 }
 
+// AbstractAction an equivalent of abstract class for all structs that will conform to Action interface.
 type AbstractAction struct {
 	Action
 	Inputs             map[string]*DataPipe
@@ -23,6 +25,8 @@ type AbstractAction struct {
 	UUID               string
 }
 
+// AddInput adds input data pipe of given name to Inputs map iff name is in AllowedInputNames.
+// Return error otherwise.
 func (a *AbstractAction) AddInput(name string, dataPipe *DataPipe) error {
 	for _, n := range a.AllowedInputNames {
 		if n == name {
