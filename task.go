@@ -70,17 +70,6 @@ func (t *Task) AddDataPipeBetweenActions(fromAction Action, fromOutputName strin
 	t.DataPipes = append(t.DataPipes, dataPipe)
 }
 
-func (t *Task) indexActions() map[string]*Action {
-	var index map[string]*Action
-
-	for _, a := range t.Actions {
-		actionUUID := a.GetUniqueID()
-		index[actionUUID] = &a
-	}
-
-	return index
-}
-
 // Based on: https://github.com/adonovan/gopl.io/blob/master/ch5/toposort/main.go
 func (t *Task) sortActionsTopologically() []Action {
 	order := []Action{}
