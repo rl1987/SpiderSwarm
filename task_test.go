@@ -93,3 +93,20 @@ func TestTaskAddInput(t *testing.T) {
 	assert.Equal(t, dataPipe, task.DataPipes[0])
 	assert.Equal(t, httpAction, dataPipe.ToAction)
 }
+
+func TestTaskAddOutput(t *testing.T) {
+	task := NewTask("testTask", "", "")
+
+	dataPipe := NewDataPipe()
+
+	httpAction := NewHTTPAction("https://news.ycombinator.com/news", "GET", false)
+
+	task.AddAction(httpAction)
+
+	task.AddOutput("html", httpAction, HTTPActionOutputBody, dataPipe)
+
+	assert.Equal(t, dataPipe, task.Outputs["html"])
+	assert.Equal(t, dataPipe, httpAction.Outputs[HTTPActionOutputBody][0])
+	assert.Equal(t, dataPipe, task.DataPipes[0])
+	assert.Equal(t, httpAction, dataPipe.FromAction)
+}
