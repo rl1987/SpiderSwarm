@@ -13,7 +13,7 @@ type Task struct {
 	UUID         string
 	CreatedAt    time.Time
 	WorkflowName string
-	WorkflowUUID string
+	JobUUID      string
 
 	Inputs    map[string]*DataPipe
 	Outputs   map[string]*DataPipe
@@ -21,13 +21,13 @@ type Task struct {
 	DataPipes []*DataPipe
 }
 
-func NewTask(name string, workflowName string, workflowUUID string) *Task {
+func NewTask(name string, workflowName string, jobUUID string) *Task {
 	return &Task{
 		Name:         name,
 		UUID:         uuid.New().String(),
 		CreatedAt:    time.Now(),
 		WorkflowName: workflowName,
-		WorkflowUUID: workflowUUID,
+		JobUUID:      jobUUID,
 
 		Inputs:    map[string]*DataPipe{},
 		Outputs:   map[string]*DataPipe{},
