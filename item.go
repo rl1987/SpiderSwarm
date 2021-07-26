@@ -25,6 +25,7 @@ func NewItem(name string, workflowName string, jobUUID string, taskUUID string) 
 		TaskUUID:     taskUUID,
 		CreatedAt:    time.Now(),
 		Fields:       map[string]interface{}{},
+		Name:         name,
 	}
 }
 

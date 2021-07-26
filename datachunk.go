@@ -14,6 +14,7 @@ const DataChunkTypeMapStringToStrings = "DataChunkTypeMapStringToStrings"
 const DataChunkTypeBytes = "DataChunkTypeBytes"
 const DataChunkTypeHTTPHeader = "DataChunkTypeHTTPHeader"
 const DataChunkTypeInt = "DataChunkTypeInt"
+const DataChunkTypeItem = "DataChunkTypeItem"
 
 type DataChunk struct {
 	Type    string

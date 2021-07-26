@@ -7,7 +7,13 @@ import (
 )
 
 func TestFieldJoinActionRun(t *testing.T) {
-	action := NewFieldJoinAction([]string{"Name", "Surname", "Phone", "Email"})
+	workflowName := "testWorkflow"
+	jobUUID := "17C67CA0-35C6-488D-9C7B-F1AB4BAF5274"
+	taskUUID := "D6887944-5ECA-44A4-87D5-C7E364E53271"
+	itemName := "testItem"
+
+	action := NewFieldJoinAction([]string{"Name", "Surname", "Phone", "Email"},
+		workflowName, jobUUID, taskUUID, itemName)
 
 	nameIn := NewDataPipe()
 	surnameIn := NewDataPipe()
@@ -36,15 +42,20 @@ func TestFieldJoinActionRun(t *testing.T) {
 	err = action.Run()
 	assert.Nil(t, err)
 
-	expectedItem := map[string]string{
+	expectedItemFields := map[string]interface{}{
 		"Name":    "John",
 		"Surname": "Smith",
 		"Phone":   "555-1212",
 		"Email":   "john@smith.int",
 	}
 
-	item, ok := itemOut.Remove().(map[string]string)
+	item, ok := itemOut.Remove().(*Item)
 	assert.True(t, ok)
 
-	assert.Equal(t, expectedItem, item)
+	assert.Equal(t, workflowName, item.WorkflowName)
+	assert.Equal(t, jobUUID, item.JobUUID)
+	assert.Equal(t, taskUUID, item.TaskUUID)
+	assert.Equal(t, itemName, item.Name)
+
+	assert.Equal(t, expectedItemFields, item.Fields)
 }

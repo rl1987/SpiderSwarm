@@ -10,9 +10,13 @@ const FieldJoinActionOutputItem = "FieldJoinActionOutputItem"
 
 type FieldJoinAction struct {
 	AbstractAction
+	WorkflowName string
+	JobUUID      string
+	TaskUUID     string
+	ItemName     string
 }
 
-func NewFieldJoinAction(inputNames []string) *FieldJoinAction {
+func NewFieldJoinAction(inputNames []string, workflowName string, jobUUID string, taskUUID string, itemName string) *FieldJoinAction {
 	return &FieldJoinAction{
 		AbstractAction: AbstractAction{
 			AllowedInputNames:  inputNames,
@@ -22,6 +26,10 @@ func NewFieldJoinAction(inputNames []string) *FieldJoinAction {
 			CanFail:            false,
 			UUID:               uuid.New().String(),
 		},
+		WorkflowName: workflowName,
+		JobUUID:      jobUUID,
+		TaskUUID:     taskUUID,
+		ItemName:     itemName,
 	}
 }
 
@@ -34,18 +42,17 @@ func (fja *FieldJoinAction) Run() error {
 		return errors.New("No inputs connected")
 	}
 
-	// TODO: develop a proper data model for items
-	item := map[string]string{}
+	item := NewItem(fja.ItemName, fja.WorkflowName, fja.JobUUID, fja.TaskUUID)
 
 	for key, inDP := range fja.Inputs {
-		value, ok := inDP.Remove().(string)
-		if ok {
-			item[key] = value
+		if len(inDP.Queue) > 0 {
+			value := inDP.Remove()
+			item.SetField(key, value)
 		}
 	}
 
 	for _, outDP := range fja.Outputs[FieldJoinActionOutputItem] {
-		outDP.Add(item)
+		outDP.AddItem(item)
 	}
 
 	return nil

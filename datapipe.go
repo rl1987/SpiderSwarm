@@ -36,6 +36,14 @@ func (dp *DataPipe) Add(x interface{}) error {
 	return nil
 }
 
+func (dp *DataPipe) AddItem(item *Item) error {
+	chunk := NewDataChunkWithType(DataChunkTypeItem, item)
+
+	dp.Queue = append(dp.Queue, chunk)
+
+	return nil
+}
+
 func (dp *DataPipe) Remove() interface{} {
 	if len(dp.Queue) == 0 {
 		return nil
