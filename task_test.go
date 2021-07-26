@@ -76,3 +76,20 @@ func TestSortActionsTopologically(t *testing.T) {
 	assert.Equal(t, a1, actions[0])
 	assert.True(t, actions[3] == a4 || actions[3] == a2)
 }
+
+func TestTaskAddInput(t *testing.T) {
+	task := NewTask("testTask", "", "")
+
+	dataPipe := NewDataPipe()
+
+	httpAction := NewHTTPAction("https://news.ycombinator.com/news", "GET", false)
+
+	task.AddAction(httpAction)
+
+	task.AddInput("headersIn", httpAction, HTTPActionInputHeaders, dataPipe)
+
+	assert.Equal(t, dataPipe, task.Inputs["headersIn"])
+	assert.Equal(t, dataPipe, httpAction.Inputs[HTTPActionInputHeaders])
+	assert.Equal(t, dataPipe, task.DataPipes[0])
+	assert.Equal(t, httpAction, dataPipe.ToAction)
+}
