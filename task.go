@@ -36,6 +36,16 @@ func NewTask(name string, workflowName string, jobUUID string) *Task {
 	}
 }
 
+func NewTaskFromTemplate(taskTempl *TaskTemplate, workflowName string, jobUUID string) *Task {
+	// TODO: implement
+	return &Task{}
+}
+
+func NewTaskFromPromise(promise *TaskPromise, workflowName string, jobUUID string) *Task {
+	// TODO: implement
+	return &Task{}
+}
+
 func (t *Task) AddInput(name string, action Action, actionInputName string, dataPipe *DataPipe) {
 	t.Inputs[name] = dataPipe
 	t.DataPipes = append(t.DataPipes, dataPipe)
