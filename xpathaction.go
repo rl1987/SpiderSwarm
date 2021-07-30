@@ -52,6 +52,14 @@ func renderNode(n *html.Node) string {
 	return buf.String()
 }
 
+func extractAttribute(result string, attribName string) string {
+	// HACK to clean up attribute string
+	result = strings.Replace(result, "<"+attribName+">", "", -1)
+	result = strings.Replace(result, "</"+attribName+">", "", -1)
+
+	return result
+}
+
 func (xa *XPathAction) Run() error {
 	if xa.Inputs[XPathActionInputHTMLStr] == nil && xa.Inputs[XPathActionInputHTMLBytes] == nil {
 		return errors.New("Input not connected")
@@ -98,12 +106,9 @@ func (xa *XPathAction) Run() error {
 			return err
 		}
 
-		// HACK to clean up attribute string
 		result := renderNode(n)
 		if extractAttrib {
-			// TODO: unit-test this
-			result = strings.Replace(result, "<"+attribName+">", "", -1)
-			result = strings.Replace(result, "</"+attribName+">", "", -1)
+			result = extractAttribute(result, attribName)
 		}
 
 		for _, outDP := range xa.Outputs[XPathActionOutputStr] {
@@ -125,8 +130,7 @@ func (xa *XPathAction) Run() error {
 
 			result := renderNode(n)
 			if extractAttrib {
-				result = strings.Replace(result, "<"+attribName+">", "", -1)
-				result = strings.Replace(result, "</"+attribName+">", "", -1)
+				result = extractAttribute(result, attribName)
 			}
 
 			results = append(results, result)
