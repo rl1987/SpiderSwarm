@@ -16,6 +16,8 @@ type FieldJoinAction struct {
 	ItemName     string
 }
 
+// XXX: do we want to take all of these things as params? they seem to violate the
+// abstraction here.
 func NewFieldJoinAction(inputNames []string, workflowName string, jobUUID string, taskUUID string, itemName string) *FieldJoinAction {
 	return &FieldJoinAction{
 		AbstractAction: AbstractAction{
@@ -31,6 +33,16 @@ func NewFieldJoinAction(inputNames []string, workflowName string, jobUUID string
 		TaskUUID:     taskUUID,
 		ItemName:     itemName,
 	}
+}
+
+func NewFieldJoinActionFromTemplate(actionTempl *ActionTemplate, workflow *Workflow) *FieldJoinAction {
+	var inputNames []string
+	var itemName string
+
+	inputNames, _ = actionTempl.ConstructorParams["inputNames"].([]string)
+	itemName, _ = actionTempl.ConstructorParams["itemName"].(string)
+
+	return NewFieldJoinAction(inputNames, workflow.Name, "", "", itemName)
 }
 
 func (fja *FieldJoinAction) Run() error {

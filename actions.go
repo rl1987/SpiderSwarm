@@ -31,6 +31,8 @@ func NewActionFromTemplate(actionTempl *ActionTemplate, workflow *Workflow, jobU
 		return NewHTTPActionFromTemplate(actionTempl)
 	} else if actionTempl.StructName == "XPathAction" {
 		return NewXPathActionFromTemplate(actionTempl)
+	} else if actionTempl.StructName == "FieldJoinAction" {
+		return NewFieldJoinActionFromTemplate(actionTempl, workflow)
 	}
 
 	return nil
