@@ -26,6 +26,16 @@ type AbstractAction struct {
 	UUID               string
 }
 
+func NewActionFromTemplate(actionTempl *ActionTemplate, workflow *Workflow, jobUUID string) Action {
+	if actionTempl.StructName == "HTTPAction" {
+		return NewHTTPActionFromTemplate(actionTempl)
+	} else if actionTempl.StructName == "XPathAction" {
+		return NewXPathActionFromTemplate(actionTempl)
+	}
+
+	return nil
+}
+
 // AddInput adds input data pipe of given name to Inputs map iff name is in AllowedInputNames.
 // Return error otherwise.
 func (a *AbstractAction) AddInput(name string, dataPipe *DataPipe) error {

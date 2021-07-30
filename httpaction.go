@@ -50,6 +50,18 @@ func NewHTTPAction(baseURL string, method string, canFail bool) *HTTPAction {
 	}
 }
 
+func NewHTTPActionFromTemplate(actionTempl *ActionTemplate) *HTTPAction {
+	var baseURL string
+	var method string
+	var canFail bool
+
+	baseURL, _ = actionTempl.ConstructorParams["baseURL"].(string)
+	method, _ = actionTempl.ConstructorParams["method"].(string)
+	canFail, _ = actionTempl.ConstructorParams["canFail"].(bool)
+
+	return NewHTTPAction(baseURL, method, canFail)
+}
+
 func (ha *HTTPAction) Run() error {
 	var body *bytes.Buffer
 	body = nil

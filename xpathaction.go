@@ -42,6 +42,16 @@ func NewXPathAction(xpath string, expectMany bool) *XPathAction {
 	}
 }
 
+func NewXPathActionFromTemplate(actionTempl *ActionTemplate) *XPathAction {
+	var xpath string
+	var expectMany bool
+
+	xpath, _ = actionTempl.ConstructorParams["xpath"].(string)
+	expectMany = actionTempl.ConstructorParams["expectMany"].(bool)
+
+	return NewXPathAction(xpath, expectMany)
+}
+
 // https://stackoverflow.com/a/38855264
 func renderNode(n *html.Node) string {
 	var buf bytes.Buffer
