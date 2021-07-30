@@ -86,3 +86,25 @@ func TestXPathActionBadXPath(t *testing.T) {
 	err := xpathAction.Run() // Must not crash.
 	assert.NotNil(t, err)
 }
+
+func TestXPathActionAttrib(t *testing.T) {
+	inputBytes := []byte("<html><body><a href=\"/next-gen-product\">Next gen product</a></body></html>")
+
+	dataPipeIn := NewDataPipe()
+	dataPipeOut := NewDataPipe()
+
+	dataPipeIn.Add(inputBytes)
+
+	xpathAction := NewXPathAction("//a/@href", false)
+
+	xpathAction.AddInput(XPathActionInputHTMLBytes, dataPipeIn)
+	xpathAction.AddOutput(XPathActionOutputStr, dataPipeOut)
+
+	err := xpathAction.Run()
+	assert.Nil(t, err)
+
+	gotResult, ok := dataPipeOut.Remove().(string)
+
+	assert.True(t, ok)
+	assert.Equal(t, "/next-gen-product", gotResult)
+}
