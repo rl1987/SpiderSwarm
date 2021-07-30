@@ -52,7 +52,7 @@ func (w *Workflow) Run() ([]*Item, error) {
 			continue
 		}
 
-		newTask := NewTaskFromTemplate(&taskTempl, w.Name, jobUUID) // TODO: implement this one
+		newTask := NewTaskFromTemplate(&taskTempl, w, jobUUID) // TODO: implement this one
 
 		tasks = append(tasks, newTask)
 	}
@@ -68,7 +68,7 @@ func (w *Workflow) Run() ([]*Item, error) {
 		if err != nil {
 			spew.Dump(task)
 			spew.Dump(err)
-		} else {
+		} else { // TODO: make this less nested
 			for _, outDP := range task.Outputs {
 				for {
 					if len(outDP.Queue) == 0 {
@@ -82,7 +82,7 @@ func (w *Workflow) Run() ([]*Item, error) {
 					}
 
 					if promise, okPromise := x.(*TaskPromise); okPromise {
-						newTask := NewTaskFromPromise(promise, w.Name, jobUUID)
+						newTask := NewTaskFromPromise(promise, w, jobUUID)
 						tasks = append(tasks, newTask)
 					}
 				}

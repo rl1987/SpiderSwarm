@@ -36,12 +36,61 @@ func NewTask(name string, workflowName string, jobUUID string) *Task {
 	}
 }
 
-func NewTaskFromTemplate(taskTempl *TaskTemplate, workflowName string, jobUUID string) *Task {
-	// TODO: implement
-	return &Task{}
+func (t *Task) addDataPipeFromTemplate(dataPipeTemplate *DataPipeTemplate, nameToAction map[string]Action) {
+	var newDP *DataPipe
+	newDP = nil
+
+	if len(dataPipeTemplate.SourceActionName) > 0 && len(dataPipeTemplate.DestActionName) > 0 {
+		fromAction := nameToAction[dataPipeTemplate.SourceActionName]
+		toAction := nameToAction[dataPipeTemplate.DestActionName]
+
+		if fromAction != nil && toAction != nil {
+			newDP = NewDataPipeBetweenActions(fromAction, toAction)
+			fromAction.AddOutput(dataPipeTemplate.SourceOutputName, newDP)
+			toAction.AddInput(dataPipeTemplate.DestInputName, newDP)
+		}
+	} else if len(dataPipeTemplate.TaskInputName) > 0 {
+		toAction := nameToAction[dataPipeTemplate.DestActionName]
+
+		if toAction != nil {
+			newDP = NewDataPipe()
+			newDP.ToAction = toAction
+			t.Inputs[dataPipeTemplate.TaskInputName] = newDP
+		}
+	} else if len(dataPipeTemplate.TaskOutputName) > 0 {
+		fromAction := nameToAction[dataPipeTemplate.SourceActionName]
+
+		if fromAction != nil {
+			newDP = NewDataPipe()
+			newDP.FromAction = fromAction
+			t.Outputs[dataPipeTemplate.TaskOutputName] = newDP
+		}
+	}
+
+	if newDP != nil {
+		t.DataPipes = append(t.DataPipes, newDP)
+	}
 }
 
-func NewTaskFromPromise(promise *TaskPromise, workflowName string, jobUUID string) *Task {
+func NewTaskFromTemplate(taskTempl *TaskTemplate, workflow *Workflow, jobUUID string) *Task {
+	task := NewTask(taskTempl.TaskName, workflow.Name, jobUUID)
+
+	var nameToAction map[string]Action
+
+	for _, actionTempl := range taskTempl.ActionTemplates {
+		newAction := NewActionFromTemplate(&actionTempl, workflow, jobUUID)
+		task.Actions = append(task.Actions, newAction)
+		nameToAction[actionTempl.Name] = newAction
+	}
+
+	for _, dataPipeTemplate := range taskTempl.DataPipeTemplates {
+		task.addDataPipeFromTemplate(&dataPipeTemplate, nameToAction)
+	}
+
+	return task
+}
+
+func NewTaskFromPromise(promise *TaskPromise, workflow *Workflow, jobUUID string) *Task {
 	// TODO: implement
 	return &Task{}
 }

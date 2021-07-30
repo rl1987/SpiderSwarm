@@ -35,6 +35,8 @@ func NewActionFromTemplate(actionTempl *ActionTemplate, workflow *Workflow, jobU
 		return NewFieldJoinActionFromTemplate(actionTempl, workflow)
 	}
 
+	// TODO: support creating more kinds of actions from template
+
 	return nil
 }
 
