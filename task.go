@@ -55,6 +55,7 @@ func (t *Task) addDataPipeFromTemplate(dataPipeTemplate *DataPipeTemplate, nameT
 		if toAction != nil {
 			newDP = NewDataPipe()
 			newDP.ToAction = toAction
+			toAction.AddInput(dataPipeTemplate.DestInputName, newDP)
 			t.Inputs[dataPipeTemplate.TaskInputName] = newDP
 		}
 	} else if len(dataPipeTemplate.TaskOutputName) > 0 {
@@ -63,6 +64,7 @@ func (t *Task) addDataPipeFromTemplate(dataPipeTemplate *DataPipeTemplate, nameT
 		if fromAction != nil {
 			newDP = NewDataPipe()
 			newDP.FromAction = fromAction
+			fromAction.AddOutput(dataPipeTemplate.SourceOutputName, newDP)
 			t.Outputs[dataPipeTemplate.TaskOutputName] = newDP
 		}
 	}
@@ -75,7 +77,7 @@ func (t *Task) addDataPipeFromTemplate(dataPipeTemplate *DataPipeTemplate, nameT
 func NewTaskFromTemplate(taskTempl *TaskTemplate, workflow *Workflow, jobUUID string) *Task {
 	task := NewTask(taskTempl.TaskName, workflow.Name, jobUUID)
 
-	var nameToAction map[string]Action
+	nameToAction := map[string]Action{}
 
 	for _, actionTempl := range taskTempl.ActionTemplates {
 		newAction := NewActionFromTemplate(&actionTempl, workflow, jobUUID)

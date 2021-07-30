@@ -46,6 +46,7 @@ func (w *Workflow) Run() ([]*Item, error) {
 		startedAt)
 
 	var tasks []*Task
+	var task *Task
 
 	for _, taskTempl := range w.TaskTemplates {
 		if !taskTempl.Initial {
@@ -62,8 +63,8 @@ func (w *Workflow) Run() ([]*Item, error) {
 			break
 		}
 
-		task, tasks := tasks[0], tasks[1:]
-
+		task, tasks = tasks[0], tasks[1:]
+		fmt.Printf("Running task %v\n", task)
 		err := task.Run()
 		if err != nil {
 			spew.Dump(task)
