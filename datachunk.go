@@ -15,6 +15,7 @@ const DataChunkTypeBytes = "DataChunkTypeBytes"
 const DataChunkTypeHTTPHeader = "DataChunkTypeHTTPHeader"
 const DataChunkTypeInt = "DataChunkTypeInt"
 const DataChunkTypeItem = "DataChunkTypeItem"
+const DataChunkTypePromise = "DataChunkTypePromise"
 
 type DataChunk struct {
 	Type    string
@@ -57,6 +58,10 @@ func NewDataChunk(payload interface{}) (*DataChunk, error) {
 
 	if _, okInt := payload.(int); okInt {
 		return NewDataChunkWithType(DataChunkTypeInt, payload), nil
+	}
+
+	if _, okPromise := payload.(*TaskPromise); okPromise {
+		return NewDataChunkWithType(DataChunkTypePromise, payload), nil
 	}
 
 	return nil, errors.New("Unsupported payload type")
