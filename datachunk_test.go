@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"testing"
 
@@ -71,4 +72,13 @@ func TestNewDataChunkTaskPromise(t *testing.T) {
 	assert.NotNil(t, chunk)
 	assert.Equal(t, promise, chunk.Payload)
 	assert.Equal(t, DataChunkTypePromise, chunk.Type)
+}
+
+func TestNewDataChunkFail(t *testing.T) {
+	err := errors.New("Unsupported payload type")
+
+	chunk, gotErr := NewDataChunk(err)
+	assert.Nil(t, chunk)
+	assert.NotNil(t, err)
+	assert.Equal(t, err, gotErr)
 }
