@@ -9,6 +9,8 @@ github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e h1:1r7pUrabqp18h
 github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
 github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
 github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/jinzhu/copier v0.3.2 h1:QdBOCbaouLDYaIPFfi1bKv5F5tPpeTwXe4sD0jqtz5w=
+github.com/jinzhu/copier v0.3.2/go.mod h1:24xnZezI2Yqac9J61UC6/dG/k76ttpq0DdJI3QmUvro=
 github.com/lestrrat-go/libxml2 v0.0.0-20201123224832-e6d9de61b80d/go.mod h1:fy/ZVbgyB83mtricxwSW3zqIRXWOVpKG2PvdUDFeC58=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

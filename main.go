@@ -100,6 +100,9 @@ func main() {
 	if err != nil {
 		spew.Dump(err)
 	} else {
-		spew.Dump(items)
+		for _, item := range items {
+			splayedItems := item.Splay()
+			spew.Dump(splayedItems)
+		}
 	}
 }

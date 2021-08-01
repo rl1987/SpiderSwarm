@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestIsSplayable(t *testing.T) {
+func TestItemIsSplayable(t *testing.T) {
 	item1 := &Item{
 		Fields: map[string]interface{}{
 			"field1": "a",
@@ -18,8 +18,8 @@ func TestIsSplayable(t *testing.T) {
 
 	item2 := &Item{
 		Fields: map[string]interface{}{
-			"field1": []string{"a", "b", "c"},
-			"field2": []string{"1", "2", "3"},
+			"field1": []interface{}{"a", "b", "c"},
+			"field2": []interface{}{"1", "2", "3"},
 		},
 	}
 
@@ -27,10 +27,66 @@ func TestIsSplayable(t *testing.T) {
 
 	item3 := &Item{
 		Fields: map[string]interface{}{
-			"field1": []string{"x", "y", "z"},
-			"field2": []string{"0", "1"},
+			"field1": []interface{}{"x", "y", "z"},
+			"field2": []interface{}{"0", "1"},
 		},
 	}
 
-	assert.True(t, item3.IsSplayable())
+	assert.False(t, item3.IsSplayable())
+
+	item4 := &Item{
+		Fields: map[string]interface{}{
+			"field1": "a",
+			"field2": []interface{}{},
+		},
+	}
+
+	assert.False(t, item4.IsSplayable())
+}
+
+func TestItemSplay(t *testing.T) {
+	simpleItem := &Item{
+		Fields: map[string]interface{}{
+			"field1": "a",
+			"field2": "1",
+		},
+	}
+
+	items := simpleItem.Splay()
+
+	assert.Equal(t, []*Item{simpleItem}, items)
+
+	compositeItem := &Item{
+		Fields: map[string]interface{}{
+			"field1": []interface{}{"a", "b", "c"},
+			"field2": []interface{}{"1", "2", "3"},
+		},
+	}
+
+	expectItems := []*Item{
+		&Item{
+			Fields: map[string]interface{}{
+				"field1": "a",
+				"field2": "1",
+			},
+		},
+		&Item{
+			Fields: map[string]interface{}{
+				"field1": "b",
+				"field2": "2",
+			},
+		},
+		&Item{
+			Fields: map[string]interface{}{
+				"field1": "c",
+				"field2": "3",
+			},
+		},
+	}
+
+	items = compositeItem.Splay()
+
+	assert.Equal(t, expectItems[0].Fields, items[0].Fields)
+	assert.Equal(t, expectItems[1].Fields, items[1].Fields)
+	assert.Equal(t, expectItems[2].Fields, items[2].Fields)
 }
