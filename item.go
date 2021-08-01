@@ -78,6 +78,8 @@ func (i *Item) splayOff() *Item {
 				x, i.Fields[key] = value.([]interface{})[0], value.([]interface{})[1:]
 			}
 			newItem.Fields[key] = x
+		} else {
+			newItem.Fields[key] = value
 		}
 	}
 

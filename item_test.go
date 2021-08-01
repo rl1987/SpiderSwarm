@@ -60,6 +60,7 @@ func TestItemSplay(t *testing.T) {
 		Fields: map[string]interface{}{
 			"field1": []interface{}{"a", "b", "c"},
 			"field2": []interface{}{"1", "2", "3"},
+			"field3": "C",
 		},
 	}
 
@@ -68,18 +69,21 @@ func TestItemSplay(t *testing.T) {
 			Fields: map[string]interface{}{
 				"field1": "a",
 				"field2": "1",
+				"field3": "C",
 			},
 		},
 		&Item{
 			Fields: map[string]interface{}{
 				"field1": "b",
 				"field2": "2",
+				"field3": "C",
 			},
 		},
 		&Item{
 			Fields: map[string]interface{}{
 				"field1": "c",
 				"field2": "3",
+				"field3": "C",
 			},
 		},
 	}
