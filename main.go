@@ -1,13 +1,21 @@
 package main
 
 import (
-	"fmt"
+	"os"
 
 	"github.com/davecgh/go-spew/spew"
+	log "github.com/sirupsen/logrus"
 )
 
+func initLogging() {
+	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.DebugLevel)
+}
+
 func main() {
-	fmt.Println("spiderswarm")
+	initLogging()
+	log.Info("Starting spiderswarm instance...")
 
 	workflow := &Workflow{
 		Name:    "testWorkflow",
