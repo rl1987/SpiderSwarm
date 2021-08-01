@@ -25,3 +25,24 @@ func NewTaskPromise(taskName string, workflowName string, jobUUID string, inputD
 		CreatedAt:                  time.Now(),
 	}
 }
+
+func (tp *TaskPromise) IsSplayable() bool {
+	hasLists := false
+	equalLen := true
+	lastLen := -1
+
+	for _, chunk := range tp.InputDataChunksByInputName {
+		if chunk.Type == DataChunkTypeStrings {
+			hasLists = true
+
+			if lastLen != -1 && lastLen != len(chunk.Payload.([]string)) {
+				equalLen = false
+				break
+			}
+
+			lastLen = len(chunk.Payload.([]string))
+		}
+	}
+
+	return hasLists && equalLen && lastLen != 0
+}

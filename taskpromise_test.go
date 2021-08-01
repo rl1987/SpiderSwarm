@@ -27,3 +27,39 @@ func TestNewTaskPromise(t *testing.T) {
 	assert.Equal(t, jobUUID, taskPromise.JobUUID)
 	assert.Equal(t, inputDataChunksByInputName, taskPromise.InputDataChunksByInputName)
 }
+
+func NewDataChunk_(payload interface{}) *DataChunk {
+	chunk, _ := NewDataChunk(payload)
+	return chunk
+}
+
+func TestTaskPromiseIsSplayable(t *testing.T) {
+	promise1 := &TaskPromise{
+		InputDataChunksByInputName: map[string]*DataChunk{
+			"a": NewDataChunk_("a"),
+			"b": NewDataChunk_([]string{"1", "2"}),
+		},
+	}
+
+	assert.True(t, promise1.IsSplayable())
+
+	promise2 := &TaskPromise{
+		InputDataChunksByInputName: map[string]*DataChunk{
+			"a": NewDataChunk_("a"),
+			"b": NewDataChunk_([]string{"1", "2"}),
+			"c": NewDataChunk_([]string{"x", "y"}),
+		},
+	}
+
+	assert.True(t, promise2.IsSplayable())
+
+	promise3 := &TaskPromise{
+		InputDataChunksByInputName: map[string]*DataChunk{
+			"a": NewDataChunk_("a"),
+			"b": NewDataChunk_([]string{"1", "2"}),
+			"c": NewDataChunk_([]string{"x", "y", "z"}),
+		},
+	}
+
+	assert.False(t, promise3.IsSplayable())
+}
