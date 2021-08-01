@@ -6,6 +6,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewXPathActionFromTemplate(t *testing.T) {
+	xpath := "//title/text()"
+	expectMany := false
+
+	constructorParams := map[string]interface{}{
+		"xpath":      xpath,
+		"expectMany": expectMany,
+	}
+
+	actionTempl := &ActionTemplate{
+		StructName:        "XPathAction",
+		ConstructorParams: constructorParams,
+	}
+
+	action := NewXPathActionFromTemplate(actionTempl)
+
+	assert.NotNil(t, action)
+	assert.Equal(t, xpath, action.XPath)
+	assert.Equal(t, expectMany, action.ExpectMany)
+}
+
 func TestXPathActionRunBasic(t *testing.T) {
 	htmlStr := "<html><body><title>This is title!</title></body></html>"
 
