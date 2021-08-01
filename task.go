@@ -163,8 +163,6 @@ func (t *Task) sortActionsTopologically() []Action {
 
 func (t *Task) Run() error {
 	order := t.sortActionsTopologically()
-	fmt.Println("order")
-	spew.Dump(order)
 
 	for _, action := range order {
 		fmt.Println("Running action:")
@@ -177,10 +175,19 @@ func (t *Task) Run() error {
 
 	for _, output := range t.Outputs {
 		if len(output.Queue) >= 1 && output.Queue[0].Type == DataChunkTypeStrings {
-			strings, ok := output.Remove().([]string)
+			x := output.Remove()
+
+			strings, ok := x.([]string)
 			if ok {
 				for _, s := range strings {
 					output.Add(s)
+				}
+			}
+
+			item, okItem := x.(*Item)
+			if okItem {
+				for _, newItem := range item.Splay() {
+					output.Add(newItem)
 				}
 			}
 		}
