@@ -72,3 +72,34 @@ func TestTaskPromiseIsSplayable(t *testing.T) {
 
 	assert.False(t, promise4.IsSplayable())
 }
+
+func TestTaskPromiseSplay(t *testing.T) {
+	taskName := "HTTP1"
+	workflowName := "testWorkflow"
+	jobUUID := "97F34D30-7355-4C82-9480-A3B9CD086824"
+
+	promise := &TaskPromise{
+		TaskName:     taskName,
+		WorkflowName: workflowName,
+		JobUUID:      jobUUID,
+		InputDataChunksByInputName: map[string]*DataChunk{
+			"param1": NewDataChunk_("aa"),
+			"param2": NewDataChunk_([]string{"1", "2", "3"}),
+		},
+	}
+
+	gotPromises := promise.Splay()
+
+	for _, newPromise := range gotPromises {
+		assert.Equal(t, promise.TaskName, newPromise.TaskName)
+		assert.Equal(t, promise.WorkflowName, newPromise.WorkflowName)
+		assert.Equal(t, promise.JobUUID, newPromise.JobUUID)
+
+		assert.Equal(t, "aa", promise.InputDataChunksByInputName["param1"].Payload)
+	}
+
+	assert.Equal(t, "1", gotPromises[0].InputDataChunksByInputName["param2"].Payload)
+	assert.Equal(t, "2", gotPromises[1].InputDataChunksByInputName["param2"].Payload)
+	assert.Equal(t, "3", gotPromises[2].InputDataChunksByInputName["param2"].Payload)
+
+}
