@@ -60,6 +60,10 @@ func NewDataChunk(payload interface{}) (*DataChunk, error) {
 		return NewDataChunkWithType(DataChunkTypeInt, payload), nil
 	}
 
+	if _, okItem := payload.(*Item); okItem {
+		return NewDataChunkWithType(DataChunkTypeItem, payload), nil
+	}
+
 	if _, okPromise := payload.(*TaskPromise); okPromise {
 		return NewDataChunkWithType(DataChunkTypePromise, payload), nil
 	}

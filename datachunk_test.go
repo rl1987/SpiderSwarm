@@ -53,6 +53,16 @@ func TestNewDataChunkInt(t *testing.T) {
 	assert.Equal(t, DataChunkTypeInt, chunk.Type)
 }
 
+func TestNewDataChunkItem(t *testing.T) {
+	item := &Item{}
+
+	chunk, err := NewDataChunk(item)
+	assert.Nil(t, err)
+	assert.NotNil(t, chunk)
+	assert.Equal(t, item, chunk.Payload)
+	assert.Equal(t, DataChunkTypeItem, chunk.Type)
+}
+
 func TestNewDataChunkTaskPromise(t *testing.T) {
 	promise := &TaskPromise{}
 
