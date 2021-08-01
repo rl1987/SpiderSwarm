@@ -6,6 +6,30 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewFieldJoinActionFromTemplate(t *testing.T) {
+	workflowName := "testWorkflow"
+	itemName := "testItem"
+
+	actionTempl := &ActionTemplate{
+		Name:       "testAction",
+		StructName: "FieldJoinAction",
+		ConstructorParams: map[string]interface{}{
+			"inputNames": []string{"title", "link"},
+			"itemName":   itemName,
+		},
+	}
+
+	workflow := &Workflow{
+		Name: workflowName,
+	}
+
+	action := NewFieldJoinActionFromTemplate(actionTempl, workflow)
+
+	assert.Equal(t, workflowName, action.WorkflowName)
+	assert.Equal(t, itemName, action.ItemName)
+	assert.Equal(t, []string{"title", "link"}, action.AllowedInputNames)
+}
+
 func TestFieldJoinActionRun(t *testing.T) {
 	workflowName := "testWorkflow"
 	jobUUID := "17C67CA0-35C6-488D-9C7B-F1AB4BAF5274"
