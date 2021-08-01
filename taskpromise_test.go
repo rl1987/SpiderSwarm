@@ -62,4 +62,13 @@ func TestTaskPromiseIsSplayable(t *testing.T) {
 	}
 
 	assert.False(t, promise3.IsSplayable())
+
+	promise4 := &TaskPromise{
+		InputDataChunksByInputName: map[string]*DataChunk{
+			"a": NewDataChunk_("a"),
+			"b": NewDataChunk_([]string{}),
+		},
+	}
+
+	assert.False(t, promise4.IsSplayable())
 }
