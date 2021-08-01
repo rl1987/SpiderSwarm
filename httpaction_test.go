@@ -31,6 +31,30 @@ func TestNewHTTPAction(t *testing.T) {
 
 }
 
+func TestNewHTTPActionFromTemplate(t *testing.T) {
+	baseURL := "https://github.com/rl1987/spiderswarm"
+	method := "HEAD"
+	canFail := false
+
+	constructorParams := map[string]interface{}{
+		"baseURL": baseURL,
+		"method":  method,
+		"canFail": canFail,
+	}
+
+	actionTempl := &ActionTemplate{
+		StructName:        "HTTPAction",
+		ConstructorParams: constructorParams,
+	}
+
+	action := NewHTTPActionFromTemplate(actionTempl)
+
+	assert.NotNil(t, action)
+	assert.Equal(t, baseURL, action.BaseURL)
+	assert.Equal(t, method, action.Method)
+	assert.Equal(t, canFail, action.CanFail)
+}
+
 func TestHTTPActionRunGET(t *testing.T) {
 	testHeaders := http.Header{
 		"User-Agent": []string{"spiderswarm"},
