@@ -33,3 +33,6 @@ jobs:
         go get golang.org/x/lint/golint
         go install golang.org/x/lint/golint
         golint ./...
+   
+    - name: vet
+      run: go vet ./...
