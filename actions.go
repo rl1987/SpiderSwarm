@@ -33,6 +33,8 @@ func NewActionFromTemplate(actionTempl *ActionTemplate, workflow *Workflow, jobU
 		return NewXPathActionFromTemplate(actionTempl)
 	} else if actionTempl.StructName == "FieldJoinAction" {
 		return NewFieldJoinActionFromTemplate(actionTempl, workflow)
+	} else if actionTempl.StructName == "TaskPromiseAction" {
+		return NewTaskPromiseActionFromTemplate(actionTempl, workflow)
 	}
 
 	// TODO: support creating more kinds of actions from template

@@ -32,7 +32,15 @@ func NewTaskPromiseAction(inputNames []string, taskName string, workflowName str
 	}
 }
 
-// TODO: make TaskPromiseAction from ActionTemplate
+func NewTaskPromiseActionFromTemplate(actionTempl *ActionTemplate, workflow *Workflow) *TaskPromiseAction {
+	var inputNames []string
+	var taskName string
+
+	inputNames, _ = actionTempl.ConstructorParams["inputNames"].([]string)
+	taskName, _ = actionTempl.ConstructorParams["taskName"].(string)
+
+	return NewTaskPromiseAction(inputNames, taskName, workflow.Name, "")
+}
 
 func (tpa *TaskPromiseAction) Run() error {
 	inputDataChunksByInputName := map[string]*DataChunk{}
