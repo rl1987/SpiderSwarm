@@ -32,6 +32,8 @@ func NewTaskPromiseAction(inputNames []string, taskName string, workflowName str
 	}
 }
 
+// TODO: make TaskPromiseAction from ActionTemplate
+
 func (tpa *TaskPromiseAction) Run() error {
 	inputDataChunksByInputName := map[string]*DataChunk{}
 

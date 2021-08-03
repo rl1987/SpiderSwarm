@@ -35,6 +35,50 @@ func main() {
 						},
 					},
 					ActionTemplate{
+						Name:              "UTF8Decode",
+						StructName:        "UTF8DecodeAction",
+						ConstructorParams: map[string]interface{}{},
+					},
+					ActionTemplate{
+						Name:       "MakePromise",
+						StructName: "TaskPromiseAction",
+						ConstructorParams: map[string]interface{}{
+							"inputNames": []string{"htmlStr1", "htmlStr2"},
+							"taskName":   "ParseHTML",
+						},
+					},
+				},
+				DataPipeTemplates: []DataPipeTemplate{
+					DataPipeTemplate{
+						SourceActionName: "HTTP1",
+						SourceOutputName: HTTPActionOutputBody,
+						DestActionName:   "UTF8Decode",
+						DestInputName:    UTF8DecodeActionInputBytes,
+					},
+					DataPipeTemplate{
+						SourceActionName: "UTF8Decode",
+						SourceOutputName: UTF8DecodeActionOutputStr,
+						DestActionName:   "MakePromise",
+						DestInputName:    "htmlStr1",
+					},
+					DataPipeTemplate{
+						SourceActionName: "UTF8Decode",
+						SourceOutputName: UTF8DecodeActionOutputStr,
+						DestActionName:   "MakePromise",
+						DestInputName:    "htmlStr2",
+					},
+					DataPipeTemplate{
+						SourceActionName: "MakePromise",
+						SourceOutputName: TaskPromiseActionOutputPromise,
+						TaskOutputName:   "promise",
+					},
+				},
+			},
+			TaskTemplate{
+				TaskName: "ParseHTML",
+				Initial:  false,
+				ActionTemplates: []ActionTemplate{
+					ActionTemplate{
 						Name:       "TitleExtraction",
 						StructName: "XPathAction",
 						ConstructorParams: map[string]interface{}{
@@ -61,16 +105,14 @@ func main() {
 				},
 				DataPipeTemplates: []DataPipeTemplate{
 					DataPipeTemplate{
-						SourceActionName: "HTTP1",
-						SourceOutputName: HTTPActionOutputBody,
-						DestActionName:   "TitleExtraction",
-						DestInputName:    XPathActionInputHTMLBytes,
+						TaskInputName:  "htmlStr1",
+						DestActionName: "TitleExtraction",
+						DestInputName:  XPathActionInputHTMLStr,
 					},
 					DataPipeTemplate{
-						SourceActionName: "HTTP1",
-						SourceOutputName: HTTPActionOutputBody,
-						DestActionName:   "LinkExtraction",
-						DestInputName:    XPathActionInputHTMLBytes,
+						TaskInputName:  "htmlStr2",
+						DestActionName: "LinkExtraction",
+						DestInputName:  XPathActionInputHTMLStr,
 					},
 					DataPipeTemplate{
 						SourceActionName: "TitleExtraction",
@@ -87,7 +129,7 @@ func main() {
 					DataPipeTemplate{
 						SourceActionName: "YieldItem",
 						SourceOutputName: FieldJoinActionOutputItem,
-						TaskOutputName:   "HNOutput",
+						TaskOutputName:   "items",
 					},
 				},
 			},
