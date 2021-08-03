@@ -35,6 +35,10 @@ func NewActionFromTemplate(actionTempl *ActionTemplate, workflow *Workflow, jobU
 		return NewFieldJoinActionFromTemplate(actionTempl, workflow)
 	} else if actionTempl.StructName == "TaskPromiseAction" {
 		return NewTaskPromiseActionFromTemplate(actionTempl, workflow)
+	} else if actionTempl.StructName == "UTF8DecodeAction" {
+		return NewUTF8DecodeAction()
+	} else if actionTempl.StructName == "UTF8EncodeAction" {
+		return NewUTF8EncodeAction()
 	}
 
 	// TODO: support creating more kinds of actions from template
