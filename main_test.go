@@ -4,7 +4,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
-func ExampleBasicTask() {
+func ExampleHTTPAction() {
 	httpAction := NewHTTPAction("https://cryptome.org", "GET", true)
 
 	headers := map[string][]string{
@@ -39,7 +39,7 @@ func ExampleBasicTask() {
 
 }
 
-func ExampleTask2() {
+func ExampleTask() {
 	httpAction := NewHTTPAction("https://news.ycombinator.com/news", "GET", false)
 
 	titleXpathAction := NewXPathAction("//a[@class='storylink']/text()", true)
