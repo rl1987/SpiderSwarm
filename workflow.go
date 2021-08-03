@@ -83,7 +83,7 @@ func (w *Workflow) Run() ([]*Item, error) {
 					}
 
 					if promise, okPromise := x.(*TaskPromise); okPromise {
-						newTask := NewTaskFromPromise(promise, w, jobUUID)
+						newTask := NewTaskFromPromise(promise, w)
 						tasks = append(tasks, newTask)
 					}
 				}

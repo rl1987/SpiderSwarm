@@ -92,9 +92,32 @@ func NewTaskFromTemplate(taskTempl *TaskTemplate, workflow *Workflow, jobUUID st
 	return task
 }
 
-func NewTaskFromPromise(promise *TaskPromise, workflow *Workflow, jobUUID string) *Task {
-	// TODO: implement
-	return &Task{}
+func NewTaskFromPromise(promise *TaskPromise, workflow *Workflow) *Task {
+	var taskTempl *TaskTemplate
+
+	for _, tt := range workflow.TaskTemplates {
+		if tt.TaskName == promise.TaskName {
+			taskTempl = &tt
+			break
+		}
+	}
+
+	if taskTempl == nil {
+		return nil
+	}
+
+	task := NewTaskFromTemplate(taskTempl, workflow, promise.JobUUID)
+
+	task.JobUUID = promise.JobUUID
+
+	for inputName, chunk := range promise.InputDataChunksByInputName {
+		inDP := task.Inputs[inputName]
+		if inDP != nil {
+			inDP.Queue[0] = chunk
+		}
+	}
+
+	return task
 }
 
 func (t *Task) AddInput(name string, action Action, actionInputName string, dataPipe *DataPipe) {
