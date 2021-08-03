@@ -113,7 +113,7 @@ func NewTaskFromPromise(promise *TaskPromise, workflow *Workflow) *Task {
 	for inputName, chunk := range promise.InputDataChunksByInputName {
 		inDP := task.Inputs[inputName]
 		if inDP != nil {
-			inDP.Queue[0] = chunk
+			inDP.Queue = append(inDP.Queue, chunk)
 		}
 	}
 
