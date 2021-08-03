@@ -7,6 +7,7 @@ import (
 )
 
 const FieldJoinActionOutputItem = "FieldJoinActionOutputItem"
+const FieldJoinActionOutputMap = "FieldJoinActionOutputMap"
 
 type FieldJoinAction struct {
 	AbstractAction
@@ -22,7 +23,7 @@ func NewFieldJoinAction(inputNames []string, workflowName string, jobUUID string
 	return &FieldJoinAction{
 		AbstractAction: AbstractAction{
 			AllowedInputNames:  inputNames,
-			AllowedOutputNames: []string{FieldJoinActionOutputItem},
+			AllowedOutputNames: []string{FieldJoinActionOutputItem, FieldJoinActionOutputMap},
 			Inputs:             map[string]*DataPipe{},
 			Outputs:            map[string][]*DataPipe{},
 			CanFail:            false,
@@ -46,8 +47,8 @@ func NewFieldJoinActionFromTemplate(actionTempl *ActionTemplate, workflow *Workf
 }
 
 func (fja *FieldJoinAction) Run() error {
-	if fja.Outputs[FieldJoinActionOutputItem] == nil {
-		return errors.New("Output not connected")
+	if fja.Outputs[FieldJoinActionOutputItem] == nil && fja.Outputs[FieldJoinActionOutputMap] == nil {
+		return errors.New("No output connected")
 	}
 
 	if len(fja.Inputs) == 0 {
@@ -55,16 +56,29 @@ func (fja *FieldJoinAction) Run() error {
 	}
 
 	item := NewItem(fja.ItemName, fja.WorkflowName, fja.JobUUID, fja.TaskUUID)
+	m := map[string]string{}
 
 	for key, inDP := range fja.Inputs {
 		if len(inDP.Queue) > 0 {
 			value := inDP.Remove()
 			item.SetField(key, value)
+			s, ok := value.(string)
+			if ok {
+				m[key] = s
+			}
 		}
 	}
 
-	for _, outDP := range fja.Outputs[FieldJoinActionOutputItem] {
-		outDP.AddItem(item)
+	if fja.Outputs[FieldJoinActionOutputItem] != nil {
+		for _, outDP := range fja.Outputs[FieldJoinActionOutputItem] {
+			outDP.AddItem(item)
+		}
+	}
+
+	if fja.Outputs[FieldJoinActionOutputMap] != nil {
+		for _, outDP := range fja.Outputs[FieldJoinActionOutputMap] {
+			outDP.Add(m)
+		}
 	}
 
 	return nil

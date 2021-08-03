@@ -59,8 +59,12 @@ func TestFieldJoinActionRun(t *testing.T) {
 	assert.Nil(t, err)
 
 	itemOut := NewDataPipe()
+	mapOut := NewDataPipe()
 
 	err = action.AddOutput(FieldJoinActionOutputItem, itemOut)
+	assert.Nil(t, err)
+
+	err = action.AddOutput(FieldJoinActionOutputMap, mapOut)
 	assert.Nil(t, err)
 
 	err = action.Run()
@@ -82,4 +86,12 @@ func TestFieldJoinActionRun(t *testing.T) {
 	assert.Equal(t, itemName, item.Name)
 
 	assert.Equal(t, expectedItemFields, item.Fields)
+
+	m, ok := mapOut.Remove().(map[string]string)
+	assert.True(t, ok)
+
+	for key, value := range expectedItemFields {
+		assert.Equal(t, value.(string), m[key])
+	}
+
 }
