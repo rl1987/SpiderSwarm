@@ -30,3 +30,51 @@ func TestNewTaskPromiseActionFromTemplate(t *testing.T) {
 	assert.Equal(t, workflow.Name, action.WorkflowName)
 	assert.Equal(t, []string{TaskPromiseActionOutputPromise}, action.AllowedOutputNames)
 }
+
+func TestTaskPromiseActionRun(t *testing.T) {
+	taskName := "HTTP2"
+
+	actionTempl := &ActionTemplate{
+		Name:       "testAction",
+		StructName: "TaskPromiseAction",
+		ConstructorParams: map[string]interface{}{
+			"inputNames": []string{"page", "session"},
+			"taskName":   taskName,
+		},
+	}
+
+	workflow := &Workflow{
+		Name: "testWorkflow",
+	}
+
+	action := NewTaskPromiseActionFromTemplate(actionTempl, workflow)
+
+	pageIn := NewDataPipe()
+	sessionIn := NewDataPipe()
+	promiseOut := NewDataPipe()
+
+	err := action.AddInput("page", pageIn)
+	assert.Nil(t, err)
+
+	err = action.AddInput("session", sessionIn)
+	assert.Nil(t, err)
+
+	err = action.AddOutput(TaskPromiseActionOutputPromise, promiseOut)
+	assert.Nil(t, err)
+
+	page := "2"
+	session := "session_111"
+
+	pageIn.Add(page)
+	sessionIn.Add(session)
+
+	err = action.Run()
+	assert.Nil(t, err)
+
+	promise, ok := promiseOut.Remove().(*TaskPromise)
+	assert.True(t, ok)
+	assert.Equal(t, taskName, promise.TaskName)
+	assert.Equal(t, workflow.Name, promise.WorkflowName)
+	assert.Equal(t, page, promise.InputDataChunksByInputName["page"].Payload)
+	assert.Equal(t, session, promise.InputDataChunksByInputName["session"].Payload)
+}
