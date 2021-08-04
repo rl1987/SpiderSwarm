@@ -272,3 +272,70 @@ func TestAddDataPipeBetweenActions(t *testing.T) {
 	assert.Equal(t, httpAction, task.DataPipes[0].FromAction)
 	assert.Equal(t, xpathAction, task.DataPipes[0].ToAction)
 }
+
+func TestNewTaskFromPromise(t *testing.T) {
+	workflow := &Workflow{
+		Name: "testWorkflow",
+		TaskTemplates: []TaskTemplate{
+			TaskTemplate{
+				TaskName: "GetHTML",
+				Initial:  true,
+				ActionTemplates: []ActionTemplate{
+					ActionTemplate{
+						Name:       "HTTP",
+						StructName: "HTTPAction",
+						ConstructorParams: map[string]interface{}{
+							"baseURL": "https://news.ycombinator.com/",
+							"method":  "GET",
+							"canFail": false,
+						},
+					},
+				},
+				DataPipeTemplates: []DataPipeTemplate{
+					DataPipeTemplate{
+						TaskInputName:  "cookies",
+						DestActionName: "HTTP",
+						DestInputName:  HTTPActionInputCookies,
+					},
+					DataPipeTemplate{
+						TaskOutputName:   "body",
+						SourceActionName: "HTTP",
+						SourceOutputName: HTTPActionOutputBody,
+					},
+				},
+			},
+		},
+	}
+
+	jobUUID := "45FF108C-CB87-40C4-A759-31577CC9567A"
+
+	chunk := &DataChunk{
+		Type: DataChunkTypeMapStringToString,
+		Payload: map[string]string{
+			"session": "S1234",
+		},
+	}
+
+	promise := &TaskPromise{
+		TaskName:     "GetHTML",
+		WorkflowName: workflow.Name,
+		JobUUID:      jobUUID,
+		InputDataChunksByInputName: map[string]*DataChunk{
+			"cookies": chunk,
+		},
+	}
+
+	task := NewTaskFromPromise(promise, workflow)
+
+	assert.NotNil(t, task)
+
+	assert.Equal(t, 1, len(task.Actions))
+	assert.Equal(t, 2, len(task.DataPipes))
+
+	httpAction, ok := task.Actions[0].(*HTTPAction)
+
+	assert.True(t, ok)
+	assert.NotNil(t, httpAction)
+
+	assert.Equal(t, chunk, task.Inputs["cookies"].Queue[0])
+}
