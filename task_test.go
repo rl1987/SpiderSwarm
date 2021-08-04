@@ -254,3 +254,21 @@ func TestNewTaskFromTemplate(t *testing.T) {
 
 	assert.Equal(t, dataPipe4, task.Outputs["promise"])
 }
+
+func TestAddDataPipeBetweenActions(t *testing.T) {
+	task := &Task{}
+
+	httpAction := NewHTTPAction("https://www.example.org", "HEAD", false)
+	xpathAction := NewXPathAction("//title/text()", false)
+
+	task.AddAction(httpAction)
+	task.AddAction(xpathAction)
+
+	task.AddDataPipeBetweenActions(httpAction, HTTPActionOutputBody,
+		xpathAction, XPathActionInputHTMLBytes)
+
+	assert.Equal(t, 1, len(task.DataPipes))
+
+	assert.Equal(t, httpAction, task.DataPipes[0].FromAction)
+	assert.Equal(t, xpathAction, task.DataPipes[0].ToAction)
+}
