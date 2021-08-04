@@ -79,12 +79,16 @@ func (w *Workflow) Run() ([]*Item, error) {
 					x := outDP.Remove()
 
 					if item, okItem := x.(*Item); okItem {
-						items = append(items, item)
+						for _, i := range item.Splay() {
+							items = append(items, i)
+						}
 					}
 
 					if promise, okPromise := x.(*TaskPromise); okPromise {
-						newTask := NewTaskFromPromise(promise, w)
-						tasks = append(tasks, newTask)
+						for _, p := range promise.Splay() {
+							newTask := NewTaskFromPromise(p, w)
+							tasks = append(tasks, newTask)
+						}
 					}
 				}
 			}
