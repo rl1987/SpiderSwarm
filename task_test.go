@@ -122,5 +122,124 @@ func TestTaskAddAction(t *testing.T) {
 
 	assert.Equal(t, 1, len(task.Actions))
 	assert.Equal(t, httpAction, task.Actions[0])
+}
 
+func TestNewTaskFromTemplate(t *testing.T) {
+	workflow := &Workflow{
+		Name: "testWorkflow",
+		TaskTemplates: []TaskTemplate{
+			TaskTemplate{
+				TaskName: "GetHTML",
+				Initial:  true,
+				ActionTemplates: []ActionTemplate{
+					ActionTemplate{
+						Name:       "HTTP1",
+						StructName: "HTTPAction",
+						ConstructorParams: map[string]interface{}{
+							"baseURL": "https://news.ycombinator.com/",
+							"method":  "GET",
+							"canFail": false,
+						},
+					},
+					ActionTemplate{
+						Name:              "UTF8Decode",
+						StructName:        "UTF8DecodeAction",
+						ConstructorParams: map[string]interface{}{},
+					},
+					ActionTemplate{
+						Name:       "MakePromise",
+						StructName: "TaskPromiseAction",
+						ConstructorParams: map[string]interface{}{
+							"inputNames": []string{"htmlStr1", "htmlStr2"},
+							"taskName":   "ParseHTML",
+						},
+					},
+				},
+				DataPipeTemplates: []DataPipeTemplate{
+					DataPipeTemplate{
+						SourceActionName: "HTTP1",
+						SourceOutputName: HTTPActionOutputBody,
+						DestActionName:   "UTF8Decode",
+						DestInputName:    UTF8DecodeActionInputBytes,
+					},
+					DataPipeTemplate{
+						SourceActionName: "UTF8Decode",
+						SourceOutputName: UTF8DecodeActionOutputStr,
+						DestActionName:   "MakePromise",
+						DestInputName:    "htmlStr1",
+					},
+					DataPipeTemplate{
+						SourceActionName: "UTF8Decode",
+						SourceOutputName: UTF8DecodeActionOutputStr,
+						DestActionName:   "MakePromise",
+						DestInputName:    "htmlStr2",
+					},
+					DataPipeTemplate{
+						SourceActionName: "MakePromise",
+						SourceOutputName: TaskPromiseActionOutputPromise,
+						TaskOutputName:   "promise",
+					},
+				},
+			},
+		},
+	}
+	jobUUID := "44ECE4B0-A1C9-4DE2-A456-7862F2A5B6CA"
+
+	task := NewTaskFromTemplate(&workflow.TaskTemplates[0], workflow, jobUUID)
+
+	assert.NotNil(t, task)
+	assert.Equal(t, workflow.Name, task.WorkflowName)
+	assert.Equal(t, jobUUID, task.JobUUID)
+	assert.Equal(t, len(workflow.TaskTemplates[0].ActionTemplates), len(task.Actions))
+	assert.Equal(t, len(workflow.TaskTemplates[0].DataPipeTemplates), len(task.DataPipes))
+
+	httpAction, ok1 := task.Actions[0].(*HTTPAction)
+	assert.True(t, ok1)
+	assert.NotNil(t, httpAction)
+
+	assert.Equal(t, "https://news.ycombinator.com/", httpAction.BaseURL)
+	assert.Equal(t, "GET", httpAction.Method)
+	assert.Equal(t, false, httpAction.CanFail)
+
+	utf8DecodeAction, ok2 := task.Actions[1].(*UTF8DecodeAction)
+	assert.True(t, ok2)
+	assert.NotNil(t, utf8DecodeAction)
+
+	promiseAction, ok3 := task.Actions[2].(*TaskPromiseAction)
+	assert.True(t, ok3)
+	assert.NotNil(t, promiseAction)
+
+	assert.Equal(t, []string{"htmlStr1", "htmlStr2"}, promiseAction.AllowedInputNames)
+	assert.Equal(t, "ParseHTML", promiseAction.TaskName)
+
+	assert.Equal(t, 0, len(task.Inputs))
+	assert.Equal(t, 1, len(task.Outputs))
+
+	assert.Equal(t, 0, len(httpAction.Inputs))
+	assert.Equal(t, 1, len(httpAction.Outputs))
+
+	dataPipe1 := httpAction.Outputs[HTTPActionOutputBody][0]
+
+	assert.Equal(t, httpAction, dataPipe1.FromAction)
+	assert.Equal(t, utf8DecodeAction, dataPipe1.ToAction)
+
+	assert.Equal(t, 1, len(utf8DecodeAction.Inputs))
+	assert.Equal(t, 1, len(utf8DecodeAction.Outputs))
+
+	dataPipe2 := utf8DecodeAction.Outputs[UTF8DecodeActionOutputStr][0]
+
+	assert.Equal(t, utf8DecodeAction, dataPipe2.FromAction)
+	assert.Equal(t, promiseAction, dataPipe2.ToAction)
+
+	dataPipe3 := utf8DecodeAction.Outputs[UTF8DecodeActionOutputStr][1]
+
+	assert.Equal(t, utf8DecodeAction, dataPipe3.FromAction)
+	assert.Equal(t, promiseAction, dataPipe3.ToAction)
+
+	dataPipe4 := promiseAction.Outputs[TaskPromiseActionOutputPromise][0]
+
+	assert.Equal(t, promiseAction, dataPipe4.FromAction)
+	assert.Nil(t, dataPipe4.ToAction)
+
+	assert.Equal(t, dataPipe4, task.Outputs["promise"])
 }
