@@ -157,6 +157,11 @@ func TestNewTaskFromTemplate(t *testing.T) {
 				},
 				DataPipeTemplates: []DataPipeTemplate{
 					DataPipeTemplate{
+						TaskInputName:  "cookies",
+						DestActionName: "HTTP1",
+						DestInputName:  HTTPActionInputCookies,
+					},
+					DataPipeTemplate{
 						SourceActionName: "HTTP1",
 						SourceOutputName: HTTPActionOutputBody,
 						DestActionName:   "UTF8Decode",
@@ -212,11 +217,17 @@ func TestNewTaskFromTemplate(t *testing.T) {
 	assert.Equal(t, []string{"htmlStr1", "htmlStr2"}, promiseAction.AllowedInputNames)
 	assert.Equal(t, "ParseHTML", promiseAction.TaskName)
 
-	assert.Equal(t, 0, len(task.Inputs))
+	assert.Equal(t, 1, len(task.Inputs))
 	assert.Equal(t, 1, len(task.Outputs))
 
-	assert.Equal(t, 0, len(httpAction.Inputs))
+	assert.Equal(t, 1, len(httpAction.Inputs))
 	assert.Equal(t, 1, len(httpAction.Outputs))
+
+	dataPipe0 := httpAction.Inputs[HTTPActionInputCookies]
+
+	assert.Equal(t, httpAction, dataPipe0.ToAction)
+	assert.Nil(t, dataPipe0.FromAction)
+	assert.Equal(t, task.Inputs["cookies"], dataPipe0)
 
 	dataPipe1 := httpAction.Outputs[HTTPActionOutputBody][0]
 
