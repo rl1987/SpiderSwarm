@@ -17,5 +17,25 @@ func main() {
 	initLogging()
 	log.Info("Starting spiderswarm instance...")
 
-	spew.Dump(false)
+	// https://apps.fcc.gov/cgb/form499/499a.cfm
+
+	workflow := &Workflow{
+		Name: "FCC_telecom",
+		TaskTemplates: []TaskTemplate{
+			TaskTemplate{
+				TaskName: "ScrapeStates",
+				Initial:  true,
+			},
+			TaskTemplate{
+				TaskName: "ScrapeCompanyList",
+				Initial:  false,
+			},
+			TaskTemplate{
+				TaskName: "ScrapeCompanyPage",
+				Initial:  false,
+			},
+		},
+	}
+
+	spew.Dump(workflow)
 }
