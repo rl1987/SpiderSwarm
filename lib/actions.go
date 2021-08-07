@@ -43,6 +43,8 @@ func NewActionFromTemplate(actionTempl *ActionTemplate, workflow *Workflow, jobU
 		return NewConstActionFromTemplate(actionTempl)
 	} else if actionTempl.StructName == "URLJoinAction" {
 		return NewURLJoinActionFromTemplate(actionTempl)
+	} else if actionTempl.StructName == "StringCutAction" {
+		return NewStringCutActionFromTemplate(actionTempl)
 	}
 
 	return nil

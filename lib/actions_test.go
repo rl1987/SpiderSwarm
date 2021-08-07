@@ -63,4 +63,11 @@ func TestNewActionFromTemplate(t *testing.T) {
 
 	assert.True(t, ok8)
 	assert.NotNil(t, action8)
+
+	actionTempl9 := &ActionTemplate{StructName: "StringCutAction"}
+	action9, ok9 := NewActionFromTemplate(actionTempl9, workflow, jobUUID).(*StringCutAction)
+
+	assert.True(t, ok9)
+	assert.NotNil(t, action9)
+
 }
