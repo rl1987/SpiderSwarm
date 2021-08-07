@@ -1,30 +1,32 @@
 package main
 
 import (
+	spsw "github.com/rl1987/spiderswarm/lib"
+
 	"github.com/davecgh/go-spew/spew"
 )
 
 func ExampleHTTPAction() {
-	httpAction := NewHTTPAction("https://cryptome.org", "GET", true)
+	httpAction := spsw.NewHTTPAction("https://cryptome.org", "GET", true)
 
 	headers := map[string][]string{
 		"User-Agent": []string{"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"},
 	}
 
-	headersIn := NewDataPipe()
-	resultOut := NewDataPipe()
+	headersIn := spsw.NewDataPipe()
+	resultOut := spsw.NewDataPipe()
 
-	httpAction.AddInput(HTTPActionInputHeaders, headersIn)
-	xpathAction := NewXPathAction("//a/text()", true)
+	httpAction.AddInput(spsw.HTTPActionInputHeaders, headersIn)
+	xpathAction := spsw.NewXPathAction("//a/text()", true)
 
-	task := NewTask("task1", "", "")
+	task := spsw.NewTask("task1", "", "")
 	task.AddAction(httpAction)
 	task.AddAction(xpathAction)
 
-	task.AddInput("headersIn", httpAction, HTTPActionInputHeaders, headersIn)
-	task.AddOutput("resultOut", xpathAction, XPathActionOutputStr, resultOut)
+	task.AddInput("headersIn", httpAction, spsw.HTTPActionInputHeaders, headersIn)
+	task.AddOutput("resultOut", xpathAction, spsw.XPathActionOutputStr, resultOut)
 
-	task.AddDataPipeBetweenActions(httpAction, HTTPActionOutputBody, xpathAction, XPathActionInputHTMLBytes)
+	task.AddDataPipeBetweenActions(httpAction, spsw.HTTPActionOutputBody, xpathAction, spsw.XPathActionInputHTMLBytes)
 
 	headersIn.Add(headers)
 
@@ -40,25 +42,25 @@ func ExampleHTTPAction() {
 }
 
 func ExampleTask() {
-	httpAction := NewHTTPAction("https://news.ycombinator.com/news", "GET", false)
+	httpAction := spsw.NewHTTPAction("https://news.ycombinator.com/news", "GET", false)
 
-	titleXpathAction := NewXPathAction("//a[@class='storylink']/text()", true)
-	linkXpathAction := NewXPathAction("//a[@class='storylink']/@href", true)
+	titleXpathAction := spsw.NewXPathAction("//a[@class='storylink']/text()", true)
+	linkXpathAction := spsw.NewXPathAction("//a[@class='storylink']/@href", true)
 
-	task := NewTask("HN", "", "")
+	task := spsw.NewTask("HN", "", "")
 
-	titlesOut := NewDataPipe()
-	linksOut := NewDataPipe()
+	titlesOut := spsw.NewDataPipe()
+	linksOut := spsw.NewDataPipe()
 
 	task.AddAction(httpAction)
 	task.AddAction(titleXpathAction)
 	task.AddAction(linkXpathAction)
 
-	task.AddOutput("titles", titleXpathAction, XPathActionOutputStr, titlesOut)
-	task.AddOutput("links", linkXpathAction, XPathActionOutputStr, linksOut)
+	task.AddOutput("titles", titleXpathAction, spsw.XPathActionOutputStr, titlesOut)
+	task.AddOutput("links", linkXpathAction, spsw.XPathActionOutputStr, linksOut)
 
-	task.AddDataPipeBetweenActions(httpAction, HTTPActionOutputBody, titleXpathAction, XPathActionInputHTMLBytes)
-	task.AddDataPipeBetweenActions(httpAction, HTTPActionOutputBody, linkXpathAction, XPathActionInputHTMLBytes)
+	task.AddDataPipeBetweenActions(httpAction, spsw.HTTPActionOutputBody, titleXpathAction, spsw.XPathActionInputHTMLBytes)
+	task.AddDataPipeBetweenActions(httpAction, spsw.HTTPActionOutputBody, linkXpathAction, spsw.XPathActionInputHTMLBytes)
 
 	err := task.Run()
 	if err != nil {
@@ -91,15 +93,15 @@ func ExampleTask() {
 }
 
 func ExampleWorkflow() {
-	workflow := &Workflow{
+	workflow := &spsw.Workflow{
 		Name:    "testWorkflow",
 		Version: "v0.0.0.0.1",
-		TaskTemplates: []TaskTemplate{
-			TaskTemplate{
+		TaskTemplates: []spsw.TaskTemplate{
+			spsw.TaskTemplate{
 				TaskName: "GetHTML",
 				Initial:  true,
-				ActionTemplates: []ActionTemplate{
-					ActionTemplate{
+				ActionTemplates: []spsw.ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "HTTP1",
 						StructName: "HTTPAction",
 						ConstructorParams: map[string]interface{}{
@@ -108,12 +110,12 @@ func ExampleWorkflow() {
 							"canFail": false,
 						},
 					},
-					ActionTemplate{
+					spsw.ActionTemplate{
 						Name:              "UTF8Decode",
 						StructName:        "UTF8DecodeAction",
 						ConstructorParams: map[string]interface{}{},
 					},
-					ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "MakePromise",
 						StructName: "TaskPromiseAction",
 						ConstructorParams: map[string]interface{}{
@@ -122,37 +124,37 @@ func ExampleWorkflow() {
 						},
 					},
 				},
-				DataPipeTemplates: []DataPipeTemplate{
-					DataPipeTemplate{
+				DataPipeTemplates: []spsw.DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "HTTP1",
-						SourceOutputName: HTTPActionOutputBody,
+						SourceOutputName: spsw.HTTPActionOutputBody,
 						DestActionName:   "UTF8Decode",
-						DestInputName:    UTF8DecodeActionInputBytes,
+						DestInputName:    spsw.UTF8DecodeActionInputBytes,
 					},
-					DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "UTF8Decode",
-						SourceOutputName: UTF8DecodeActionOutputStr,
+						SourceOutputName: spsw.UTF8DecodeActionOutputStr,
 						DestActionName:   "MakePromise",
 						DestInputName:    "htmlStr1",
 					},
-					DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "UTF8Decode",
-						SourceOutputName: UTF8DecodeActionOutputStr,
+						SourceOutputName: spsw.UTF8DecodeActionOutputStr,
 						DestActionName:   "MakePromise",
 						DestInputName:    "htmlStr2",
 					},
-					DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "MakePromise",
-						SourceOutputName: TaskPromiseActionOutputPromise,
+						SourceOutputName: spsw.TaskPromiseActionOutputPromise,
 						TaskOutputName:   "promise",
 					},
 				},
 			},
-			TaskTemplate{
+			spsw.TaskTemplate{
 				TaskName: "ParseHTML",
 				Initial:  false,
-				ActionTemplates: []ActionTemplate{
-					ActionTemplate{
+				ActionTemplates: []spsw.ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "TitleExtraction",
 						StructName: "XPathAction",
 						ConstructorParams: map[string]interface{}{
@@ -160,7 +162,7 @@ func ExampleWorkflow() {
 							"expectMany": true,
 						},
 					},
-					ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "LinkExtraction",
 						StructName: "XPathAction",
 						ConstructorParams: map[string]interface{}{
@@ -168,7 +170,7 @@ func ExampleWorkflow() {
 							"expectMany": true,
 						},
 					},
-					ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "YieldItem",
 						StructName: "FieldJoinAction",
 						ConstructorParams: map[string]interface{}{
@@ -177,32 +179,32 @@ func ExampleWorkflow() {
 						},
 					},
 				},
-				DataPipeTemplates: []DataPipeTemplate{
-					DataPipeTemplate{
+				DataPipeTemplates: []spsw.DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						TaskInputName:  "htmlStr1",
 						DestActionName: "TitleExtraction",
-						DestInputName:  XPathActionInputHTMLStr,
+						DestInputName:  spsw.XPathActionInputHTMLStr,
 					},
-					DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						TaskInputName:  "htmlStr2",
 						DestActionName: "LinkExtraction",
-						DestInputName:  XPathActionInputHTMLStr,
+						DestInputName:  spsw.XPathActionInputHTMLStr,
 					},
-					DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "TitleExtraction",
-						SourceOutputName: XPathActionOutputStr,
+						SourceOutputName: spsw.XPathActionOutputStr,
 						DestActionName:   "YieldItem",
 						DestInputName:    "title",
 					},
-					DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "LinkExtraction",
-						SourceOutputName: XPathActionOutputStr,
+						SourceOutputName: spsw.XPathActionOutputStr,
 						DestActionName:   "YieldItem",
 						DestInputName:    "link",
 					},
-					DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "YieldItem",
-						SourceOutputName: FieldJoinActionOutputItem,
+						SourceOutputName: spsw.FieldJoinActionOutputItem,
 						TaskOutputName:   "items",
 					},
 				},
