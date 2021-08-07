@@ -30,6 +30,11 @@ func NewConstAction(c interface{}) *ConstAction {
 	}
 }
 
+func NewConstActionFromTemplate(actionTempl *ActionTemplate) *ConstAction {
+	c, _ := actionTempl.ConstructorParams["c"]
+	return NewConstAction(c)
+}
+
 func (ca *ConstAction) Run() error {
 	if ca.Outputs[ConstActionOutput] == nil {
 		return errors.New("Output not connected")

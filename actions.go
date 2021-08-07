@@ -39,9 +39,11 @@ func NewActionFromTemplate(actionTempl *ActionTemplate, workflow *Workflow, jobU
 		return NewUTF8DecodeAction()
 	} else if actionTempl.StructName == "UTF8EncodeAction" {
 		return NewUTF8EncodeAction()
+	} else if actionTempl.StructName == "ConstAction" {
+		return NewConstActionFromTemplate(actionTempl)
+	} else if actionTempl.StructName == "URLJoinAction" {
+		return NewURLJoinActionFromTemplate(actionTempl)
 	}
-
-	// TODO: support creating more kinds of actions from template
 
 	return nil
 }

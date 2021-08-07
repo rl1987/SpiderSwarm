@@ -51,4 +51,16 @@ func TestNewActionFromTemplate(t *testing.T) {
 
 	assert.True(t, ok6)
 	assert.NotNil(t, action6)
+
+	actionTempl7 := &ActionTemplate{StructName: "ConstAction"}
+	action7, ok7 := NewActionFromTemplate(actionTempl7, workflow, jobUUID).(*ConstAction)
+
+	assert.True(t, ok7)
+	assert.NotNil(t, action7)
+
+	actionTempl8 := &ActionTemplate{StructName: "URLJoinAction"}
+	action8, ok8 := NewActionFromTemplate(actionTempl8, workflow, jobUUID).(*URLJoinAction)
+
+	assert.True(t, ok8)
+	assert.NotNil(t, action8)
 }
