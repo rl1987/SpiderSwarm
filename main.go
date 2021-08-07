@@ -50,7 +50,7 @@ func main() {
 						Name:       "TaskPromise_ScrapeList",
 						StructName: "TaskPromiseAction",
 						ConstructorParams: map[string]interface{}{
-							"inputNames": []string{"states"},
+							"inputNames": []string{"state"},
 							"taskName":   "ScrapeCompanyList",
 						},
 					},
@@ -66,7 +66,7 @@ func main() {
 						SourceActionName: "XPath_states",
 						SourceOutputName: spsw.XPathActionOutputStr,
 						DestActionName:   "TaskPromise_ScrapeList",
-						DestInputName:    "states",
+						DestInputName:    "state",
 					},
 					spsw.DataPipeTemplate{
 						SourceActionName: "TaskPromise_ScrapeList",
@@ -164,7 +164,7 @@ func main() {
 						DestInputName:    spsw.HTTPActionInputURLParams,
 					},
 					spsw.DataPipeTemplate{
-						SourceActionName: "HTTP_Action",
+						SourceActionName: "HTTP_List",
 						SourceOutputName: spsw.HTTPActionOutputBody,
 						DestActionName:   "XPath_Companies",
 						DestInputName:    spsw.XPathActionInputHTMLBytes,
@@ -199,6 +199,43 @@ func main() {
 						ConstructorParams: map[string]interface{}{
 							"method":  "GET",
 							"canFail": false,
+						},
+					},
+					spsw.ActionTemplate{
+						Name:              "BodyBytesToStr",
+						StructName:        "UTF8DecodeAction",
+						ConstructorParams: map[string]interface{}{},
+					},
+					spsw.ActionTemplate{
+						Name:       "GetFilerID",
+						StructName: "StringCutAction",
+						ConstructorParams: map[string]interface{}{
+							"from": "499 Filer ID Number:                <b>",
+							"to":   "</b>",
+						},
+					},
+					spsw.ActionTemplate{
+						Name:       "GetLegalName",
+						StructName: "StringCutAction",
+						ConstructorParams: map[string]interface{}{
+							"from": "Legal Name of Reporting Entity:     <b>",
+							"to":   "</b>",
+						},
+					},
+					spsw.ActionTemplate{
+						Name:       "GetDBA",
+						StructName: "StringCutAction",
+						ConstructorParams: map[string]interface{}{
+							"from": "Doing Business As:                  <b>",
+							"to":   "</b>",
+						},
+					},
+					spsw.ActionTemplate{
+						Name:       "GetPhone",
+						StructName: "StringCutAction",
+						ConstructorParams: map[string]interface{}{
+							"from": "Customer Inquiries Telephone:       <b>",
+							"to":   "</b>",
 						},
 					},
 				},

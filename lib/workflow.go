@@ -67,7 +67,6 @@ func (w *Workflow) Run() ([]*Item, error) {
 		fmt.Printf("Running task %v\n", task)
 		err := task.Run()
 		if err != nil {
-			spew.Dump(task)
 			spew.Dump(err)
 		} else { // TODO: make this less nested
 			for _, outDP := range task.Outputs {
