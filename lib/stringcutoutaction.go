@@ -70,6 +70,8 @@ func (sca *StringCutAction) Run() error {
 			return errors.New(".To not found")
 		}
 
+		toIdx += fromIdx
+
 		outputStr := inputStr[fromIdx:toIdx]
 
 		for _, output := range sca.Outputs[StringCutActionOutputStr] {
