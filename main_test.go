@@ -1,4 +1,4 @@
-package main
+package spiderswarm
 
 import (
 	"github.com/davecgh/go-spew/spew"

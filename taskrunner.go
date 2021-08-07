@@ -1,4 +1,4 @@
-package main
+package spiderswarm
 
 type TaskRunner struct {
 	UUID            string
