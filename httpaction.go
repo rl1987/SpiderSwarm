@@ -82,12 +82,9 @@ func (ha *HTTPAction) Run() error {
 	}
 
 	if ha.Inputs[HTTPActionInputURLParams] != nil {
-		for {
-			urlParams, ok := ha.Inputs[HTTPActionInputURLParams].Remove().(map[string][]string)
-			if !ok {
-				break
-			}
+		urlParams, ok := ha.Inputs[HTTPActionInputURLParams].Remove().(map[string][]string)
 
+		if ok {
 			for key, values := range urlParams {
 				for _, value := range values {
 					q.Add(key, value)
@@ -98,35 +95,25 @@ func (ha *HTTPAction) Run() error {
 
 	if ha.Inputs[HTTPActionInputHeaders] != nil {
 		request.Header = http.Header{}
-		for {
-			headers, ok := ha.Inputs[HTTPActionInputHeaders].Remove().(http.Header)
+		headers, ok := ha.Inputs[HTTPActionInputHeaders].Remove().(http.Header)
 
-			if !ok {
-				break
-			}
-
+		if ok {
 			for key, values := range headers {
 				for _, value := range values {
 					request.Header.Add(key, value)
 				}
 			}
-
 		}
 	}
 
 	if ha.Inputs[HTTPActionInputCookies] != nil {
-		for {
-			cookies, ok := ha.Inputs[HTTPActionInputCookies].Remove().(map[string]string)
+		cookies, ok := ha.Inputs[HTTPActionInputCookies].Remove().(map[string]string)
 
-			if !ok {
-				break
-			}
-
+		if ok {
 			for key, value := range cookies {
 				c := &http.Cookie{Name: key, Value: value}
 				request.AddCookie(c)
 			}
-
 		}
 	}
 
