@@ -19,3 +19,5 @@ SpiderSwarm
 .vagrant
 
 tags
+
+coverage.txt
