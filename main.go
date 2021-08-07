@@ -1,7 +1,9 @@
-package spiderswarm
+package main
 
 import (
 	"os"
+
+	spsw "github.com/rl1987/spiderswarm/lib"
 
 	"github.com/davecgh/go-spew/spew"
 	log "github.com/sirupsen/logrus"
@@ -20,14 +22,14 @@ func main() {
 	// https://apps.fcc.gov/cgb/form499/499a.cfm
 	// https://apps.fcc.gov/cgb/form499/499results.cfm?comm_type=Any+Type&state=alaska&R1=and&XML=FALSE
 
-	workflow := &Workflow{
+	workflow := &spsw.Workflow{
 		Name: "FCC_telecom",
-		TaskTemplates: []TaskTemplate{
-			TaskTemplate{
+		TaskTemplates: []spsw.TaskTemplate{
+			spsw.TaskTemplate{
 				TaskName: "ScrapeStates",
 				Initial:  true,
-				ActionTemplates: []ActionTemplate{
-					ActionTemplate{
+				ActionTemplates: []spsw.ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "HTTP_Form",
 						StructName: "HTTPAction",
 						ConstructorParams: map[string]interface{}{
@@ -36,7 +38,7 @@ func main() {
 							"canFail": false,
 						},
 					},
-					ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "XPath_states",
 						StructName: "XPathAction",
 						ConstructorParams: map[string]interface{}{
@@ -44,7 +46,7 @@ func main() {
 							"expectMany": true,
 						},
 					},
-					ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "TaskPromise_ScrapeList",
 						StructName: "TaskPromiseAction",
 						ConstructorParams: map[string]interface{}{
@@ -53,52 +55,52 @@ func main() {
 						},
 					},
 				},
-				DataPipeTemplates: []DataPipeTemplate{
-					DataPipeTemplate{
+				DataPipeTemplates: []spsw.DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "HTTP_Form",
-						SourceOutputName: HTTPActionOutputBody,
+						SourceOutputName: spsw.HTTPActionOutputBody,
 						DestActionName:   "XPath_states",
-						DestInputName:    XPathActionInputHTMLBytes,
+						DestInputName:    spsw.XPathActionInputHTMLBytes,
 					},
-					DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "XPath_states",
-						SourceOutputName: XPathActionOutputStr,
+						SourceOutputName: spsw.XPathActionOutputStr,
 						DestActionName:   "TaskPromise_ScrapeList",
 						DestInputName:    "states",
 					},
-					DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "TaskPromise_ScrapeList",
-						SourceOutputName: TaskPromiseActionOutputPromise,
+						SourceOutputName: spsw.TaskPromiseActionOutputPromise,
 						TaskOutputName:   "promise",
 					},
 				},
 			},
-			TaskTemplate{
+			spsw.TaskTemplate{
 				TaskName: "ScrapeCompanyList",
 				Initial:  false,
-				ActionTemplates: []ActionTemplate{
-					ActionTemplate{
+				ActionTemplates: []spsw.ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "Const_commType",
 						StructName: "ConstAction",
 						ConstructorParams: map[string]interface{}{
 							"c": "Any Type",
 						},
 					},
-					ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "Const_R1",
 						StructName: "ConstAction",
 						ConstructorParams: map[string]interface{}{
 							"c": "and",
 						},
 					},
-					ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "Const_XML",
 						StructName: "ConstAction",
 						ConstructorParams: map[string]interface{}{
 							"c": "FALSE",
 						},
 					},
-					ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "JoinParams",
 						StructName: "FieldJoinAction",
 						ConstructorParams: map[string]interface{}{
@@ -106,7 +108,7 @@ func main() {
 							"itemName":   "params",
 						},
 					},
-					ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "HTTP_List",
 						StructName: "HTTPAction",
 						ConstructorParams: map[string]interface{}{
@@ -114,7 +116,7 @@ func main() {
 							"canFail": false,
 						},
 					},
-					ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "XPath_Companies",
 						StructName: "XPathAction",
 						ConstructorParams: map[string]interface{}{
@@ -122,7 +124,7 @@ func main() {
 							"expectMany": true,
 						},
 					},
-					ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "TaskPromise_ScrapeCompanyPage",
 						StructName: "TaskPromiseAction",
 						ConstructorParams: map[string]interface{}{
@@ -131,67 +133,67 @@ func main() {
 						},
 					},
 				},
-				DataPipeTemplates: []DataPipeTemplate{
-					DataPipeTemplate{
+				DataPipeTemplates: []spsw.DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						TaskInputName:  "relativeURL",
 						DestActionName: "JoinParams",
 						DestInputName:  "state",
 					},
-					DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "Const_R1",
-						SourceOutputName: ConstActionOutput,
+						SourceOutputName: spsw.ConstActionOutput,
 						DestActionName:   "JoinParams",
 						DestInputName:    "R1",
 					},
-					DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "Const_XML",
-						SourceOutputName: ConstActionOutput,
+						SourceOutputName: spsw.ConstActionOutput,
 						DestActionName:   "JoinParams",
 						DestInputName:    "XML",
 					},
-					DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "Const_commType",
-						SourceOutputName: ConstActionOutput,
+						SourceOutputName: spsw.ConstActionOutput,
 						DestActionName:   "JoinParams",
 						DestInputName:    "commType",
 					},
-					DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "JoinParams",
-						SourceOutputName: FieldJoinActionOutputMap,
+						SourceOutputName: spsw.FieldJoinActionOutputMap,
 						DestActionName:   "HTTP_List",
-						DestInputName:    HTTPActionInputURLParams,
+						DestInputName:    spsw.HTTPActionInputURLParams,
 					},
-					DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "HTTP_Action",
-						SourceOutputName: HTTPActionOutputBody,
+						SourceOutputName: spsw.HTTPActionOutputBody,
 						DestActionName:   "XPath_Companies",
-						DestInputName:    XPathActionInputHTMLBytes,
+						DestInputName:    spsw.XPathActionInputHTMLBytes,
 					},
-					DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "XPath_Companies",
-						SourceOutputName: XPathActionOutputStr,
+						SourceOutputName: spsw.XPathActionOutputStr,
 						DestActionName:   "TaskPromise_ScrapeCompanyPage",
 						DestInputName:    "relativeURL",
 					},
-					DataPipeTemplate{
+					spsw.DataPipeTemplate{
 						SourceActionName: "TaskPromise_ScrapeCompanyPage",
-						SourceOutputName: TaskPromiseActionOutputPromise,
+						SourceOutputName: spsw.TaskPromiseActionOutputPromise,
 						TaskOutputName:   "promise",
 					},
 				},
 			},
-			TaskTemplate{
+			spsw.TaskTemplate{
 				TaskName: "ScrapeCompanyPage",
 				Initial:  false,
-				ActionTemplates: []ActionTemplate{
-					ActionTemplate{
+				ActionTemplates: []spsw.ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "URLJoin",
 						StructName: "URLJoinAction",
 						ConstructorParams: map[string]interface{}{
 							"baseURL": "https://apps.fcc.gov/cgb/form499/",
 						},
 					},
-					ActionTemplate{
+					spsw.ActionTemplate{
 						Name:       "HTTP_Company",
 						StructName: "HTTPAction",
 						ConstructorParams: map[string]interface{}{
@@ -200,7 +202,7 @@ func main() {
 						},
 					},
 				},
-				DataPipeTemplates: []DataPipeTemplate{},
+				DataPipeTemplates: []spsw.DataPipeTemplate{},
 			},
 		},
 	}
