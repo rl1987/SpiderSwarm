@@ -82,11 +82,19 @@ func (ha *HTTPAction) Run() error {
 	}
 
 	if ha.Inputs[HTTPActionInputURLParams] != nil {
-		urlParams, ok := ha.Inputs[HTTPActionInputURLParams].Remove().(map[string][]string)
-
-		if ok {
-			for key, values := range urlParams {
+		x := ha.Inputs[HTTPActionInputURLParams].Remove()
+		urlParamsOneToMany, ok1 := x.(map[string][]string)
+		// TODO: unit-test this part
+		if ok1 {
+			for key, values := range urlParamsOneToMany {
 				for _, value := range values {
+					q.Add(key, value)
+				}
+			}
+		} else {
+			urlParamsOneToOne, ok2 := x.(map[string]string)
+			if ok2 {
+				for key, value := range urlParamsOneToOne {
 					q.Add(key, value)
 				}
 			}
