@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	"github.com/google/uuid"
 )
 
+const HTTPActionInputBaseURL = "HTTPActionInputBaseURL"
 const HTTPActionInputURLParams = "HTTPActionInputURLParams"
 const HTTPActionInputHeaders = "HTTPActionInputHeaders"
 const HTTPActionInputCookies = "HTTPActionInputCookies"
@@ -30,6 +32,7 @@ func NewHTTPAction(baseURL string, method string, canFail bool) *HTTPAction {
 			CanFail:    canFail,
 			ExpectMany: false,
 			AllowedInputNames: []string{
+				HTTPActionInputBaseURL,
 				HTTPActionInputURLParams,
 				HTTPActionInputHeaders,
 				HTTPActionInputCookies,
@@ -72,6 +75,17 @@ func (ha *HTTPAction) Run() error {
 	}
 
 	q := request.URL.Query()
+
+	// TODO: unit-test this part
+	if ha.Inputs[HTTPActionInputBaseURL] != nil {
+		baseURLStr, ok := ha.Inputs[HTTPActionInputBaseURL].Remove().(string)
+		if ok {
+			baseURL, err := url.Parse(baseURLStr)
+			if err == nil {
+				request.URL = baseURL
+			}
+		}
+	}
 
 	if ha.Inputs[HTTPActionInputBody] != nil && ha.Method != http.MethodGet {
 		bodyBytes, ok := ha.Inputs[HTTPActionInputBody].Remove().([]byte)
