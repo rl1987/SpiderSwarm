@@ -104,7 +104,7 @@ func main() {
 						Name:       "JoinParams",
 						StructName: "FieldJoinAction",
 						ConstructorParams: map[string]interface{}{
-							"inputNames": []string{"commType", "R1", "state", "XML"},
+							"inputNames": []string{"comm_type", "R1", "state", "XML"},
 							"itemName":   "params",
 						},
 					},
@@ -155,7 +155,7 @@ func main() {
 						SourceActionName: "Const_commType",
 						SourceOutputName: spsw.ConstActionOutput,
 						DestActionName:   "JoinParams",
-						DestInputName:    "commType",
+						DestInputName:    "comm_type",
 					},
 					spsw.DataPipeTemplate{
 						SourceActionName: "JoinParams",
