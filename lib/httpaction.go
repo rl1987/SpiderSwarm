@@ -74,8 +74,6 @@ func (ha *HTTPAction) Run() error {
 		return err
 	}
 
-	q := request.URL.Query()
-
 	// TODO: unit-test this part
 	if ha.Inputs[HTTPActionInputBaseURL] != nil {
 		baseURLStr, ok := ha.Inputs[HTTPActionInputBaseURL].Remove().(string)
@@ -86,6 +84,8 @@ func (ha *HTTPAction) Run() error {
 			}
 		}
 	}
+
+	q := request.URL.Query()
 
 	if ha.Inputs[HTTPActionInputBody] != nil && ha.Method != http.MethodGet {
 		bodyBytes, ok := ha.Inputs[HTTPActionInputBody].Remove().([]byte)
