@@ -135,7 +135,7 @@ func main() {
 				},
 				DataPipeTemplates: []spsw.DataPipeTemplate{
 					spsw.DataPipeTemplate{
-						TaskInputName:  "relativeURL",
+						TaskInputName:  "state",
 						DestActionName: "JoinParams",
 						DestInputName:  "state",
 					},
@@ -238,8 +238,87 @@ func main() {
 							"to":   "</b>",
 						},
 					},
+					spsw.ActionTemplate{
+						Name:       "MakeItem",
+						StructName: "FieldJoinAction",
+						ConstructorParams: map[string]interface{}{
+							"inputNames": []string{"filer_id", "legal_name", "dba", "phone"},
+							"itemName":   "company",
+						},
+					},
 				},
-				DataPipeTemplates: []spsw.DataPipeTemplate{},
+				DataPipeTemplates: []spsw.DataPipeTemplate{
+					spsw.DataPipeTemplate{
+						TaskInputName:  "relativeURL",
+						DestActionName: "URLJoin",
+						DestInputName:  spsw.URLJoinActionInputRelativeURL,
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "URLJoin",
+						SourceOutputName: spsw.URLJoinActionOutputAbsoluteURL,
+						DestActionName:   "HTTP_Company",
+						DestInputName:    spsw.HTTPActionInputBaseURL,
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "HTTP_Company",
+						SourceOutputName: spsw.HTTPActionOutputBody,
+						DestActionName:   "BodyBytesToStr",
+						DestInputName:    spsw.UTF8DecodeActionInputBytes,
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "BodyBytesToStr",
+						SourceOutputName: spsw.UTF8DecodeActionOutputStr,
+						DestActionName:   "GetFilerID",
+						DestInputName:    spsw.StringCutActionInputStr,
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "BodyBytesToStr",
+						SourceOutputName: spsw.UTF8DecodeActionOutputStr,
+						DestActionName:   "GetLegalName",
+						DestInputName:    spsw.StringCutActionInputStr,
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "BodyBytesToStr",
+						SourceOutputName: spsw.UTF8DecodeActionOutputStr,
+						DestActionName:   "GetDBA",
+						DestInputName:    spsw.StringCutActionInputStr,
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "BodyBytesToStr",
+						SourceOutputName: spsw.UTF8DecodeActionOutputStr,
+						DestActionName:   "GetPhone",
+						DestInputName:    spsw.StringCutActionInputStr,
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "GetFilerID",
+						SourceOutputName: spsw.StringCutActionOutputStr,
+						DestActionName:   "MakeItem",
+						DestInputName:    "filer_id",
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "GetLegalName",
+						SourceOutputName: spsw.StringCutActionOutputStr,
+						DestActionName:   "MakeItem",
+						DestInputName:    "legal_name",
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "GetDBA",
+						SourceOutputName: spsw.StringCutActionOutputStr,
+						DestActionName:   "MakeItem",
+						DestInputName:    "dba",
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "GetPhone",
+						SourceOutputName: spsw.StringCutActionOutputStr,
+						DestActionName:   "MakeItem",
+						DestInputName:    "phone",
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "MakeItem",
+						SourceOutputName: spsw.FieldJoinActionOutputItem,
+						TaskOutputName:   "items",
+					},
+				},
 			},
 		},
 	}
