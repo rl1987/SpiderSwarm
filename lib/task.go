@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 )
 
 type Task struct {
@@ -188,10 +188,10 @@ func (t *Task) Run() error {
 	order := t.sortActionsTopologically()
 
 	for _, action := range order {
-		fmt.Println("Running action:")
-		spew.Dump(action)
+		log.Info(fmt.Sprintf("Running action: %v", action))
 		err := action.Run()
 		if err != nil && !action.IsFailureAllowed() {
+			log.Error(fmt.Sprintf("Action failed with error: %v", err))
 			return err
 		}
 	}
