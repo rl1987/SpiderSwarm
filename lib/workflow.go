@@ -45,7 +45,8 @@ func (w *Workflow) Run() ([]*Item, error) {
 	log.Info(fmt.Sprintf("Job %s started from workflow %s:%s at %v", jobUUID, w.Name, w.Version,
 		startedAt))
 
-	var tasks []*Task
+	var promises []*TaskPromise
+	var promise *TaskPromise
 	var task *Task
 
 	for _, taskTempl := range w.TaskTemplates {
@@ -53,17 +54,18 @@ func (w *Workflow) Run() ([]*Item, error) {
 			continue
 		}
 
-		newTask := NewTaskFromTemplate(&taskTempl, w, jobUUID) // TODO: implement this one
-
-		tasks = append(tasks, newTask)
+		newPromise := NewTaskPromise(taskTempl.TaskName, w.Name, jobUUID, map[string]*DataChunk{})
+		log.Info(fmt.Sprintf("Enqueing promise %v", newPromise))
+		promises = append(promises, newPromise)
 	}
 
 	for {
-		if len(tasks) == 0 {
+		if len(promises) == 0 {
 			break
 		}
 
-		task, tasks = tasks[0], tasks[1:]
+		promise, promises = promises[0], promises[1:]
+		task = NewTaskFromPromise(promise, w)
 		log.Info(fmt.Sprintf("Running task %v", task))
 		err := task.Run()
 		if err != nil {
@@ -85,8 +87,8 @@ func (w *Workflow) Run() ([]*Item, error) {
 
 					if promise, okPromise := x.(*TaskPromise); okPromise {
 						for _, p := range promise.Splay() {
-							newTask := NewTaskFromPromise(p, w)
-							tasks = append(tasks, newTask)
+							log.Info(fmt.Sprintf("Enqueing promise %v", p))
+							promises = append(promises, p)
 						}
 					}
 				}
