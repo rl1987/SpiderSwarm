@@ -21,10 +21,8 @@ func NewConstAction(c interface{}) *ConstAction {
 			AllowedInputNames:  []string{},
 			AllowedOutputNames: []string{ConstActionOutput},
 			Inputs:             map[string]*DataPipe{},
-			Outputs: map[string][]*DataPipe{
-				XPathActionOutputStr: []*DataPipe{},
-			},
-			UUID: uuid.New().String(),
+			Outputs:            map[string][]*DataPipe{},
+			UUID:               uuid.New().String(),
 		},
 		C: c,
 	}

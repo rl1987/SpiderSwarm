@@ -24,10 +24,8 @@ func NewStringCutAction(from string, to string) *StringCutAction {
 			AllowedInputNames:  []string{StringCutActionInputStr},
 			AllowedOutputNames: []string{StringCutActionOutputStr},
 			Inputs:             map[string]*DataPipe{},
-			Outputs: map[string][]*DataPipe{
-				XPathActionOutputStr: []*DataPipe{},
-			},
-			UUID: uuid.New().String(),
+			Outputs:            map[string][]*DataPipe{},
+			UUID:               uuid.New().String(),
 		},
 		From: from,
 		To:   to,
