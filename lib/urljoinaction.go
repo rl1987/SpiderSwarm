@@ -38,7 +38,12 @@ func NewURLJoinAction(baseURL string) *URLJoinAction {
 
 func NewURLJoinActionFromTemplate(actionTempl *ActionTemplate) *URLJoinAction {
 	baseURL, _ := actionTempl.ConstructorParams["baseURL"].(string)
-	return NewURLJoinAction(baseURL)
+
+	action := NewURLJoinAction(baseURL)
+
+	action.Name = actionTempl.Name
+
+	return action
 }
 
 func (uja *URLJoinAction) Run() error {

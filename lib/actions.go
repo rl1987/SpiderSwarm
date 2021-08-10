@@ -17,6 +17,7 @@ type Action interface {
 // AbstractAction an equivalent of abstract class for all structs that will conform to Action interface.
 type AbstractAction struct {
 	Action
+	Name               string
 	Inputs             map[string]*DataPipe
 	Outputs            map[string][]*DataPipe
 	CanFail            bool
@@ -36,9 +37,9 @@ func NewActionFromTemplate(actionTempl *ActionTemplate, workflow *Workflow, jobU
 	} else if actionTempl.StructName == "TaskPromiseAction" {
 		return NewTaskPromiseActionFromTemplate(actionTempl, workflow)
 	} else if actionTempl.StructName == "UTF8DecodeAction" {
-		return NewUTF8DecodeAction()
+		return NewUTF8DecodeActionFromTemplate(actionTempl)
 	} else if actionTempl.StructName == "UTF8EncodeAction" {
-		return NewUTF8EncodeAction()
+		return NewUTF8EncodeActionFromTemplate(actionTempl)
 	} else if actionTempl.StructName == "ConstAction" {
 		return NewConstActionFromTemplate(actionTempl)
 	} else if actionTempl.StructName == "URLJoinAction" {

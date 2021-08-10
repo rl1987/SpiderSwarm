@@ -49,7 +49,11 @@ func NewXPathActionFromTemplate(actionTempl *ActionTemplate) *XPathAction {
 	xpath, _ = actionTempl.ConstructorParams["xpath"].(string)
 	expectMany = actionTempl.ConstructorParams["expectMany"].(bool)
 
-	return NewXPathAction(xpath, expectMany)
+	action := NewXPathAction(xpath, expectMany)
+
+	action.Name = actionTempl.Name
+
+	return action
 }
 
 // https://stackoverflow.com/a/38855264

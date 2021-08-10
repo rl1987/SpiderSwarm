@@ -43,7 +43,11 @@ func NewFieldJoinActionFromTemplate(actionTempl *ActionTemplate, workflow *Workf
 	inputNames, _ = actionTempl.ConstructorParams["inputNames"].([]string)
 	itemName, _ = actionTempl.ConstructorParams["itemName"].(string)
 
-	return NewFieldJoinAction(inputNames, workflow.Name, "", "", itemName)
+	action := NewFieldJoinAction(inputNames, workflow.Name, "", "", itemName)
+
+	action.Name = actionTempl.Name
+
+	return action
 }
 
 func (fja *FieldJoinAction) Run() error {

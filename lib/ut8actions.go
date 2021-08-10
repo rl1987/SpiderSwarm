@@ -33,6 +33,12 @@ func NewUTF8DecodeAction() *UTF8DecodeAction {
 	}
 }
 
+func NewUTF8DecodeActionFromTemplate(actionTempl *ActionTemplate) *UTF8DecodeAction {
+	action := NewUTF8DecodeAction()
+	action.Name = actionTempl.Name
+	return action
+}
+
 func (ua *UTF8DecodeAction) Run() error {
 	if ua.Inputs[UTF8DecodeActionInputBytes] == nil {
 		return errors.New("Input not connected")
@@ -81,6 +87,12 @@ func NewUTF8EncodeAction() *UTF8EncodeAction {
 			UUID: uuid.New().String(),
 		},
 	}
+}
+
+func NewUTF8EncodeActionFromTemplate(actionTempl *ActionTemplate) *UTF8EncodeAction {
+	action := NewUTF8EncodeAction()
+	action.Name = actionTempl.Name
+	return action
 }
 
 func (ua *UTF8EncodeAction) Run() error {

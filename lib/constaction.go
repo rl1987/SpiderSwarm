@@ -32,7 +32,12 @@ func NewConstAction(c interface{}) *ConstAction {
 
 func NewConstActionFromTemplate(actionTempl *ActionTemplate) *ConstAction {
 	c, _ := actionTempl.ConstructorParams["c"]
-	return NewConstAction(c)
+
+	action := NewConstAction(c)
+
+	action.Name = actionTempl.Name
+
+	return action
 }
 
 func (ca *ConstAction) Run() error {

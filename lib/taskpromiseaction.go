@@ -39,7 +39,11 @@ func NewTaskPromiseActionFromTemplate(actionTempl *ActionTemplate, workflow *Wor
 	inputNames, _ = actionTempl.ConstructorParams["inputNames"].([]string)
 	taskName, _ = actionTempl.ConstructorParams["taskName"].(string)
 
-	return NewTaskPromiseAction(inputNames, taskName, workflow.Name, "")
+	action := NewTaskPromiseAction(inputNames, taskName, workflow.Name, "")
+
+	action.Name = actionTempl.Name
+
+	return action
 }
 
 func (tpa *TaskPromiseAction) Run() error {

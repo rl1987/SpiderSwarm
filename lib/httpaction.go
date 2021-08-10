@@ -62,7 +62,11 @@ func NewHTTPActionFromTemplate(actionTempl *ActionTemplate) *HTTPAction {
 	method, _ = actionTempl.ConstructorParams["method"].(string)
 	canFail, _ = actionTempl.ConstructorParams["canFail"].(bool)
 
-	return NewHTTPAction(baseURL, method, canFail)
+	action := NewHTTPAction(baseURL, method, canFail)
+
+	action.Name = actionTempl.Name
+
+	return action
 }
 
 func (ha *HTTPAction) Run() error {

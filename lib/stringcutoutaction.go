@@ -41,7 +41,11 @@ func NewStringCutActionFromTemplate(actionTempl *ActionTemplate) *StringCutActio
 	from, _ = actionTempl.ConstructorParams["from"].(string)
 	to, _ = actionTempl.ConstructorParams["to"].(string)
 
-	return NewStringCutAction(from, to)
+	action := NewStringCutAction(from, to)
+
+	action.Name = actionTempl.Name
+
+	return action
 }
 
 func (sca *StringCutAction) Run() error {
