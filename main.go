@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"os"
 
 	spsw "github.com/rl1987/spiderswarm/lib"
@@ -15,10 +17,7 @@ func initLogging() {
 	log.SetLevel(log.DebugLevel)
 }
 
-func main() {
-	initLogging()
-	log.Info("Starting spiderswarm instance...")
-
+func runTestWorkflow() {
 	// https://apps.fcc.gov/cgb/form499/499a.cfm
 	// https://apps.fcc.gov/cgb/form499/499results.cfm?comm_type=Any+Type&state=alaska&R1=and&XML=FALSE
 
@@ -331,4 +330,32 @@ func main() {
 	} else {
 		spew.Dump(items)
 	}
+
+}
+
+func printUsage() {
+	fmt.Println("Read the code for now")
+}
+
+func main() {
+	initLogging()
+	log.Info("Starting spiderswarm instance...")
+
+	if len(os.Args) < 2 {
+		printUsage()
+		os.Exit(0)
+	}
+
+	singleNodeCmd := flag.NewFlagSet("singlenode", flag.ExitOnError)
+	singleNodeWorkers := singleNodeCmd.Int("workers", 1, "Number of worker goroutines")
+
+	switch os.Args[1] {
+	case "singlenode":
+		singleNodeCmd.Parse(os.Args[2:])
+		log.Info(fmt.Sprintf("Number of worker goroutines: %d", *singleNodeWorkers))
+	default:
+
+		runTestWorkflow()
+	}
+
 }
