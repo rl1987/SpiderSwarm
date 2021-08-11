@@ -81,6 +81,7 @@ func (w *Workflow) Run() ([]*Item, error) {
 
 					if item, okItem := x.(*Item); okItem {
 						for _, i := range item.Splay() {
+							log.Info(fmt.Sprintf("Got item %v", i))
 							items = append(items, i)
 						}
 					}
