@@ -5,6 +5,10 @@ type Master struct {
 }
 
 // TODO: implement REST API for workflow/job management
+// * Create a job from workflow.
+// * List running/finished/failed/all jobs.
+// * Cancel a running job.
+// * Get job with workflow and statistics.
 
 func (m *Master) Run() error {
 	//TODO: implement this
