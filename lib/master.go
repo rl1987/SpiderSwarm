@@ -15,6 +15,8 @@ func (m *Master) Run() error {
 		// Keep state with statistics.
 		// Make initial task promises when launching Workflow.
 		// Get items from manager(s) and pass them to exporter.
+
+		break
 	}
 
 	return nil
