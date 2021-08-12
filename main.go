@@ -353,6 +353,9 @@ func main() {
 	case "singlenode":
 		singleNodeCmd.Parse(os.Args[2:])
 		log.Info(fmt.Sprintf("Number of worker goroutines: %d", *singleNodeWorkers))
+	case "client":
+		// TODO: client for REST API
+		fmt.Println("client part not implemented yet")
 	default:
 
 		runTestWorkflow()
