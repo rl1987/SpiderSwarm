@@ -1,7 +1,8 @@
 package spiderswarm
 
-type TaskRunner struct {
-	UUID            string
+type Worker struct {
+	UUID string
+	// XXX: perhaps this should be one channel per direction?
 	TasksIn         chan *Task
 	ItemsOut        chan *Item
 	TaskPromisesOut chan *TaskPromise
