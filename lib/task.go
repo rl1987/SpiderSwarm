@@ -120,6 +120,19 @@ func NewTaskFromPromise(promise *TaskPromise, workflow *Workflow) *Task {
 	return task
 }
 
+func NewTaskFromScheduledTask(scheduledTask *ScheduledTask) *Task {
+	task := NewTaskFromTemplate(scheduledTask.Template, &Workflow{Name: scheduledTask.WorkflowName}, scheduledTask.JobUUID)
+
+	for inputName, chunk := range scheduledTask.Promise.InputDataChunksByInputName {
+		inDP := task.Inputs[inputName]
+		if inDP != nil {
+			inDP.Queue = append(inDP.Queue, chunk)
+		}
+	}
+
+	return task
+}
+
 func (t *Task) AddInput(name string, action Action, actionInputName string, dataPipe *DataPipe) {
 	t.Inputs[name] = dataPipe
 	t.DataPipes = append(t.DataPipes, dataPipe)
