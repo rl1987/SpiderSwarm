@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
+	//"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -52,8 +52,6 @@ func (w *Workflow) FindTaskTemplate(taskName string) *TaskTemplate {
 }
 
 func (w *Workflow) createScheduledTaskFromPromise(promise *TaskPromise, jobUUID string) *ScheduledTask {
-	spew.Dump(promise)
-
 	taskTempl := w.FindTaskTemplate(promise.TaskName)
 	if taskTempl == nil {
 		return nil
@@ -62,7 +60,6 @@ func (w *Workflow) createScheduledTaskFromPromise(promise *TaskPromise, jobUUID 
 	scheduledTask := NewScheduledTask(promise, taskTempl, w.Name, w.Version, jobUUID)
 
 	// TODO: log this
-	spew.Dump(scheduledTask)
 
 	return scheduledTask
 }
@@ -92,10 +89,19 @@ func (w *Workflow) Run() ([]*Item, error) {
 		scheduledTasks = append(scheduledTasks, scheduledTask)
 	}
 
-	spew.Dump(scheduledTasks)
+	scheduledTasksIn := make(chan *ScheduledTask)
 
-	worker := NewWorker()
-	go worker.Run()
+	worker1 := NewWorker()
+	worker2 := NewWorker()
+	worker3 := NewWorker()
+	worker4 := NewWorker()
+
+	workers := []*Worker{worker1, worker2, worker3, worker4}
+
+	for _, worker := range workers {
+		worker.ScheduledTasksIn = scheduledTasksIn
+		go worker.Run()
+	}
 
 	time.Sleep(1)
 
@@ -106,9 +112,18 @@ func (w *Workflow) Run() ([]*Item, error) {
 
 		scheduledTask, scheduledTasks = scheduledTasks[0], scheduledTasks[1:]
 
-		worker.ScheduledTasksIn <- scheduledTask
+		scheduledTasksIn <- scheduledTask
 
-		gotDataChunk = <-worker.DataChunksOut
+		select {
+		case dc := <-worker1.DataChunksOut:
+			gotDataChunk = dc
+		case dc := <-worker2.DataChunksOut:
+			gotDataChunk = dc
+		case dc := <-worker3.DataChunksOut:
+			gotDataChunk = dc
+		case dc := <-worker4.DataChunksOut:
+			gotDataChunk = dc
+		}
 
 		if gotDataChunk.Type == DataChunkTypeItem {
 			item, _ := gotDataChunk.Payload.(*Item)
