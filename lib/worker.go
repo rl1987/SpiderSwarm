@@ -38,19 +38,13 @@ func (w *Worker) executeTask(task *Task) error {
 		x := outDP.Remove()
 
 		if item, okItem := x.(*Item); okItem {
-			for _, i := range item.Splay() {
-				log.Info(fmt.Sprintf("Worker %s got item %v", w.UUID, i))
-				chunk, _ := NewDataChunk(i)
-				w.DataChunksOut <- chunk
-			}
+			chunk, _ := NewDataChunk(item)
+			w.DataChunksOut <- chunk
 		}
 
 		if promise, okPromise := x.(*TaskPromise); okPromise {
-			for _, p := range promise.Splay() {
-				log.Info(fmt.Sprintf("Worker %s enqueing promise %v", w.UUID, p))
-				chunk, _ := NewDataChunk(p)
-				w.DataChunksOut <- chunk
-			}
+			chunk, _ := NewDataChunk(promise)
+			w.DataChunksOut <- chunk
 		}
 	}
 
