@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -50,6 +51,22 @@ func (w *Workflow) FindTaskTemplate(taskName string) *TaskTemplate {
 	return taskTempl
 }
 
+func (w *Workflow) createScheduledTaskFromPromise(promise *TaskPromise, jobUUID string) *ScheduledTask {
+	spew.Dump(promise)
+
+	taskTempl := w.FindTaskTemplate(promise.TaskName)
+	if taskTempl == nil {
+		return nil
+	}
+
+	scheduledTask := NewScheduledTask(promise, taskTempl, w.Name, w.Version, jobUUID)
+
+	// TODO: log this
+	spew.Dump(scheduledTask)
+
+	return scheduledTask
+}
+
 func (w *Workflow) Run() ([]*Item, error) {
 	jobUUID := uuid.New().String()
 	startedAt := time.Now()
@@ -59,9 +76,9 @@ func (w *Workflow) Run() ([]*Item, error) {
 	log.Info(fmt.Sprintf("Job %s started from workflow %s:%s at %v", jobUUID, w.Name, w.Version,
 		startedAt))
 
-	var promises []*TaskPromise
-	var promise *TaskPromise
-	var task *Task
+	var scheduledTask *ScheduledTask
+	var scheduledTasks []*ScheduledTask
+	var gotDataChunk *DataChunk
 
 	for _, taskTempl := range w.TaskTemplates {
 		if !taskTempl.Initial {
@@ -70,43 +87,46 @@ func (w *Workflow) Run() ([]*Item, error) {
 
 		newPromise := NewTaskPromise(taskTempl.TaskName, w.Name, jobUUID, map[string]*DataChunk{})
 		log.Info(fmt.Sprintf("Enqueing promise %v", newPromise))
-		promises = append(promises, newPromise)
+
+		scheduledTask = NewScheduledTask(newPromise, &taskTempl, w.Name, w.Version, jobUUID)
+		scheduledTasks = append(scheduledTasks, scheduledTask)
 	}
 
+	spew.Dump(scheduledTasks)
+
+	worker := NewWorker()
+	go worker.Run()
+
+	time.Sleep(1)
+
 	for {
-		if len(promises) == 0 {
+		if len(scheduledTasks) == 0 {
 			break
 		}
 
-		promise, promises = promises[0], promises[1:]
-		task = NewTaskFromPromise(promise, w)
-		log.Info(fmt.Sprintf("Running task %v", task))
-		err := task.Run()
-		if err != nil {
-			log.Error(fmt.Sprintf("Task %v failed with error: %v", task, err))
-		} else { // TODO: make this less nested
-			for _, outDP := range task.Outputs {
-				for {
-					if len(outDP.Queue) == 0 {
-						break
-					}
+		scheduledTask, scheduledTasks = scheduledTasks[0], scheduledTasks[1:]
 
-					x := outDP.Remove()
+		worker.ScheduledTasksIn <- scheduledTask
 
-					if item, okItem := x.(*Item); okItem {
-						for _, i := range item.Splay() {
-							log.Info(fmt.Sprintf("Got item %v", i))
-							items = append(items, i)
-						}
-					}
+		gotDataChunk = <-worker.DataChunksOut
 
-					if promise, okPromise := x.(*TaskPromise); okPromise {
-						for _, p := range promise.Splay() {
-							log.Info(fmt.Sprintf("Enqueing promise %v", p))
-							promises = append(promises, p)
-						}
-					}
+		if gotDataChunk.Type == DataChunkTypeItem {
+			item, _ := gotDataChunk.Payload.(*Item)
+
+			for _, i := range item.Splay() {
+				log.Info(fmt.Sprintf("Got item %v", i))
+				items = append(items, i)
+			}
+		} else if gotDataChunk.Type == DataChunkTypePromise {
+			promise, _ := gotDataChunk.Payload.(*TaskPromise)
+
+			for _, p := range promise.Splay() {
+				newScheduledTask := w.createScheduledTaskFromPromise(p, jobUUID)
+				if newScheduledTask == nil {
+					continue
 				}
+
+				scheduledTasks = append(scheduledTasks, newScheduledTask)
 			}
 		}
 	}

@@ -3,6 +3,7 @@ package spiderswarm
 import (
 	"fmt"
 
+	//"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -57,8 +58,11 @@ func (w *Worker) executeTask(task *Task) error {
 }
 
 func (w *Worker) Run() error {
+	log.Info(fmt.Printf("Starting runloop for worker %s", w.UUID))
+
 	for {
 		scheduledTask := <-w.ScheduledTasksIn
+		log.Info(fmt.Printf("Worker %s got scheduled task %v", w.UUID, scheduledTask))
 
 		task := NewTaskFromScheduledTask(scheduledTask)
 		log.Info(fmt.Sprintf("Worker %s running task %v", w.UUID, task))

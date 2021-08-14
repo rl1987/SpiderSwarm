@@ -115,7 +115,7 @@ func NewTaskFromPromise(promise *TaskPromise, workflow *Workflow) *Task {
 
 func NewTaskFromScheduledTask(scheduledTask *ScheduledTask) *Task {
 	// FIXME: cleanup workflow name hack
-	task := NewTaskFromTemplate(scheduledTask.Template, &Workflow{Name: scheduledTask.WorkflowName}, scheduledTask.JobUUID)
+	task := NewTaskFromTemplate(&scheduledTask.Template, &Workflow{Name: scheduledTask.WorkflowName}, scheduledTask.JobUUID)
 
 	for inputName, chunk := range scheduledTask.Promise.InputDataChunksByInputName {
 		inDP := task.Inputs[inputName]
