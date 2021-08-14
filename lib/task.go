@@ -93,14 +93,7 @@ func NewTaskFromTemplate(taskTempl *TaskTemplate, workflow *Workflow, jobUUID st
 }
 
 func NewTaskFromPromise(promise *TaskPromise, workflow *Workflow) *Task {
-	var taskTempl *TaskTemplate
-
-	for _, tt := range workflow.TaskTemplates {
-		if tt.TaskName == promise.TaskName {
-			taskTempl = &tt
-			break
-		}
-	}
+	taskTempl := workflow.FindTaskTemplate(promise.TaskName)
 
 	if taskTempl == nil {
 		return nil

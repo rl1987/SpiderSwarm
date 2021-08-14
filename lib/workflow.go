@@ -36,6 +36,20 @@ type Workflow struct {
 	TaskTemplates []TaskTemplate
 }
 
+func (w *Workflow) FindTaskTemplate(taskName string) *TaskTemplate {
+	var taskTempl *TaskTemplate
+	taskTempl = nil
+
+	for _, tt := range w.TaskTemplates {
+		if tt.TaskName == taskName {
+			taskTempl = &tt
+			break
+		}
+	}
+
+	return taskTempl
+}
+
 func (w *Workflow) Run() ([]*Item, error) {
 	jobUUID := uuid.New().String()
 	startedAt := time.Now()
