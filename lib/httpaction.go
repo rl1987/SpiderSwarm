@@ -119,6 +119,8 @@ func (ha *HTTPAction) Run() error {
 		}
 	}
 
+	request.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36")
+
 	if ha.Inputs[HTTPActionInputHeaders] != nil {
 		request.Header = http.Header{}
 		headers, ok := ha.Inputs[HTTPActionInputHeaders].Remove().(http.Header)
