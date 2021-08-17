@@ -33,6 +33,14 @@ func NewHTTPCookieJoinAction() *HTTPCookieJoinAction {
 	}
 }
 
+func NewHTTPCookieJoinActionFromTemplate(actionTempl *ActionTemplate) *HTTPCookieJoinAction {
+	action := NewHTTPCookieJoinAction()
+
+	action.Name = actionTempl.Name
+
+	return action
+}
+
 func (hcja *HTTPCookieJoinAction) Run() error {
 	if hcja.Inputs[HTTPCookieJoinActionInputOldCookies] == nil || hcja.Inputs[HTTPCookieJoinActionInputNewCookies] == nil {
 		return errors.New("Both inputs must be connected")

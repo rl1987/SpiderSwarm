@@ -80,4 +80,10 @@ func TestNewActionFromTemplate(t *testing.T) {
 	assert.NotNil(t, action9)
 	assert.Equal(t, actionTempl9.Name, action9.Name)
 
+	actionTempl10 := &ActionTemplate{Name: "HTTPCookieJoinAction", StructName: "HTTPCookieJoinAction"}
+	action10, ok10 := NewActionFromTemplate(actionTempl10, workflow, jobUUID).(*HTTPCookieJoinAction)
+
+	assert.True(t, ok10)
+	assert.NotNil(t, action10)
+	assert.Equal(t, actionTempl10.Name, action10.Name)
 }
