@@ -49,7 +49,7 @@ func runTestWorkflow() {
 						Name:       "TaskPromise_ScrapeList",
 						StructName: "TaskPromiseAction",
 						ConstructorParams: map[string]interface{}{
-							"inputNames": []string{"state"},
+							"inputNames": []string{"state", "cookies"},
 							"taskName":   "ScrapeCompanyList",
 						},
 					},
@@ -66,6 +66,12 @@ func runTestWorkflow() {
 						SourceOutputName: spsw.XPathActionOutputStr,
 						DestActionName:   "TaskPromise_ScrapeList",
 						DestInputName:    "state",
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "HTTP_Form",
+						SourceOutputName: spsw.HTTPActionOutputCookies,
+						DestActionName:   "TaskPromiseScrapeList",
+						DestInputName:    "cookies",
 					},
 					spsw.DataPipeTemplate{
 						SourceActionName: "TaskPromise_ScrapeList",
@@ -124,10 +130,15 @@ func runTestWorkflow() {
 						},
 					},
 					spsw.ActionTemplate{
+						Name:              "JoinCookies",
+						StructName:        "HTTPCookieJoinAction",
+						ConstructorParams: map[string]interface{}{},
+					},
+					spsw.ActionTemplate{
 						Name:       "TaskPromise_ScrapeCompanyPage",
 						StructName: "TaskPromiseAction",
 						ConstructorParams: map[string]interface{}{
-							"inputNames": []string{"relativeURL"},
+							"inputNames": []string{"relativeURL", "cookies"},
 							"taskName":   "ScrapeCompanyPage",
 						},
 					},
@@ -137,6 +148,16 @@ func runTestWorkflow() {
 						TaskInputName:  "state",
 						DestActionName: "JoinParams",
 						DestInputName:  "state",
+					},
+					spsw.DataPipeTemplate{
+						TaskInputName:  "cookies",
+						DestActionName: "HTTP_List",
+						DestInputName:  spsw.HTTPActionInputCookies,
+					},
+					spsw.DataPipeTemplate{
+						TaskInputName:  "cookies",
+						DestActionName: "JoinCookies",
+						DestInputName:  spsw.HTTPCookieJoinActionInputOldCookies,
 					},
 					spsw.DataPipeTemplate{
 						SourceActionName: "Const_R1",
@@ -167,6 +188,18 @@ func runTestWorkflow() {
 						SourceOutputName: spsw.HTTPActionOutputBody,
 						DestActionName:   "XPath_Companies",
 						DestInputName:    spsw.XPathActionInputHTMLBytes,
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "HTTP_List",
+						SourceOutputName: spsw.HTTPActionOutputCookies,
+						DestActionName:   "JoinCookies",
+						DestInputName:    spsw.HTTPCookieJoinActionInputNewCookies,
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "JoinCookies",
+						SourceOutputName: spsw.HTTPCookieJoinActionOutputUpdatedCookies,
+						DestActionName:   "TaskPromise_ScrapeCompanyPage",
+						DestInputName:    "cookies",
 					},
 					spsw.DataPipeTemplate{
 						SourceActionName: "XPath_Companies",
@@ -251,6 +284,11 @@ func runTestWorkflow() {
 						TaskInputName:  "relativeURL",
 						DestActionName: "URLJoin",
 						DestInputName:  spsw.URLJoinActionInputRelativeURL,
+					},
+					spsw.DataPipeTemplate{
+						TaskInputName:  "cookies",
+						DestActionName: "HTTP_Company",
+						DestInputName:  spsw.HTTPActionInputCookies,
 					},
 					spsw.DataPipeTemplate{
 						SourceActionName: "URLJoin",
