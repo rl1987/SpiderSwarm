@@ -26,7 +26,6 @@ jobs:
 
     - name: Codecov
       uses: codecov/codecov-action@v2.0.2
-      if: false # FIXME: re-enable this step later.
 
     - name: golint
       run: |
