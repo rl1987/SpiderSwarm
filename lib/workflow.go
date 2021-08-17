@@ -146,5 +146,10 @@ func (w *Workflow) Run() ([]*Item, error) {
 		}
 	}
 
+	worker1.Done <- nil
+	worker2.Done <- nil
+	worker3.Done <- nil
+	worker4.Done <- nil
+
 	return items, nil
 }
