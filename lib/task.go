@@ -15,7 +15,7 @@ type Task struct {
 	WorkflowName string
 	JobUUID      string
 
-	Inputs    map[string]*DataPipe
+	Inputs    map[string][]*DataPipe
 	Outputs   map[string]*DataPipe
 	Actions   []Action
 	DataPipes []*DataPipe
@@ -29,7 +29,7 @@ func NewTask(name string, workflowName string, jobUUID string) *Task {
 		WorkflowName: workflowName,
 		JobUUID:      jobUUID,
 
-		Inputs:    map[string]*DataPipe{},
+		Inputs:    map[string][]*DataPipe{},
 		Outputs:   map[string]*DataPipe{},
 		Actions:   []Action{},
 		DataPipes: []*DataPipe{},
@@ -56,7 +56,12 @@ func (t *Task) addDataPipeFromTemplate(dataPipeTemplate *DataPipeTemplate, nameT
 			newDP = NewDataPipe()
 			newDP.ToAction = toAction
 			toAction.AddInput(dataPipeTemplate.DestInputName, newDP)
-			t.Inputs[dataPipeTemplate.TaskInputName] = newDP
+
+			if t.Inputs[dataPipeTemplate.TaskInputName] == nil {
+				t.Inputs[dataPipeTemplate.TaskInputName] = []*DataPipe{newDP}
+			} else {
+				t.Inputs[dataPipeTemplate.TaskInputName] = append(t.Inputs[dataPipeTemplate.TaskInputName], newDP)
+			}
 		}
 	} else if len(dataPipeTemplate.TaskOutputName) > 0 {
 		fromAction := nameToAction[dataPipeTemplate.SourceActionName]
@@ -92,6 +97,19 @@ func NewTaskFromTemplate(taskTempl *TaskTemplate, workflow *Workflow, jobUUID st
 	return task
 }
 
+func (t *Task) populateTaskInputsFromPromise(promise *TaskPromise) {
+	for inputName, chunk := range promise.InputDataChunksByInputName {
+		inputs := t.Inputs[inputName]
+		if inputs == nil {
+			continue
+		}
+
+		for _, inDP := range inputs {
+			inDP.Queue = append(inDP.Queue, chunk)
+		}
+	}
+}
+
 func NewTaskFromPromise(promise *TaskPromise, workflow *Workflow) *Task {
 	taskTempl := workflow.FindTaskTemplate(promise.TaskName)
 
@@ -103,13 +121,6 @@ func NewTaskFromPromise(promise *TaskPromise, workflow *Workflow) *Task {
 
 	task.JobUUID = promise.JobUUID
 
-	for inputName, chunk := range promise.InputDataChunksByInputName {
-		inDP := task.Inputs[inputName]
-		if inDP != nil {
-			inDP.Queue = append(inDP.Queue, chunk)
-		}
-	}
-
 	return task
 }
 
@@ -117,18 +128,18 @@ func NewTaskFromScheduledTask(scheduledTask *ScheduledTask) *Task {
 	// FIXME: cleanup workflow name hack
 	task := NewTaskFromTemplate(&scheduledTask.Template, &Workflow{Name: scheduledTask.WorkflowName}, scheduledTask.JobUUID)
 
-	for inputName, chunk := range scheduledTask.Promise.InputDataChunksByInputName {
-		inDP := task.Inputs[inputName]
-		if inDP != nil {
-			inDP.Queue = append(inDP.Queue, chunk)
-		}
-	}
+	task.populateTaskInputsFromPromise(&scheduledTask.Promise)
 
 	return task
 }
 
 func (t *Task) AddInput(name string, action Action, actionInputName string, dataPipe *DataPipe) {
-	t.Inputs[name] = dataPipe
+	if t.Inputs[name] == nil {
+		t.Inputs[name] = []*DataPipe{dataPipe}
+	} else {
+		t.Inputs[name] = append(t.Inputs[name], dataPipe)
+	}
+
 	t.DataPipes = append(t.DataPipes, dataPipe)
 
 	action.AddInput(actionInputName, dataPipe)
