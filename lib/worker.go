@@ -3,7 +3,6 @@ package spiderswarm
 import (
 	"fmt"
 
-	//"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
