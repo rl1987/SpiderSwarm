@@ -70,7 +70,7 @@ func runTestWorkflow() {
 					spsw.DataPipeTemplate{
 						SourceActionName: "HTTP_Form",
 						SourceOutputName: spsw.HTTPActionOutputCookies,
-						DestActionName:   "TaskPromiseScrapeList",
+						DestActionName:   "TaskPromise_ScrapeList",
 						DestInputName:    "cookies",
 					},
 					spsw.DataPipeTemplate{
