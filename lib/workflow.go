@@ -5,6 +5,7 @@ import (
 	"time"
 
 	//"github.com/davecgh/go-spew/spew"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -96,6 +97,21 @@ func (w *Workflow) Run() ([]*Item, error) {
 	worker3 := NewWorker()
 	worker4 := NewWorker()
 
+	exporter := NewExporter()
+	// TODO: make ExporterBackend API more abstract to enable plugin architecture.
+	exporterBackend := NewCSVExporterBackend("/home/vagrant/")
+	// FIXME: refrain from hardcoding field names; consider finding them from
+	// Workflow.
+	err := exporterBackend.StartExporting(jobUUID, []string{"filer_id", "legal_name", "dba", "phone"})
+	if err != nil {
+		spew.Dump(err)
+		return nil, err
+	}
+
+	exporter.AddBackend(exporterBackend)
+
+	go exporter.Run()
+
 	workers := []*Worker{worker1, worker2, worker3, worker4}
 
 	for _, worker := range workers {
@@ -130,7 +146,7 @@ func (w *Workflow) Run() ([]*Item, error) {
 
 			for _, i := range item.Splay() {
 				log.Info(fmt.Sprintf("Got item %v", i))
-				items = append(items, i)
+				exporter.ItemsIn <- *i
 			}
 		} else if gotDataChunk.Type == DataChunkTypePromise {
 			promise, _ := gotDataChunk.Payload.(*TaskPromise)
@@ -150,6 +166,8 @@ func (w *Workflow) Run() ([]*Item, error) {
 	worker2.Done <- nil
 	worker3.Done <- nil
 	worker4.Done <- nil
+
+	exporterBackend.FinishExporting(jobUUID)
 
 	return items, nil
 }
