@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/davecgh/go-spew/spew"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -28,9 +29,10 @@ func NewCSVExporterBackend(outputDirPath string) *CSVExporterBackend {
 	}
 
 	return &CSVExporterBackend{
-		OutputDirPath:   outputDirPath,
-		csvWritersByJob: map[string]*csv.Writer{},
-		fieldNamesByJob: map[string][]string{},
+		OutputDirPath:    outputDirPath,
+		csvWritersByJob:  map[string]*csv.Writer{},
+		fileHandlesByJob: map[string]*os.File{},
+		fieldNamesByJob:  map[string][]string{},
 	}
 }
 
@@ -38,14 +40,16 @@ func (ceb *CSVExporterBackend) StartExporting(jobUUID string, fieldNames []strin
 	// XXX: maybe include date/time into filename as well?
 	csvFilePath := ceb.OutputDirPath + "/" + jobUUID + ".csv"
 
-	csvFileHandle, err := os.Open(csvFilePath)
+	csvFileHandle, err := os.OpenFile(csvFilePath, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
+		spew.Dump(err)
 		return err
 	}
 
 	csvWriter := csv.NewWriter(csvFileHandle)
 	err = csvWriter.Write(fieldNames)
 	if err != nil {
+		spew.Dump(err)
 		csvFileHandle.Close()
 		return err
 	}
