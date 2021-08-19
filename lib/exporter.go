@@ -24,7 +24,7 @@ func NewExporter() *Exporter {
 func (e *Exporter) Run() error {
 	for item := range e.ItemsIn {
 		// Receive items, pass them to exporter backend(s).
-		log.Info(fmt.Printf("Exported %s got item %v", e.UUID, item))
+		log.Info(fmt.Sprintf("Exporter %s got item %v", e.UUID, item))
 
 		for _, backend := range e.Backends {
 			backend.WriteItem(&item)
