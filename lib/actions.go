@@ -27,15 +27,15 @@ type AbstractAction struct {
 	UUID               string
 }
 
-func NewActionFromTemplate(actionTempl *ActionTemplate, workflow *Workflow, jobUUID string) Action {
+func NewActionFromTemplate(actionTempl *ActionTemplate, workflowName string, jobUUID string) Action {
 	if actionTempl.StructName == "HTTPAction" {
 		return NewHTTPActionFromTemplate(actionTempl)
 	} else if actionTempl.StructName == "XPathAction" {
 		return NewXPathActionFromTemplate(actionTempl)
 	} else if actionTempl.StructName == "FieldJoinAction" {
-		return NewFieldJoinActionFromTemplate(actionTempl, workflow)
+		return NewFieldJoinActionFromTemplate(actionTempl, workflowName)
 	} else if actionTempl.StructName == "TaskPromiseAction" {
-		return NewTaskPromiseActionFromTemplate(actionTempl, workflow)
+		return NewTaskPromiseActionFromTemplate(actionTempl, workflowName)
 	} else if actionTempl.StructName == "UTF8DecodeAction" {
 		return NewUTF8DecodeActionFromTemplate(actionTempl)
 	} else if actionTempl.StructName == "UTF8EncodeAction" {

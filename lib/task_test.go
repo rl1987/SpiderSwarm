@@ -190,7 +190,7 @@ func TestNewTaskFromTemplate(t *testing.T) {
 	}
 	jobUUID := "44ECE4B0-A1C9-4DE2-A456-7862F2A5B6CA"
 
-	task := NewTaskFromTemplate(&workflow.TaskTemplates[0], workflow, jobUUID)
+	task := NewTaskFromTemplate(&workflow.TaskTemplates[0], workflow.Name, jobUUID)
 
 	assert.NotNil(t, task)
 	assert.Equal(t, workflow.Name, task.WorkflowName)

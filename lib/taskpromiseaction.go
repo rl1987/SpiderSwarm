@@ -32,14 +32,14 @@ func NewTaskPromiseAction(inputNames []string, taskName string, workflowName str
 	}
 }
 
-func NewTaskPromiseActionFromTemplate(actionTempl *ActionTemplate, workflow *Workflow) *TaskPromiseAction {
+func NewTaskPromiseActionFromTemplate(actionTempl *ActionTemplate, workflowName string) *TaskPromiseAction {
 	var inputNames []string
 	var taskName string
 
 	inputNames, _ = actionTempl.ConstructorParams["inputNames"].([]string)
 	taskName, _ = actionTempl.ConstructorParams["taskName"].(string)
 
-	action := NewTaskPromiseAction(inputNames, taskName, workflow.Name, "")
+	action := NewTaskPromiseAction(inputNames, taskName, workflowName, "")
 
 	action.Name = actionTempl.Name
 

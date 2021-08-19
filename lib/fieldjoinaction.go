@@ -36,14 +36,14 @@ func NewFieldJoinAction(inputNames []string, workflowName string, jobUUID string
 	}
 }
 
-func NewFieldJoinActionFromTemplate(actionTempl *ActionTemplate, workflow *Workflow) *FieldJoinAction {
+func NewFieldJoinActionFromTemplate(actionTempl *ActionTemplate, workflowName string) *FieldJoinAction {
 	var inputNames []string
 	var itemName string
 
 	inputNames, _ = actionTempl.ConstructorParams["inputNames"].([]string)
 	itemName, _ = actionTempl.ConstructorParams["itemName"].(string)
 
-	action := NewFieldJoinAction(inputNames, workflow.Name, "", "", itemName)
+	action := NewFieldJoinAction(inputNames, workflowName, "", "", itemName)
 
 	action.Name = actionTempl.Name
 

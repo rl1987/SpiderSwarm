@@ -22,7 +22,7 @@ func TestNewTaskPromiseActionFromTemplate(t *testing.T) {
 		Name: "testWorkflow",
 	}
 
-	action := NewTaskPromiseActionFromTemplate(actionTempl, workflow)
+	action := NewTaskPromiseActionFromTemplate(actionTempl, workflow.Name)
 
 	assert.NotNil(t, action)
 	assert.Equal(t, taskName, action.TaskName)
@@ -47,7 +47,7 @@ func TestTaskPromiseActionRun(t *testing.T) {
 		Name: "testWorkflow",
 	}
 
-	action := NewTaskPromiseActionFromTemplate(actionTempl, workflow)
+	action := NewTaskPromiseActionFromTemplate(actionTempl, workflow.Name)
 
 	pageIn := NewDataPipe()
 	sessionIn := NewDataPipe()

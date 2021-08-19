@@ -79,13 +79,13 @@ func (t *Task) addDataPipeFromTemplate(dataPipeTemplate *DataPipeTemplate, nameT
 	}
 }
 
-func NewTaskFromTemplate(taskTempl *TaskTemplate, workflow *Workflow, jobUUID string) *Task {
-	task := NewTask(taskTempl.TaskName, workflow.Name, jobUUID)
+func NewTaskFromTemplate(taskTempl *TaskTemplate, workflowName string, jobUUID string) *Task {
+	task := NewTask(taskTempl.TaskName, workflowName, jobUUID)
 
 	nameToAction := map[string]Action{}
 
 	for _, actionTempl := range taskTempl.ActionTemplates {
-		newAction := NewActionFromTemplate(&actionTempl, workflow, jobUUID)
+		newAction := NewActionFromTemplate(&actionTempl, workflowName, jobUUID)
 		task.Actions = append(task.Actions, newAction)
 		nameToAction[actionTempl.Name] = newAction
 	}
@@ -117,7 +117,7 @@ func NewTaskFromPromise(promise *TaskPromise, workflow *Workflow) *Task {
 		return nil
 	}
 
-	task := NewTaskFromTemplate(taskTempl, workflow, promise.JobUUID)
+	task := NewTaskFromTemplate(taskTempl, workflow.Name, promise.JobUUID)
 
 	task.JobUUID = promise.JobUUID
 
@@ -125,8 +125,7 @@ func NewTaskFromPromise(promise *TaskPromise, workflow *Workflow) *Task {
 }
 
 func NewTaskFromScheduledTask(scheduledTask *ScheduledTask) *Task {
-	// FIXME: cleanup workflow name hack
-	task := NewTaskFromTemplate(&scheduledTask.Template, &Workflow{Name: scheduledTask.WorkflowName}, scheduledTask.JobUUID)
+	task := NewTaskFromTemplate(&scheduledTask.Template, scheduledTask.WorkflowName, scheduledTask.JobUUID)
 
 	task.populateTaskInputsFromPromise(&scheduledTask.Promise)
 
