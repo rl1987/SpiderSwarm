@@ -22,7 +22,7 @@ func NewExporter() *Exporter {
 }
 
 func (e *Exporter) Run() error {
-	log.Info(fmt.Sprintf("Starting run loop for exporter", e.UUID))
+	log.Info(fmt.Sprintf("Starting run loop for exporter %s", e.UUID))
 
 	for item := range e.ItemsIn {
 		// Receive items, pass them to exporter backend(s).
