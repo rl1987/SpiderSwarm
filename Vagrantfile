@@ -73,5 +73,6 @@ Vagrant.configure("2") do |config|
      echo "export GIT_TERMINAL_PROMPT=1" >> /etc/profile
      chown -R vagrant:vagrant /home/vagrant/go
      apt-get install -y golint
+     go get -u github.com/google/pprof
   SHELL
 end

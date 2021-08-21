@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
+	_ "net/http/pprof"
 	"os"
 
 	spsw "github.com/rl1987/spiderswarm/lib"
@@ -378,6 +380,10 @@ func printUsage() {
 func main() {
 	initLogging()
 	log.Info("Starting spiderswarm instance...")
+
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
 
 	if len(os.Args) < 2 {
 		printUsage()
