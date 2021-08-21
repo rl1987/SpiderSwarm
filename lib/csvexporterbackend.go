@@ -68,12 +68,12 @@ func (ceb *CSVExporterBackend) WriteItem(i *Item) error {
 
 	fieldNames := ceb.fieldNamesByJob[jobUUID]
 	if fieldNames == nil {
-		return errors.New("Field names not found in WriterItem")
+		return errors.New("Field names not found in WriterItem for job " + jobUUID)
 	}
 
 	csvWriter := ceb.csvWritersByJob[jobUUID]
 	if csvWriter == nil {
-		return errors.New("CSV writer not found in WriteItem")
+		return errors.New("CSV writer not found in WriteItem for job " + jobUUID)
 	}
 
 	row := []string{}

@@ -3,6 +3,7 @@ package spiderswarm
 import (
 	"fmt"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -29,7 +30,11 @@ func (e *Exporter) Run() error {
 		log.Info(fmt.Sprintf("Exporter %s got item %v", e.UUID, item))
 
 		for _, backend := range e.Backends {
-			backend.WriteItem(&item)
+			err := backend.WriteItem(&item)
+			if err != nil {
+				log.Error(fmt.Sprintf("WriteItem failed with error: %v", err))
+				spew.Dump(err)
+			}
 		}
 	}
 
