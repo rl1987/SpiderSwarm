@@ -213,5 +213,20 @@ func (t *Task) Run() error {
 		}
 	}
 
+	for _, outDP := range t.Outputs {
+		for _, chunk := range outDP.Queue {
+			if item, okItem := chunk.Payload.(*Item); okItem {
+				item.JobUUID = t.JobUUID
+				item.TaskUUID = t.UUID
+				item.WorkflowName = t.WorkflowName
+			}
+
+			if promise, okPromise := chunk.Payload.(*TaskPromise); okPromise {
+				promise.JobUUID = t.JobUUID
+				promise.WorkflowName = t.WorkflowName
+			}
+		}
+	}
+
 	return nil
 }

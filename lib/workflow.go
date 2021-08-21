@@ -146,7 +146,6 @@ func (w *Workflow) Run() ([]*Item, error) {
 
 			for _, i := range item.Splay() {
 				log.Info(fmt.Sprintf("Got item %v", i))
-				i.JobUUID = jobUUID
 				exporter.ItemsIn <- *i
 			}
 		} else if gotDataChunk.Type == DataChunkTypePromise {
