@@ -1,11 +1,14 @@
 package spiderswarm
 
 import (
+	"bytes"
 	"database/sql"
+	"encoding/gob"
 	"fmt"
 	"io/ioutil"
 	"os"
 
+	"github.com/davecgh/go-spew/spew"
 	_ "github.com/mattn/go-sqlite3"
 	log "github.com/sirupsen/logrus"
 )
@@ -13,7 +16,8 @@ import (
 type SQLiteSpiderBusBackend struct {
 	SpiderBusBackend
 
-	dbConn *sql.DB
+	dbConn         *sql.DB
+	sqliteFilePath string
 }
 
 func NewSQLiteSpiderBusBackend(sqliteFilePath string) *SQLiteSpiderBusBackend {
@@ -41,7 +45,67 @@ func NewSQLiteSpiderBusBackend(sqliteFilePath string) *SQLiteSpiderBusBackend {
 
 	tx.Commit()
 
+	log.Debug(fmt.Sprintf("Created new SQLite DB at: %s", sqliteFilePath))
+
 	return &SQLiteSpiderBusBackend{
-		dbConn: dbConn,
+		dbConn:         dbConn,
+		sqliteFilePath: sqliteFilePath,
 	}
+}
+
+func (ssbb *SQLiteSpiderBusBackend) encodeEntry(entry interface{}) []byte {
+	buffer := bytes.NewBuffer([]byte{})
+	encoder := gob.NewEncoder(buffer)
+
+	encoder.Encode(entry)
+
+	bytes, _ := ioutil.ReadAll(buffer)
+
+	return bytes
+}
+
+func (ssbb *SQLiteSpiderBusBackend) decodeEntry(raw []byte) interface{} {
+	buffer := bytes.NewBuffer(raw)
+	decoder := gob.NewDecoder(buffer)
+
+	var entry interface{}
+
+	decoder.Decode(entry)
+
+	return entry
+}
+
+func (ssbb *SQLiteSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTask) error {
+	raw := ssbb.encodeEntry(scheduledTask)
+	spew.Dump(raw)
+
+	_, err := ssbb.dbConn.Exec("INSERT INTO scheduledTasks (raw) VALUES (?)", raw)
+	if err != nil {
+		spew.Dump(err)
+	}
+
+	return nil
+}
+
+func (ssbb *SQLiteSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
+	tx, _ := ssbb.dbConn.Begin()
+
+	var row_id int
+	var raw []byte
+
+	row := tx.QueryRow("SELECT * FROM scheduledTasks ORDER BY id ASC LIMIT 1")
+
+	err := row.Scan(row_id, raw)
+	if err != nil {
+		spew.Dump(err)
+		return nil
+	}
+
+	tx.Exec(fmt.Sprintf("DELETE FROM scheduledTasks WHERE id=%d", row_id))
+	tx.Commit()
+
+	spew.Dump(raw)
+	scheduledTask, _ := ssbb.decodeEntry(raw).(*ScheduledTask)
+
+	return scheduledTask
 }

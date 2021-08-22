@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/ianlancetaylor/demangle v0.0.0-20210724235854-665d3a6fe486 // indirect
 	github.com/jinzhu/copier v0.3.2
-	github.com/mattn/go-sqlite3 v1.14.8 // indirect
+	github.com/mattn/go-sqlite3 v1.14.8
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/net v0.0.0-20200421231249-e086a090c8fd
