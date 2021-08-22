@@ -45,7 +45,7 @@ func NewSQLiteSpiderBusBackend(sqliteFilePath string) *SQLiteSpiderBusBackend {
 
 	tx.Commit()
 
-	log.Debug(fmt.Sprintf("Created new SQLite DB at: %s", sqliteFilePath))
+	fmt.Printf("Created new SQLite DB at: %s\n", sqliteFilePath)
 
 	return &SQLiteSpiderBusBackend{
 		dbConn:         dbConn,
@@ -68,21 +68,25 @@ func (ssbb *SQLiteSpiderBusBackend) decodeEntry(raw []byte) interface{} {
 	buffer := bytes.NewBuffer(raw)
 	decoder := gob.NewDecoder(buffer)
 
-	var entry interface{}
+	var entry *ScheduledTask
 
-	decoder.Decode(entry)
+	err := decoder.Decode(entry)
+	if err != nil {
+		spew.Dump(err)
+	}
 
-	return entry
+	return &entry
 }
 
 func (ssbb *SQLiteSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTask) error {
 	raw := ssbb.encodeEntry(scheduledTask)
-	spew.Dump(raw)
 
-	_, err := ssbb.dbConn.Exec("INSERT INTO scheduledTasks (raw) VALUES (?)", raw)
-	if err != nil {
-		spew.Dump(err)
-	}
+	tx, _ := ssbb.dbConn.Begin()
+
+	spew.Dump(raw)
+	tx.Exec("INSERT INTO scheduledTasks (raw) VALUES (?)", raw)
+
+	tx.Commit()
 
 	return nil
 }
@@ -95,17 +99,17 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 
 	row := tx.QueryRow("SELECT * FROM scheduledTasks ORDER BY id ASC LIMIT 1")
 
-	err := row.Scan(row_id, raw)
+	err := row.Scan(&row_id, &raw)
 	if err != nil {
 		spew.Dump(err)
 		return nil
 	}
 
-	tx.Exec(fmt.Sprintf("DELETE FROM scheduledTasks WHERE id=%d", row_id))
-	tx.Commit()
-
 	spew.Dump(raw)
 	scheduledTask, _ := ssbb.decodeEntry(raw).(*ScheduledTask)
+
+	tx.Exec(fmt.Sprintf("DELETE FROM scheduledTasks WHERE id=%d", row_id))
+	tx.Commit()
 
 	return scheduledTask
 }
