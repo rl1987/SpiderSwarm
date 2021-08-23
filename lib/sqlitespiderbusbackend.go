@@ -3,7 +3,7 @@ package spiderswarm
 import (
 	"bytes"
 	"database/sql"
-	"encoding/gob"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -55,7 +55,7 @@ func NewSQLiteSpiderBusBackend(sqliteFilePath string) *SQLiteSpiderBusBackend {
 
 func (ssbb *SQLiteSpiderBusBackend) encodeEntry(entry interface{}) []byte {
 	buffer := bytes.NewBuffer([]byte{})
-	encoder := gob.NewEncoder(buffer)
+	encoder := json.NewEncoder(buffer)
 
 	encoder.Encode(entry)
 
@@ -64,11 +64,9 @@ func (ssbb *SQLiteSpiderBusBackend) encodeEntry(entry interface{}) []byte {
 	return bytes
 }
 
-func (ssbb *SQLiteSpiderBusBackend) decodeEntry(raw []byte) interface{} {
+func (ssbb *SQLiteSpiderBusBackend) decodeEntry(raw []byte, entry interface{}) interface{} {
 	buffer := bytes.NewBuffer(raw)
-	decoder := gob.NewDecoder(buffer)
-
-	var entry *ScheduledTask
+	decoder := json.NewDecoder(buffer)
 
 	err := decoder.Decode(entry)
 	if err != nil {
@@ -83,7 +81,6 @@ func (ssbb *SQLiteSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTa
 
 	tx, _ := ssbb.dbConn.Begin()
 
-	spew.Dump(raw)
 	tx.Exec("INSERT INTO scheduledTasks (raw) VALUES (?)", raw)
 
 	tx.Commit()
@@ -105,8 +102,9 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 		return nil
 	}
 
-	spew.Dump(raw)
-	scheduledTask, _ := ssbb.decodeEntry(raw).(*ScheduledTask)
+	scheduledTask := &ScheduledTask{}
+
+	ssbb.decodeEntry(raw, scheduledTask)
 
 	tx.Exec(fmt.Sprintf("DELETE FROM scheduledTasks WHERE id=%d", row_id))
 	tx.Commit()
