@@ -22,16 +22,16 @@ func TestSQLiteSpiderBusBackendScheduledTaskE2E(t *testing.T) {
 
 	assert.NotNil(t, backend)
 
-	//gotScheduledTask := backend.ReceiveScheduledTask()
-	//assert.Nil(t, gotScheduledTask)
+	gotScheduledTask := backend.ReceiveScheduledTask()
+	assert.Nil(t, gotScheduledTask)
 
 	err := backend.SendScheduledTask(scheduledTask)
 	assert.Nil(t, err)
 
-	gotScheduledTask := backend.ReceiveScheduledTask()
+	gotScheduledTask = backend.ReceiveScheduledTask()
 	assert.Equal(t, scheduledTask, gotScheduledTask)
 
-	//gotScheduledTask = backend.ReceiveScheduledTask()
-	//assert.Nil(t, gotScheduledTask)
+	gotScheduledTask = backend.ReceiveScheduledTask()
+	assert.Nil(t, gotScheduledTask)
 
 }
