@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -110,4 +111,20 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 	tx.Commit()
 
 	return scheduledTask
+}
+
+func SendTaskPromise(taskPromise *TaskPromise) error {
+	return errors.New("Not implemented")
+}
+
+func ReceiveTaskPromise() *TaskPromise {
+	return nil
+}
+
+func SendItem(item *Item) error {
+	return errors.New("Not implemented")
+}
+
+func ReceiveItem() *Item {
+	return nil
 }
