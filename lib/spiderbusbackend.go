@@ -1,4 +1,4 @@
-package spiderswarm
+package spsw
 
 type SpiderBusBackend interface {
 	SendScheduledTask(scheduledTask *ScheduledTask) error

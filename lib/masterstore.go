@@ -1,4 +1,4 @@
-package spiderswarm
+package spsw
 
 type MasterStore struct {
 	UUID     string

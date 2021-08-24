@@ -1,4 +1,4 @@
-package spiderswarm
+package spsw
 
 import (
 	"io"
