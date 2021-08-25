@@ -99,7 +99,7 @@ func (w *Workflow) Run() ([]*Item, error) {
 
 	exporter := NewExporter()
 	// TODO: make ExporterBackend API more abstract to enable plugin architecture.
-	exporterBackend := NewCSVExporterBackend("/home/vagrant/")
+	exporterBackend := NewCSVExporterBackend("/tmp")
 	// FIXME: refrain from hardcoding field names; consider finding them from
 	// Workflow.
 	err := exporterBackend.StartExporting(jobUUID, []string{"filer_id", "legal_name", "dba", "phone"})
