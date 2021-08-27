@@ -19,7 +19,7 @@ jobs:
         go-version: 1.16
 
     - name: Build
-      run: go build -v ./...
+      run: go build -ldflags="-extldflags=-static" -tags sqlite_omit_load_extension,osusergo,netgo
 
     - name: Test
       run: go test -v -coverprofile=coverage.txt -covermode=atomic ./...
