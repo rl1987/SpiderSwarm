@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -113,18 +112,74 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 	return scheduledTask
 }
 
-func SendTaskPromise(taskPromise *TaskPromise) error {
-	return errors.New("Not implemented")
-}
+func (ssbb *SQLiteSpiderBusBackend) SendTaskPromise(taskPromise *TaskPromise) error {
+	raw := ssbb.encodeEntry(taskPromise)
 
-func ReceiveTaskPromise() *TaskPromise {
+	tx, _ := ssbb.dbConn.Begin()
+
+	tx.Exec("INSERT INTO taskPromises (raw) VALUES (?)", raw)
+
+	tx.Commit()
+
 	return nil
 }
 
-func SendItem(item *Item) error {
-	return errors.New("Not implemented")
+func (ssbb *SQLiteSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
+	tx, _ := ssbb.dbConn.Begin()
+
+	var row_id int
+	var raw []byte
+
+	row := tx.QueryRow("SELECT * FROM taskPromises ORDER BY id ASC LIMIT 1")
+
+	err := row.Scan(&row_id, &raw)
+	if err != nil {
+		spew.Dump(err)
+		return nil
+	}
+
+	taskPromise := &TaskPromise{}
+
+	ssbb.decodeEntry(raw, taskPromise)
+
+	tx.Exec(fmt.Sprintf("DELETE FROM taskPromises WHERE id=%d", row_id))
+	tx.Commit()
+
+	return taskPromise
 }
 
-func ReceiveItem() *Item {
+func (ssbb *SQLiteSpiderBusBackend) SendItem(item *Item) error {
+	raw := ssbb.encodeEntry(item)
+
+	tx, _ := ssbb.dbConn.Begin()
+
+	tx.Exec("INSERT INTO items (raw) VALUES (?)", raw)
+
+	tx.Commit()
+
 	return nil
+}
+
+func (ssbb *SQLiteSpiderBusBackend) ReceiveItem() *Item {
+	tx, _ := ssbb.dbConn.Begin()
+
+	var row_id int
+	var raw []byte
+
+	row := tx.QueryRow("SELECT * FROM items ORDER BY id ASC LIMIT 1")
+
+	err := row.Scan(&row_id, &raw)
+	if err != nil {
+		spew.Dump(err)
+		return nil
+	}
+
+	item := &Item{}
+
+	ssbb.decodeEntry(raw, item)
+
+	tx.Exec(fmt.Sprintf("DELETE FROM items WHERE id=%d", row_id))
+	tx.Commit()
+
+	return item
 }
