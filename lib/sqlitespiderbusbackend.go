@@ -31,7 +31,8 @@ func NewSQLiteSpiderBusBackend(sqliteFilePath string) *SQLiteSpiderBusBackend {
 		sqliteFilePath = sqliteDirPath + "/" + "spiderbus.db"
 	}
 
-	dbConn, err := sql.Open("sqlite3", sqliteFilePath)
+	// https://github.com/mattn/go-sqlite3/issues/39#issuecomment-13469905
+	dbConn, err := sql.Open("sqlite3", sqliteFilePath+"?cache=shared&mode=rwc")
 	if err != nil {
 		log.Error(fmt.Sprintf("Failed to open DB connection: %v", err))
 		return nil
@@ -98,6 +99,7 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
+		tx.Rollback()
 		spew.Dump(err)
 		return nil
 	}
@@ -182,4 +184,8 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveItem() *Item {
 	tx.Commit()
 
 	return item
+}
+
+func (ssbb *SQLiteSpiderBusBackend) Close() {
+	ssbb.dbConn.Close()
 }

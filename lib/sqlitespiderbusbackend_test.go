@@ -1,6 +1,7 @@
 package spsw
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -19,19 +20,23 @@ func TestSQLiteSpiderBusBackendScheduledTaskE2E(t *testing.T) {
 	assert.NotNil(t, scheduledTask)
 
 	backend := NewSQLiteSpiderBusBackend("")
+	defer func() {
+		backend.Close()
+		os.Remove(backend.sqliteFilePath)
+	}()
 
 	assert.NotNil(t, backend)
 
-	//gotScheduledTask := backend.ReceiveScheduledTask()
-	//assert.Nil(t, gotScheduledTask)
+	gotScheduledTask := backend.ReceiveScheduledTask()
+	assert.Nil(t, gotScheduledTask)
 
 	err := backend.SendScheduledTask(scheduledTask)
 	assert.Nil(t, err)
 
-	gotScheduledTask := backend.ReceiveScheduledTask()
-	assert.Equal(t, scheduledTask, gotScheduledTask)
+	gotScheduledTask2 := backend.ReceiveScheduledTask()
+	assert.Equal(t, scheduledTask, gotScheduledTask2)
 
-	//gotScheduledTask = backend.ReceiveScheduledTask()
-	//assert.Nil(t, gotScheduledTask)
+	gotScheduledTask = backend.ReceiveScheduledTask()
+	assert.Nil(t, gotScheduledTask)
 
 }
