@@ -11,6 +11,7 @@ func TestNewWorker(t *testing.T) {
 
 	assert.NotNil(t, worker)
 	assert.NotNil(t, worker.ScheduledTasksIn)
-	assert.NotNil(t, worker.DataChunksOut)
+	assert.NotNil(t, worker.ItemsOut)
+	assert.NotNil(t, worker.TaskPromisesOut)
 	assert.NotNil(t, worker.Done)
 }
