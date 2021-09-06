@@ -6,93 +6,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 )
 
-func ExampleHTTPAction() {
-	httpAction := spsw.NewHTTPAction("https://cryptome.org", "GET", true)
-
-	headers := map[string][]string{
-		"User-Agent": []string{"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36"},
-	}
-
-	headersIn := spsw.NewDataPipe()
-	resultOut := spsw.NewDataPipe()
-
-	httpAction.AddInput(spsw.HTTPActionInputHeaders, headersIn)
-	xpathAction := spsw.NewXPathAction("//a/text()", true)
-
-	task := spsw.NewTask("task1", "", "")
-	task.AddAction(httpAction)
-	task.AddAction(xpathAction)
-
-	task.AddInput("headersIn", httpAction, spsw.HTTPActionInputHeaders, headersIn)
-	task.AddOutput("resultOut", xpathAction, spsw.XPathActionOutputStr, resultOut)
-
-	task.AddDataPipeBetweenActions(httpAction, spsw.HTTPActionOutputBody, xpathAction, spsw.XPathActionInputHTMLBytes)
-
-	headersIn.Add(headers)
-
-	spew.Dump(task)
-
-	err := task.Run()
-	if err != nil {
-		spew.Dump(err)
-	} else {
-		spew.Dump(resultOut)
-	}
-
-}
-
-func ExampleTask() {
-	httpAction := spsw.NewHTTPAction("https://news.ycombinator.com/news", "GET", false)
-
-	titleXpathAction := spsw.NewXPathAction("//a[@class='storylink']/text()", true)
-	linkXpathAction := spsw.NewXPathAction("//a[@class='storylink']/@href", true)
-
-	task := spsw.NewTask("HN", "", "")
-
-	titlesOut := spsw.NewDataPipe()
-	linksOut := spsw.NewDataPipe()
-
-	task.AddAction(httpAction)
-	task.AddAction(titleXpathAction)
-	task.AddAction(linkXpathAction)
-
-	task.AddOutput("titles", titleXpathAction, spsw.XPathActionOutputStr, titlesOut)
-	task.AddOutput("links", linkXpathAction, spsw.XPathActionOutputStr, linksOut)
-
-	task.AddDataPipeBetweenActions(httpAction, spsw.HTTPActionOutputBody, titleXpathAction, spsw.XPathActionInputHTMLBytes)
-	task.AddDataPipeBetweenActions(httpAction, spsw.HTTPActionOutputBody, linkXpathAction, spsw.XPathActionInputHTMLBytes)
-
-	err := task.Run()
-	if err != nil {
-		spew.Dump(err)
-		return
-	}
-
-	var titles []string
-	var links []string
-
-	for {
-		if title, ok := titlesOut.Remove().(string); ok {
-			titles = append(titles, title)
-		} else {
-			break
-		}
-	}
-
-	for {
-		if link, ok := linksOut.Remove().(string); ok {
-			links = append(links, link)
-		} else {
-			break
-		}
-	}
-
-	spew.Dump(titles)
-	spew.Dump(links)
-
-}
-
-func ExampleWorkflow() {
+func main() {
 	workflow := &spsw.Workflow{
 		Name:    "testWorkflow",
 		Version: "v0.0.0.0.1",
@@ -220,5 +134,4 @@ func ExampleWorkflow() {
 	} else {
 		spew.Dump(items)
 	}
-
 }
