@@ -29,7 +29,7 @@ func TestExporterSimple(t *testing.T) {
 
 	testItem := NewItem("testItem", "testWorkflow", "B927B203-5A25-44DA-AABB-3D2A41085B3F", "638585AD-8280-4990-8CDD-E8CFB6788D10")
 
-	exporter.ItemsIn <- *testItem
+	exporter.ItemsIn <- testItem
 
 	close(exporter.ItemsIn)
 

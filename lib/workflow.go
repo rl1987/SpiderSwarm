@@ -146,7 +146,7 @@ func (w *Workflow) Run() ([]*Item, error) {
 
 			for _, i := range item.Splay() {
 				log.Info(fmt.Sprintf("Got item %v", i))
-				exporter.ItemsIn <- *i
+				exporter.ItemsIn <- i
 			}
 		} else if gotDataChunk.Type == DataChunkTypePromise {
 			promise, _ := gotDataChunk.Payload.(*TaskPromise)

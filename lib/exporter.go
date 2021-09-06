@@ -11,14 +11,14 @@ import (
 type Exporter struct {
 	UUID     string
 	Backends []ExporterBackend
-	ItemsIn  chan Item
+	ItemsIn  chan *Item
 }
 
 func NewExporter() *Exporter {
 	return &Exporter{
 		UUID:     uuid.New().String(),
 		Backends: []ExporterBackend{},
-		ItemsIn:  make(chan Item),
+		ItemsIn:  make(chan *Item),
 	}
 }
 
@@ -30,7 +30,7 @@ func (e *Exporter) Run() error {
 		log.Info(fmt.Sprintf("Exporter %s got item %v", e.UUID, item))
 
 		for _, backend := range e.Backends {
-			err := backend.WriteItem(&item)
+			err := backend.WriteItem(item)
 			if err != nil {
 				log.Error(fmt.Sprintf("WriteItem failed with error: %v", err))
 				spew.Dump(err)
