@@ -66,10 +66,13 @@ func (w *Workflow) createScheduledTaskFromPromise(promise *TaskPromise, jobUUID 
 }
 
 func (w *Workflow) Run() ([]*Item, error) {
+	spiderBusBackend := NewSQLiteSpiderBusBackend("")
+
+	spiderBus := &SpiderBus{}
+	spiderBus.Backend = spiderBusBackend
+
 	jobUUID := uuid.New().String()
 	startedAt := time.Now()
-
-	var items []*Item
 
 	log.Info(fmt.Sprintf("Job %s started from workflow %s:%s at %v", jobUUID, w.Name, w.Version,
 		startedAt))
@@ -98,11 +101,19 @@ func (w *Workflow) Run() ([]*Item, error) {
 	worker3 := NewWorker()
 	worker4 := NewWorker()
 
+	spiderBusAdapter1 := NewSpiderBusAdapterForWorker(spiderBus, worker1)
+	spiderBusAdapter2 := NewSpiderBusAdapterForWorker(spiderBus, worker2)
+	spiderBusAdapter3 := NewSpiderBusAdapterForWorker(spiderBus, worker3)
+	spiderBusAdapter4 := NewSpiderBusAdapterForWorker(spiderBus, worker4)
+
 	exporter := NewExporter()
 	// TODO: make ExporterBackend API more abstract to enable plugin architecture.
 	exporterBackend := NewCSVExporterBackend("/tmp")
 	// FIXME: refrain from hardcoding field names; consider finding them from
 	// Workflow.
+
+	spiderBusAdapter5 := NewSpiderBusAdapterForExporter(spiderBus, exporter)
+
 	err := exporterBackend.StartExporting(jobUUID, []string{"filer_id", "legal_name", "dba", "phone"})
 	if err != nil {
 		spew.Dump(err)
@@ -112,6 +123,13 @@ func (w *Workflow) Run() ([]*Item, error) {
 	exporter.AddBackend(exporterBackend)
 
 	go exporter.Run()
+
+	adapters := []*SpiderBusAdapter{spiderBusAdapter1, spiderBusAdapter2, spiderBusAdapter3,
+		spiderBusAdapter4, spiderBusAdapter5}
+
+	for _, adapter := range adapters {
+		adapter.Start()
+	}
 
 	workers := []*Worker{worker1, worker2, worker3, worker4}
 
@@ -178,5 +196,5 @@ func (w *Workflow) Run() ([]*Item, error) {
 
 	exporterBackend.FinishExporting(jobUUID)
 
-	return items, nil
+	return []*Item{}, nil
 }
