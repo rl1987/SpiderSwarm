@@ -10,7 +10,8 @@ import (
 type Worker struct {
 	UUID             string
 	ScheduledTasksIn chan *ScheduledTask
-	DataChunksOut    chan *DataChunk
+	TaskPromisesOut  chan *TaskPromise
+	ItemsOut         chan *Item
 	Done             chan interface{}
 }
 
@@ -18,7 +19,8 @@ func NewWorker() *Worker {
 	return &Worker{
 		UUID:             uuid.New().String(),
 		ScheduledTasksIn: make(chan *ScheduledTask),
-		DataChunksOut:    make(chan *DataChunk),
+		TaskPromisesOut:  make(chan *TaskPromise),
+		ItemsOut:         make(chan *Item),
 		Done:             make(chan interface{}),
 	}
 }
@@ -39,13 +41,11 @@ func (w *Worker) executeTask(task *Task) error {
 		x := outDP.Remove()
 
 		if item, okItem := x.(*Item); okItem {
-			chunk, _ := NewDataChunk(item)
-			w.DataChunksOut <- chunk
+			w.ItemsOut <- item
 		}
 
 		if promise, okPromise := x.(*TaskPromise); okPromise {
-			chunk, _ := NewDataChunk(promise)
-			w.DataChunksOut <- chunk
+			w.TaskPromisesOut <- promise
 		}
 	}
 

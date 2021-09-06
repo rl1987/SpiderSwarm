@@ -76,7 +76,8 @@ func (w *Workflow) Run() ([]*Item, error) {
 
 	var scheduledTask *ScheduledTask
 	var scheduledTasks []*ScheduledTask
-	var gotDataChunk *DataChunk
+	var gotItem *Item
+	var gotPromise *TaskPromise
 
 	for _, taskTempl := range w.TaskTemplates {
 		if !taskTempl.Initial {
@@ -130,28 +131,36 @@ func (w *Workflow) Run() ([]*Item, error) {
 
 		scheduledTasksIn <- scheduledTask
 
+		gotItem = nil
+		gotPromise = nil
+
 		select {
-		case dc := <-worker1.DataChunksOut:
-			gotDataChunk = dc
-		case dc := <-worker2.DataChunksOut:
-			gotDataChunk = dc
-		case dc := <-worker3.DataChunksOut:
-			gotDataChunk = dc
-		case dc := <-worker4.DataChunksOut:
-			gotDataChunk = dc
+		case i := <-worker1.ItemsOut:
+			gotItem = i
+		case i := <-worker2.ItemsOut:
+			gotItem = i
+		case i := <-worker3.ItemsOut:
+			gotItem = i
+		case i := <-worker4.ItemsOut:
+			gotItem = i
+
+		case tp := <-worker1.TaskPromisesOut:
+			gotPromise = tp
+		case tp := <-worker2.TaskPromisesOut:
+			gotPromise = tp
+		case tp := <-worker3.TaskPromisesOut:
+			gotPromise = tp
+		case tp := <-worker4.TaskPromisesOut:
+			gotPromise = tp
 		}
 
-		if gotDataChunk.Type == DataChunkTypeItem {
-			item, _ := gotDataChunk.Payload.(*Item)
-
-			for _, i := range item.Splay() {
+		if gotItem != nil {
+			for _, i := range gotItem.Splay() {
 				log.Info(fmt.Sprintf("Got item %v", i))
 				exporter.ItemsIn <- i
 			}
-		} else if gotDataChunk.Type == DataChunkTypePromise {
-			promise, _ := gotDataChunk.Payload.(*TaskPromise)
-
-			for _, p := range promise.Splay() {
+		} else if gotPromise != nil {
+			for _, p := range gotPromise.Splay() {
 				newScheduledTask := w.createScheduledTaskFromPromise(p, jobUUID)
 				if newScheduledTask == nil {
 					continue
