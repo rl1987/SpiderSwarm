@@ -364,12 +364,15 @@ func runTestWorkflow() {
 
 	spew.Dump(workflow)
 
-	items, err := workflow.Run()
-	if err != nil {
-		spew.Dump(err)
-	} else {
-		spew.Dump(items)
-	}
+	/*
+		items, err := workflow.Run()
+		if err != nil {
+			spew.Dump(err)
+		} else {
+			spew.Dump(items)
+
+		}
+	*/
 
 }
 

@@ -53,7 +53,7 @@ func (w *Worker) executeTask(task *Task) error {
 }
 
 func (w *Worker) Run() error {
-	log.Info(fmt.Printf("Starting runloop for worker %s", w.UUID))
+	log.Info(fmt.Sprintf("Starting runloop for worker %s", w.UUID))
 
 	for {
 		select {

@@ -1,5 +1,6 @@
 package spsw
 
+/*
 import (
 	"fmt"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
+*/
 
 type ActionTemplate struct {
 	Name              string
@@ -52,19 +54,7 @@ func (w *Workflow) FindTaskTemplate(taskName string) *TaskTemplate {
 	return taskTempl
 }
 
-func (w *Workflow) createScheduledTaskFromPromise(promise *TaskPromise, jobUUID string) *ScheduledTask {
-	taskTempl := w.FindTaskTemplate(promise.TaskName)
-	if taskTempl == nil {
-		return nil
-	}
-
-	scheduledTask := NewScheduledTask(promise, taskTempl, w.Name, w.Version, jobUUID)
-
-	// TODO: log this
-
-	return scheduledTask
-}
-
+/*
 func (w *Workflow) Run() ([]*Item, error) {
 	spiderBusBackend := NewSQLiteSpiderBusBackend("")
 
@@ -172,12 +162,7 @@ func (w *Workflow) Run() ([]*Item, error) {
 			gotPromise = tp
 		}
 
-		if gotItem != nil {
-			for _, i := range gotItem.Splay() {
-				log.Info(fmt.Sprintf("Got item %v", i))
-				exporter.ItemsIn <- i
-			}
-		} else if gotPromise != nil {
+		if gotPromise != nil {
 			for _, p := range gotPromise.Splay() {
 				newScheduledTask := w.createScheduledTaskFromPromise(p, jobUUID)
 				if newScheduledTask == nil {
@@ -198,3 +183,4 @@ func (w *Workflow) Run() ([]*Item, error) {
 
 	return []*Item{}, nil
 }
+*/
