@@ -366,7 +366,7 @@ func runTestWorkflow() {
 	spew.Dump(workflow)
 
 	spiderBusBackend := spsw.NewSQLiteSpiderBusBackend("")
-	spiderBus := &spsw.SpiderBus{} // FIXME: NewSpiderBus causes compilation error?
+	spiderBus := spsw.NewSpiderBus()
 	spiderBus.Backend = spiderBusBackend
 
 	manager := spsw.NewManager()

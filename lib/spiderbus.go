@@ -12,7 +12,7 @@ type SpiderBus struct {
 	Backend SpiderBusBackend
 }
 
-func (sb *SpiderBus) NewSpiderBus() *SpiderBus {
+func NewSpiderBus() *SpiderBus {
 	return &SpiderBus{
 		UUID: uuid.New().String(),
 	}
