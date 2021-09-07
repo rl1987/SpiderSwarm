@@ -25,13 +25,15 @@ func NewExporter() *Exporter {
 func (e *Exporter) Run() error {
 	log.Info(fmt.Sprintf("Starting run loop for exporter %s", e.UUID))
 
+	// TODO: workers should report back about success/failure of the task;
+	//       managers should report back about status of the scraping job.
 	for item := range e.ItemsIn {
 		// Receive items, pass them to exporter backend(s).
 		log.Info(fmt.Sprintf("Exporter %s got item %v", e.UUID, item))
 
 		for _, i := range item.Splay() {
 			for _, backend := range e.Backends {
-				err := backend.WriteItem(item)
+				err := backend.WriteItem(i)
 				if err != nil {
 					log.Error(fmt.Sprintf("WriteItem failed with error: %v", err))
 					spew.Dump(err)
