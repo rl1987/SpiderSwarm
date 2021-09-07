@@ -369,15 +369,6 @@ func runTestWorkflow() {
 	spiderBus := &spsw.SpiderBus{} // FIXME: NewSpiderBus causes compilation error?
 	spiderBus.Backend = spiderBusBackend
 
-	for i := 0; i < 4; i++ {
-		go func() {
-			worker := spsw.NewWorker()
-			adapter := spsw.NewSpiderBusAdapterForWorker(spiderBus, worker)
-			adapter.Start()
-			worker.Run()
-		}()
-	}
-
 	manager := spsw.NewManager()
 
 	manager.StartScrapingJob(workflow)
@@ -404,6 +395,15 @@ func runTestWorkflow() {
 
 	go exporter.Run()
 	go manager.Run()
+
+	for i := 0; i < 4; i++ {
+		go func() {
+			worker := spsw.NewWorker()
+			adapter := spsw.NewSpiderBusAdapterForWorker(spiderBus, worker)
+			adapter.Start()
+			worker.Run()
+		}()
+	}
 
 	for {
 		time.Sleep(1)

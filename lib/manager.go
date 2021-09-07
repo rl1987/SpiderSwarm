@@ -63,6 +63,10 @@ func (m *Manager) Run() error {
 	// TODO: workers should report back about success/failure of the task;
 	//       managers should report back about status of the scraping job.
 	for promise := range m.TaskPromisesIn {
+		if promise == nil {
+			continue
+		}
+
 		for _, p := range promise.Splay() {
 			newScheduledTask := m.createScheduledTaskFromPromise(p, m.JobUUID)
 			if newScheduledTask == nil {

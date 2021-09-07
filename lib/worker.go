@@ -58,6 +58,10 @@ func (w *Worker) Run() error {
 	for {
 		select {
 		case scheduledTask := <-w.ScheduledTasksIn:
+			if scheduledTask == nil {
+				continue
+			}
+
 			log.Info(fmt.Printf("Worker %s got scheduled task %v", w.UUID, scheduledTask))
 
 			task := NewTaskFromScheduledTask(scheduledTask)
