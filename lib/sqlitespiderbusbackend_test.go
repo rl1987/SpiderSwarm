@@ -38,5 +38,53 @@ func TestSQLiteSpiderBusBackendScheduledTaskE2E(t *testing.T) {
 
 	gotScheduledTask = backend.ReceiveScheduledTask()
 	assert.Nil(t, gotScheduledTask)
+}
 
+// FIXME: fix the code to make this pass
+func TestSQLiteSpiderBusBackendTaskPromiseE2E(t *testing.T) {
+	taskPromise := &TaskPromise{UUID: "215B5E28-56AA-48DE-ADFB-8641E0547161"}
+
+	backend := NewSQLiteSpiderBusBackend("")
+	defer func() {
+		backend.Close()
+		os.Remove(backend.sqliteFilePath)
+	}()
+
+	assert.NotNil(t, backend)
+
+	gotTaskPromise := backend.ReceiveTaskPromise()
+	assert.Nil(t, gotTaskPromise)
+
+	err := backend.SendTaskPromise(taskPromise)
+	assert.Nil(t, err)
+
+	gotTaskPromise2 := backend.ReceiveTaskPromise()
+	assert.Equal(t, taskPromise, gotTaskPromise2)
+
+	gotTaskPromise = backend.ReceiveTaskPromise()
+	assert.Nil(t, gotTaskPromise)
+}
+
+func TestSQLiteSpiderBusBackendItemE2E(t *testing.T) {
+	item := &Item{UUID: "3350F665-F1EB-48A9-8FD8-704BDCCA4941"}
+
+	backend := NewSQLiteSpiderBusBackend("")
+	defer func() {
+		backend.Close()
+		os.Remove(backend.sqliteFilePath)
+	}()
+
+	assert.NotNil(t, backend)
+
+	gotItem := backend.ReceiveItem()
+	assert.Nil(t, gotItem)
+
+	err := backend.SendItem(item)
+	assert.Nil(t, err)
+
+	gotItem = backend.ReceiveItem()
+	assert.Equal(t, item, gotItem)
+
+	gotItem = backend.ReceiveItem()
+	assert.Nil(t, gotItem)
 }
