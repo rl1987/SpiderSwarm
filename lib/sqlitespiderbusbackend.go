@@ -144,6 +144,7 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
 
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
+		tx.Rollback()
 		spew.Dump(err)
 		return nil
 	}
@@ -184,6 +185,7 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveItem() *Item {
 
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
+		tx.Rollback()
 		spew.Dump(err)
 		return nil
 	}
