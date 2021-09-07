@@ -29,11 +29,13 @@ func (e *Exporter) Run() error {
 		// Receive items, pass them to exporter backend(s).
 		log.Info(fmt.Sprintf("Exporter %s got item %v", e.UUID, item))
 
-		for _, backend := range e.Backends {
-			err := backend.WriteItem(item)
-			if err != nil {
-				log.Error(fmt.Sprintf("WriteItem failed with error: %v", err))
-				spew.Dump(err)
+		for _, i := range item.Splay() {
+			for _, backend := range e.Backends {
+				err := backend.WriteItem(item)
+				if err != nil {
+					log.Error(fmt.Sprintf("WriteItem failed with error: %v", err))
+					spew.Dump(err)
+				}
 			}
 		}
 	}
