@@ -34,7 +34,7 @@ func TestNewHTTPAction(t *testing.T) {
 }
 
 func TestNewHTTPActionFromTemplate(t *testing.T) {
-	baseURL := "https://github.com/rl1987/spiderswarm"
+	baseURL := "https://github.com/spiderswarm/spiderswarm"
 	method := "HEAD"
 	canFail := false
 

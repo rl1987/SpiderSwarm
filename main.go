@@ -7,7 +7,7 @@ import (
 	_ "net/http/pprof"
 	"os"
 
-	spsw "github.com/rl1987/spiderswarm/lib"
+	spsw "github.com/spiderswarm/spiderswarm/lib"
 
 	"github.com/davecgh/go-spew/spew"
 	log "github.com/sirupsen/logrus"

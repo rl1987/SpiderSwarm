@@ -1,7 +1,7 @@
 package main
 
 import (
-	spsw "github.com/rl1987/spiderswarm/lib"
+	spsw "github.com/spiderswarm/spiderswarm/lib"
 
 	"github.com/davecgh/go-spew/spew"
 )

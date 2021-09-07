@@ -1,4 +1,4 @@
-module github.com/rl1987/spiderswarm
+module github.com/spiderswarm/spiderswarm
 
 go 1.14
 
