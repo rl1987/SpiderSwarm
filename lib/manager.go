@@ -45,6 +45,21 @@ func (m *Manager) createScheduledTaskFromPromise(promise *TaskPromise, jobUUID s
 func (m *Manager) Run() error {
 	log.Info(fmt.Sprintf("Starting runloop for manager %s", m.UUID))
 
+	for _, taskTempl := range m.CurrentWorkflow.TaskTemplates {
+		if !taskTempl.Initial {
+			continue
+		}
+
+		newPromise := NewTaskPromise(taskTempl.TaskName,
+			m.CurrentWorkflow.Name, m.JobUUID, map[string]*DataChunk{})
+		log.Info(fmt.Sprintf("Enqueing promise %v", newPromise))
+
+		scheduledTask := NewScheduledTask(newPromise, &taskTempl,
+			m.CurrentWorkflow.Name, m.CurrentWorkflow.Version, m.JobUUID)
+
+		m.ScheduledTasksOut <- scheduledTask
+	}
+
 	// TODO: workers should report back about success/failure of the task;
 	//       managers should report back about status of the scraping job.
 	for promise := range m.TaskPromisesIn {

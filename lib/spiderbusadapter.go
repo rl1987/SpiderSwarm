@@ -37,6 +37,15 @@ func NewSpiderBusAdapterForExporter(sb *SpiderBus, e *Exporter) *SpiderBusAdapte
 	}
 }
 
+func NewSpiderBusAdapterForManager(sb *SpiderBus, m *Manager) *SpiderBusAdapter {
+	return &SpiderBusAdapter{
+		UUID:             uuid.New().String(),
+		Bus:              sb,
+		TaskPromisesOut:  m.TaskPromisesIn,
+		ScheduledTasksIn: m.ScheduledTasksOut,
+	}
+}
+
 func (sba *SpiderBusAdapter) Start() {
 	log.Info(fmt.Sprintf("SpiderBusAdapter %s starting run loops", sba.UUID))
 

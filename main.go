@@ -6,6 +6,7 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 	"os"
+	"time"
 
 	spsw "github.com/spiderswarm/spiderswarm/lib"
 
@@ -364,16 +365,49 @@ func runTestWorkflow() {
 
 	spew.Dump(workflow)
 
-	/*
-		items, err := workflow.Run()
-		if err != nil {
-			spew.Dump(err)
-		} else {
-			spew.Dump(items)
+	spiderBusBackend := spsw.NewSQLiteSpiderBusBackend("")
+	spiderBus := &spsw.SpiderBus{} // FIXME: NewSpiderBus causes compilation error?
+	spiderBus.Backend = spiderBusBackend
 
-		}
-	*/
+	for i := 0; i < 4; i++ {
+		go func() {
+			worker := spsw.NewWorker()
+			adapter := spsw.NewSpiderBusAdapterForWorker(spiderBus, worker)
+			adapter.Start()
+			worker.Run()
+		}()
+	}
 
+	manager := spsw.NewManager()
+
+	manager.StartScrapingJob(workflow)
+
+	exporter := spsw.NewExporter()
+	// TODO: make ExporterBackend API more abstract to enable plugin architecture.
+	exporterBackend := spsw.NewCSVExporterBackend("/tmp")
+
+	// FIXME: refrain from hardcoding field names; consider finding them from
+	// Workflow.
+	err := exporterBackend.StartExporting(manager.JobUUID, []string{"filer_id", "legal_name", "dba", "phone"})
+	if err != nil {
+		spew.Dump(err)
+		return
+	}
+
+	exporter.AddBackend(exporterBackend)
+
+	managerAdapter := spsw.NewSpiderBusAdapterForManager(spiderBus, manager)
+	managerAdapter.Start()
+
+	exporterAdapter := spsw.NewSpiderBusAdapterForExporter(spiderBus, exporter)
+	exporterAdapter.Start()
+
+	go exporter.Run()
+	go manager.Run()
+
+	for {
+		time.Sleep(1)
+	}
 }
 
 func printUsage() {
