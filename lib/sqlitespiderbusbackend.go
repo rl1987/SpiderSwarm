@@ -80,7 +80,9 @@ func (ssbb *SQLiteSpiderBusBackend) decodeEntry(raw []byte, entry interface{}) i
 func (ssbb *SQLiteSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTask) error {
 	raw := ssbb.encodeEntry(scheduledTask)
 
-	tx, _ := ssbb.dbConn.Begin()
+	tmpDbConn, _ := sql.Open("sqlite3", ssbb.sqliteFilePath+"?cache=shared&mode=rwc")
+	defer tmpDbConn.Close()
+	tx, _ := tmpDbConn.Begin()
 
 	tx.Exec("INSERT INTO scheduledTasks (raw) VALUES (?)", raw)
 
@@ -90,7 +92,9 @@ func (ssbb *SQLiteSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTa
 }
 
 func (ssbb *SQLiteSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
-	tx, _ := ssbb.dbConn.Begin()
+	tmpDbConn, _ := sql.Open("sqlite3", ssbb.sqliteFilePath+"?cache=shared&mode=rwc")
+	defer tmpDbConn.Close()
+	tx, _ := tmpDbConn.Begin()
 
 	var row_id int
 	var raw []byte
@@ -117,7 +121,9 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 func (ssbb *SQLiteSpiderBusBackend) SendTaskPromise(taskPromise *TaskPromise) error {
 	raw := ssbb.encodeEntry(taskPromise)
 
-	tx, _ := ssbb.dbConn.Begin()
+	tmpDbConn, _ := sql.Open("sqlite3", ssbb.sqliteFilePath+"?cache=shared&mode=rwc")
+	defer tmpDbConn.Close()
+	tx, _ := tmpDbConn.Begin()
 
 	tx.Exec("INSERT INTO taskPromises (raw) VALUES (?)", raw)
 
@@ -127,7 +133,9 @@ func (ssbb *SQLiteSpiderBusBackend) SendTaskPromise(taskPromise *TaskPromise) er
 }
 
 func (ssbb *SQLiteSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
-	tx, _ := ssbb.dbConn.Begin()
+	tmpDbConn, _ := sql.Open("sqlite3", ssbb.sqliteFilePath+"?cache=shared&mode=rwc")
+	defer tmpDbConn.Close()
+	tx, _ := tmpDbConn.Begin()
 
 	var row_id int
 	var raw []byte
@@ -153,7 +161,9 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
 func (ssbb *SQLiteSpiderBusBackend) SendItem(item *Item) error {
 	raw := ssbb.encodeEntry(item)
 
-	tx, _ := ssbb.dbConn.Begin()
+	tmpDbConn, _ := sql.Open("sqlite3", ssbb.sqliteFilePath+"?cache=shared&mode=rwc")
+	defer tmpDbConn.Close()
+	tx, _ := tmpDbConn.Begin()
 
 	tx.Exec("INSERT INTO items (raw) VALUES (?)", raw)
 
@@ -163,7 +173,9 @@ func (ssbb *SQLiteSpiderBusBackend) SendItem(item *Item) error {
 }
 
 func (ssbb *SQLiteSpiderBusBackend) ReceiveItem() *Item {
-	tx, _ := ssbb.dbConn.Begin()
+	tmpDbConn, _ := sql.Open("sqlite3", ssbb.sqliteFilePath+"?cache=shared&mode=rwc")
+	defer tmpDbConn.Close()
+	tx, _ := tmpDbConn.Begin()
 
 	var row_id int
 	var raw []byte
