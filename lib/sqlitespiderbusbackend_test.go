@@ -40,7 +40,6 @@ func TestSQLiteSpiderBusBackendScheduledTaskE2E(t *testing.T) {
 	assert.Nil(t, gotScheduledTask)
 }
 
-// FIXME: fix the code to make this pass
 func TestSQLiteSpiderBusBackendTaskPromiseE2E(t *testing.T) {
 	taskPromise := &TaskPromise{UUID: "215B5E28-56AA-48DE-ADFB-8641E0547161"}
 
