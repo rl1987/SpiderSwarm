@@ -132,3 +132,28 @@ func TestSpiderBusEnqueueDequeueTaskPromise(t *testing.T) {
 
 	assert.Equal(t, taskPromise, gotTaskPromise)
 }
+
+func TestSpiderBusEnqueueDequeueItem(t *testing.T) {
+	testBackend := NewTestSpiderBusBackend()
+
+	spiderBus := NewSpiderBus()
+	spiderBus.Backend = testBackend
+
+	gotItem, err := spiderBus.Dequeue(SpiderBusEntryTypeItem)
+	assert.Nil(t, gotItem)
+	assert.Nil(t, err)
+
+	item := NewItem("testItem", "WF0", "3087B17B-2E23-4ECD-A330-B03E63D622E6",
+		"135AD4AB-1284-460B-9C0F-54C9FFFACE1A")
+
+	err = spiderBus.Enqueue(item)
+	assert.Nil(t, err)
+
+	assert.Equal(t, 1, len(testBackend.Items))
+	assert.Equal(t, item, testBackend.Items[0])
+
+	gotItem, err = spiderBus.Dequeue(SpiderBusEntryTypeItem)
+	assert.Nil(t, err)
+
+	assert.Equal(t, item, gotItem)
+}
