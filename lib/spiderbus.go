@@ -39,6 +39,10 @@ const SpiderBusEntryTypeTaskPromise = "SpiderBusEntryTypeTaskPromise"
 const SpiderBusEntryTypeItem = "SpiderBusEntryTypeItem"
 
 func (sb *SpiderBus) Dequeue(entryType string) (interface{}, error) {
+	if sb.Backend == nil {
+		return nil, errors.New("SpiderBus has no backend assigned")
+	}
+
 	if entryType == SpiderBusEntryTypeScheduledTask {
 		return sb.Backend.ReceiveScheduledTask(), nil
 	}
