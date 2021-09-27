@@ -54,6 +54,12 @@ func NewSQLiteSpiderBusBackend(sqliteFilePath string) *SQLiteSpiderBusBackend {
 	}
 }
 
+func (ssbb *SQLiteSpiderBusBackend) maybePrintError(err error) {
+	if err != nil && err != sql.ErrNoRows {
+		spew.Dump(err)
+	}
+}
+
 func (ssbb *SQLiteSpiderBusBackend) encodeEntry(entry interface{}) []byte {
 	buffer := bytes.NewBuffer([]byte{})
 	encoder := json.NewEncoder(buffer)
@@ -104,7 +110,7 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
 		tx.Rollback()
-		spew.Dump(err)
+		ssbb.maybePrintError(err)
 		return nil
 	}
 
@@ -145,7 +151,7 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
 		tx.Rollback()
-		spew.Dump(err)
+		ssbb.maybePrintError(err)
 		return nil
 	}
 
@@ -186,7 +192,7 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveItem() *Item {
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
 		tx.Rollback()
-		spew.Dump(err)
+		ssbb.maybePrintError(err)
 		return nil
 	}
 
