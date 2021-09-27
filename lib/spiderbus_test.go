@@ -78,6 +78,36 @@ func TestNewSpiderBus(t *testing.T) {
 	assert.NotNil(t, spiderBus.UUID)
 }
 
+func TestSpiderBusEnqueueDequeueScheduledTask(t *testing.T) {
+	testBackend := NewTestSpiderBusBackend()
+
+	spiderBus := NewSpiderBus()
+	spiderBus.Backend = testBackend
+
+	gotScheduledTask, err := spiderBus.Dequeue(SpiderBusEntryTypeScheduledTask)
+	assert.Nil(t, gotScheduledTask)
+	assert.Nil(t, err)
+
+	scheduledTask := &ScheduledTask{
+		UUID:            "CAF7E6CB-C888-49B0-B78A-868C11C8BCAB",
+		Promise:         TaskPromise{},
+		Template:        TaskTemplate{},
+		WorkflowName:    "WF0",
+		WorkflowVersion: "v.2.5.0.1",
+		JobUUID:         "5BD414FF-F827-4227-90A7-215001874BE6",
+	}
+
+	err = spiderBus.Enqueue(scheduledTask)
+	assert.Nil(t, err)
+
+	assert.Equal(t, 1, len(testBackend.ScheduledTasks))
+
+	gotScheduledTask, err = spiderBus.Dequeue(SpiderBusEntryTypeScheduledTask)
+	assert.Nil(t, err)
+
+	assert.Equal(t, scheduledTask, gotScheduledTask)
+}
+
 func TestSpiderBusEnqueueDequeueTaskPromise(t *testing.T) {
 	testBackend := NewTestSpiderBusBackend()
 
