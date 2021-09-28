@@ -3,6 +3,7 @@ package spsw
 import (
 	"fmt"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -63,9 +64,11 @@ func (w *Worker) Run() error {
 			}
 
 			log.Info(fmt.Printf("Worker %s got scheduled task %v", w.UUID, scheduledTask))
+			spew.Dump(scheduledTask)
 
 			task := NewTaskFromScheduledTask(scheduledTask)
 			log.Info(fmt.Sprintf("Worker %s running task %v", w.UUID, task))
+			spew.Dump(task)
 
 			w.executeTask(task)
 		case <-w.Done:

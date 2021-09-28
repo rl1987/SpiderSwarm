@@ -38,12 +38,19 @@ func TestNewActionFromTemplate(t *testing.T) {
 	assert.NotNil(t, action3)
 	assert.Equal(t, actionTempl3.Name, action3.Name)
 
-	actionTempl4 := &ActionTemplate{Name: "TaskPromiseAction", StructName: "TaskPromiseAction"}
+	actionTempl4 := &ActionTemplate{
+		Name:       "TaskPromiseAction",
+		StructName: "TaskPromiseAction",
+		ConstructorParams: map[string]interface{}{
+			"inputNames": []string{"page", "query"},
+		},
+	}
 	action4, ok4 := NewActionFromTemplate(actionTempl4, workflow.Name, jobUUID).(*TaskPromiseAction)
 
 	assert.True(t, ok4)
 	assert.NotNil(t, action4)
 	assert.Equal(t, actionTempl4.Name, action4.Name)
+	assert.Equal(t, actionTempl4.ConstructorParams["inputNames"], action4.AllowedInputNames)
 
 	actionTempl5 := &ActionTemplate{Name: "UTF8DecodeAction", StructName: "UTF8DecodeAction"}
 	action5, ok5 := NewActionFromTemplate(actionTempl5, workflow.Name, jobUUID).(*UTF8DecodeAction)

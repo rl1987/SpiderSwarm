@@ -39,6 +39,10 @@ func NewTaskPromiseActionFromTemplate(actionTempl *ActionTemplate, workflowName 
 	inputNames, _ = actionTempl.ConstructorParams["inputNames"].([]string)
 	taskName, _ = actionTempl.ConstructorParams["taskName"].(string)
 
+	if inputNames == nil {
+		panic("Fatal error in NewTaskPromiseActionFromTemplate: inputNames is nil")
+	}
+
 	action := NewTaskPromiseAction(inputNames, taskName, workflowName, "")
 
 	action.Name = actionTempl.Name

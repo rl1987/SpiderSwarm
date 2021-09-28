@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -49,7 +50,9 @@ func (t *Task) addDataPipeFromTemplate(dataPipeTemplate *DataPipeTemplate, nameT
 			fromAction.AddOutput(dataPipeTemplate.SourceOutputName, newDP)
 			toAction.AddInput(dataPipeTemplate.DestInputName, newDP)
 		}
-	} else if len(dataPipeTemplate.TaskInputName) > 0 {
+	}
+
+	if len(dataPipeTemplate.TaskInputName) > 0 {
 		toAction := nameToAction[dataPipeTemplate.DestActionName]
 
 		if toAction != nil {
@@ -63,7 +66,9 @@ func (t *Task) addDataPipeFromTemplate(dataPipeTemplate *DataPipeTemplate, nameT
 				t.Inputs[dataPipeTemplate.TaskInputName] = append(t.Inputs[dataPipeTemplate.TaskInputName], newDP)
 			}
 		}
-	} else if len(dataPipeTemplate.TaskOutputName) > 0 {
+	}
+
+	if len(dataPipeTemplate.TaskOutputName) > 0 {
 		fromAction := nameToAction[dataPipeTemplate.SourceActionName]
 
 		if fromAction != nil {
@@ -76,6 +81,7 @@ func (t *Task) addDataPipeFromTemplate(dataPipeTemplate *DataPipeTemplate, nameT
 
 	if newDP != nil {
 		t.DataPipes = append(t.DataPipes, newDP)
+
 	}
 }
 
@@ -206,6 +212,7 @@ func (t *Task) Run() error {
 
 	for _, action := range order {
 		log.Info(fmt.Sprintf("Running action: %v", action))
+		spew.Dump(action)
 		err := action.Run()
 		if err != nil && !action.IsFailureAllowed() {
 			log.Error(fmt.Sprintf("Action failed with error: %v", err))
