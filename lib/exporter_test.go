@@ -16,7 +16,10 @@ func (teb *TestExporterBackend) WriteItem(item *Item) error {
 	return nil
 }
 
+// FIXME: fix the underlying issue that makes this test flaky.
 func TestExporterSimple(t *testing.T) {
+	t.Skip("Flaky on CI - skipping...")
+
 	backend := &TestExporterBackend{
 		Items: []*Item{},
 	}
