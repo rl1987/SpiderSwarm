@@ -1,6 +1,8 @@
 package spsw
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -156,4 +158,42 @@ func TestSpiderBusEnqueueDequeueItem(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, item, gotItem)
+}
+
+func TestSpiderBusDequeueBadEntryType(t *testing.T) {
+	testBackend := NewTestSpiderBusBackend()
+
+	spiderBus := NewSpiderBus()
+	spiderBus.Backend = testBackend
+
+	badEntryType := "BadEntryType"
+	expectedErr := errors.New(fmt.Sprintf("SpiderBus.Dequeue: unrecognised entryType: %s",
+		badEntryType))
+
+	_, gotErr := spiderBus.Dequeue(badEntryType)
+
+	assert.Equal(t, expectedErr, gotErr)
+}
+
+func TestSpiderBusDequeueNoBackend(t *testing.T) {
+	spiderBus := NewSpiderBus()
+
+	expectedErr := errors.New("SpiderBus has no backend assigned")
+
+	_, gotErr := spiderBus.Dequeue(SpiderBusEntryTypeItem)
+
+	assert.Equal(t, expectedErr, gotErr)
+}
+
+func TestSpiderBusEnqueuBadArh(t *testing.T) {
+	spiderBus := NewSpiderBus()
+
+	badArg := struct{}{}
+
+	expectedErr := errors.New(fmt.Sprintf("SpiderBus.Enqueue: argument not recognised: %v",
+		badArg))
+
+	gotErr := spiderBus.Enqueue(badArg)
+
+	assert.Equal(t, expectedErr, gotErr)
 }
