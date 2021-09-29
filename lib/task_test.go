@@ -337,6 +337,5 @@ func TestNewTaskFromPromise(t *testing.T) {
 	assert.True(t, ok)
 	assert.NotNil(t, httpAction)
 
-	// FIXME: make this check work again
-	//assert.Equal(t, chunk, task.Inputs["cookies"][0].Queue[0])
+	assert.Equal(t, chunk, task.Inputs["cookies"][0].Queue[0])
 }

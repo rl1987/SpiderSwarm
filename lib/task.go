@@ -124,6 +124,7 @@ func NewTaskFromPromise(promise *TaskPromise, workflow *Workflow) *Task {
 	}
 
 	task := NewTaskFromTemplate(taskTempl, workflow.Name, promise.JobUUID)
+	task.populateTaskInputsFromPromise(promise)
 
 	task.JobUUID = promise.JobUUID
 
