@@ -84,7 +84,7 @@ func TestTaskPromiseSplay(t *testing.T) {
 		JobUUID:      jobUUID,
 		InputDataChunksByInputName: map[string]*DataChunk{
 			"param1": NewDataChunk_("aa"),
-			"param2": NewDataChunk_([]string{"1", "2", "3"}),
+			"param2": NewDataChunk_(NewValueFromStrings([]string{"1", "2", "3"})),
 		},
 	}
 

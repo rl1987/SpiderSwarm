@@ -8,7 +8,6 @@ import (
 )
 
 const DataChunkTypeString = "DataChunkTypeString"
-const DataChunkTypeStrings = "DataChunkTypeStrings"
 const DataChunkTypeMapStringToString = "DataChunkTypeMapStringToString"
 const DataChunkTypeMapStringToStrings = "DataChunkTypeMapStringToStrings"
 const DataChunkTypeBytes = "DataChunkTypeBytes"
@@ -16,6 +15,7 @@ const DataChunkTypeHTTPHeader = "DataChunkTypeHTTPHeader"
 const DataChunkTypeInt = "DataChunkTypeInt"
 const DataChunkTypeItem = "DataChunkTypeItem"
 const DataChunkTypePromise = "DataChunkTypePromise"
+const DataChunkTypeValue = "DataChunkTypeValue"
 
 type DataChunk struct {
 	Type    string
@@ -34,10 +34,6 @@ func NewDataChunkWithType(t string, payload interface{}) *DataChunk {
 func NewDataChunk(payload interface{}) (*DataChunk, error) {
 	if _, okStr := payload.(string); okStr {
 		return NewDataChunkWithType(DataChunkTypeString, payload), nil
-	}
-
-	if _, okStrings := payload.([]string); okStrings {
-		return NewDataChunkWithType(DataChunkTypeStrings, payload), nil
 	}
 
 	if _, okMapString := payload.(map[string]string); okMapString {
@@ -66,6 +62,14 @@ func NewDataChunk(payload interface{}) (*DataChunk, error) {
 
 	if _, okPromise := payload.(*TaskPromise); okPromise {
 		return NewDataChunkWithType(DataChunkTypePromise, payload), nil
+	}
+
+	if _, okStrings := payload.([]string); okStrings {
+		return NewDataChunkWithType(DataChunkTypeValue, NewValueFromStrings(payload.([]string))), nil
+	}
+
+	if _, okValue := payload.(*Value); okValue {
+		return NewDataChunkWithType(DataChunkTypeValue, payload), nil
 	}
 
 	return nil, errors.New("Unsupported payload type")

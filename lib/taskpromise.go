@@ -33,15 +33,22 @@ func (tp *TaskPromise) IsSplayable() bool {
 	lastLen := -1
 
 	for _, chunk := range tp.InputDataChunksByInputName {
-		if chunk.Type == DataChunkTypeStrings {
-			hasLists = true
-
-			if lastLen != -1 && lastLen != len(chunk.Payload.([]string)) {
-				equalLen = false
-				break
+		if chunk.Type == DataChunkTypeValue {
+			chunkValue, ok := chunk.Payload.(*Value)
+			if !ok {
+				return false
 			}
 
-			lastLen = len(chunk.Payload.([]string))
+			if chunkValue.ValueType == ValueTypeStrings {
+				hasLists = true
+
+				if lastLen != -1 && lastLen != len(chunkValue.StringsValue) {
+					equalLen = false
+					break
+				}
+
+				lastLen = len(chunkValue.StringsValue)
+			}
 		}
 	}
 
@@ -59,11 +66,14 @@ func (tp *TaskPromise) splayOff() *TaskPromise {
 	}
 
 	for name, chunk := range tp.InputDataChunksByInputName {
-		if chunk.Type == DataChunkTypeStrings {
-			var s string
-			s, chunk.Payload = chunk.Payload.([]string)[0], chunk.Payload.([]string)[1:]
-			newChunk, _ := NewDataChunk(s)
-			newPromise.InputDataChunksByInputName[name] = newChunk
+		if chunk.Type == DataChunkTypeValue {
+			chunkValue := chunk.Payload.(*Value)
+			if chunkValue.ValueType == ValueTypeStrings {
+				var s string
+				s, chunk.Payload = chunkValue.StringsValue[0], NewValueFromStrings(chunkValue.StringsValue[1:])
+				newChunk, _ := NewDataChunk(s)
+				newPromise.InputDataChunksByInputName[name] = newChunk
+			}
 		} else {
 			newPromise.InputDataChunksByInputName[name] = chunk
 		}

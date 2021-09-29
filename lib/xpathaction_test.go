@@ -65,9 +65,9 @@ func TestXPathActionRunMultipleResults(t *testing.T) {
 	err := xpathAction.Run()
 	assert.Nil(t, err)
 
-	resultStrings, ok := dataPipeOut.Remove().([]string)
+	resultValue, ok := dataPipeOut.Remove().(*Value)
 	assert.True(t, ok)
-	assert.Equal(t, []string{"1", "2", "3"}, resultStrings)
+	assert.Equal(t, []string{"1", "2", "3"}, resultValue.StringsValue)
 
 	_, ok = dataPipeOut.Remove().(string)
 	assert.False(t, ok)
