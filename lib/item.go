@@ -1,7 +1,6 @@
 package spsw
 
 import (
-	"reflect"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,7 +15,7 @@ type Item struct {
 	CreatedAt    time.Time
 	Name         string
 
-	Fields map[string]interface{}
+	Fields map[string]*Value
 }
 
 func NewItem(name string, workflowName string, jobUUID string, taskUUID string) *Item {
@@ -26,7 +25,7 @@ func NewItem(name string, workflowName string, jobUUID string, taskUUID string) 
 		JobUUID:      jobUUID,
 		TaskUUID:     taskUUID,
 		CreatedAt:    time.Now(),
-		Fields:       map[string]interface{}{},
+		Fields:       map[string]*Value{},
 		Name:         name,
 	}
 }
@@ -37,17 +36,15 @@ func (i *Item) IsSplayable() bool {
 	lastLen := -1
 
 	for _, value := range i.Fields {
-		rt := reflect.TypeOf(value) // XXX: this is bad for performance!
-
-		if rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array {
+		if value.ValueType == ValueTypeStrings {
 			hasLists = true
 
-			if lastLen != -1 && lastLen != reflect.ValueOf(value).Len() {
+			if lastLen != -1 && lastLen != len(value.StringsValue) {
 				equalLen = false
 				break
 			}
 
-			lastLen = reflect.ValueOf(value).Len()
+			lastLen = len(value.StringsValue)
 		}
 	}
 
@@ -61,23 +58,15 @@ func (i *Item) splayOff() *Item {
 		JobUUID:      i.JobUUID,
 		TaskUUID:     i.TaskUUID,
 		CreatedAt:    time.Now(),
-		Fields:       map[string]interface{}{},
+		Fields:       map[string]*Value{},
 		Name:         i.Name,
 	}
 
 	for key, value := range i.Fields {
-		rt := reflect.TypeOf(value) // XXX: this is bad for performance!
-
-		if rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array {
-			var x interface{}
-
-			if s, ok1 := value.([]string); ok1 {
-				x, i.Fields[key] = s[0], s[1:]
-			} else {
-
-				x, i.Fields[key] = value.([]interface{})[0], value.([]interface{})[1:]
-			}
-			newItem.Fields[key] = x
+		if value.ValueType == ValueTypeStrings {
+			var x string
+			x, value.StringsValue = value.StringsValue[0], value.StringsValue[1:]
+			newItem.Fields[key] = NewValueFromString(x)
 		} else {
 			newItem.Fields[key] = value
 		}
@@ -111,5 +100,19 @@ func (i *Item) Splay() []*Item {
 }
 
 func (i *Item) SetField(name string, value interface{}) {
-	i.Fields[name] = interface{}(value)
+	if s, okStr := value.(string); okStr {
+		i.Fields[name] = NewValueFromString(s)
+	}
+
+	if in, okInt := value.(int); okInt {
+		i.Fields[name] = NewValueFromInt(in)
+	}
+
+	if str, okStr2 := value.([]string); okStr2 {
+		i.Fields[name] = NewValueFromStrings(str)
+	}
+
+	if b, okBool := value.(bool); okBool {
+		i.Fields[name] = NewValueFromBool(b)
+	}
 }
