@@ -36,8 +36,8 @@ func NewStringCutActionFromTemplate(actionTempl *ActionTemplate) *StringCutActio
 	var from string
 	var to string
 
-	from, _ = actionTempl.ConstructorParams["from"].(string)
-	to, _ = actionTempl.ConstructorParams["to"].(string)
+	from = actionTempl.ConstructorParams["from"].StringValue
+	to = actionTempl.ConstructorParams["to"].StringValue
 
 	action := NewStringCutAction(from, to)
 

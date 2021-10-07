@@ -46,8 +46,8 @@ func NewXPathActionFromTemplate(actionTempl *ActionTemplate) *XPathAction {
 	var xpath string
 	var expectMany bool
 
-	xpath, _ = actionTempl.ConstructorParams["xpath"].(string)
-	expectMany = actionTempl.ConstructorParams["expectMany"].(bool)
+	xpath = actionTempl.ConstructorParams["xpath"].StringValue
+	expectMany = actionTempl.ConstructorParams["expectMany"].BoolValue
 
 	action := NewXPathAction(xpath, expectMany)
 

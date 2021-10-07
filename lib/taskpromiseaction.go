@@ -36,27 +36,8 @@ func NewTaskPromiseActionFromTemplate(actionTempl *ActionTemplate, workflowName 
 	var inputNames []string
 	var taskName string
 
-	inputNames, _ = actionTempl.ConstructorParams["inputNames"].([]string)
-	taskName, _ = actionTempl.ConstructorParams["taskName"].(string)
-
-	if inputNames == nil {
-		// HACK to work around the issues of inputNames sometimes being of type
-		// []interface{}
-		inputNamesIntf, okHack := actionTempl.ConstructorParams["inputNames"].([]interface{})
-		if okHack && len(inputNamesIntf) > 0 {
-			if _, okStr := inputNamesIntf[0].(string); okStr {
-				inputNames = []string{}
-				for i, _ := range inputNamesIntf {
-					s := inputNamesIntf[i].(string)
-					inputNames = append(inputNames, s)
-				}
-			}
-		}
-	}
-
-	if inputNames == nil {
-		panic("Fatal error in NewTaskPromiseActionFromTemplate: inputNames is nil")
-	}
+	inputNames = actionTempl.ConstructorParams["inputNames"].StringsValue
+	taskName = actionTempl.ConstructorParams["taskName"].StringValue
 
 	action := NewTaskPromiseAction(inputNames, taskName, workflowName, "")
 

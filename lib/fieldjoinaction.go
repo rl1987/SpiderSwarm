@@ -40,8 +40,8 @@ func NewFieldJoinActionFromTemplate(actionTempl *ActionTemplate, workflowName st
 	var inputNames []string
 	var itemName string
 
-	inputNames, _ = actionTempl.ConstructorParams["inputNames"].([]string)
-	itemName, _ = actionTempl.ConstructorParams["itemName"].(string)
+	inputNames = actionTempl.ConstructorParams["inputNames"].StringsValue
+	itemName = actionTempl.ConstructorParams["itemName"].StringValue
 
 	action := NewFieldJoinAction(inputNames, workflowName, "", "", itemName)
 

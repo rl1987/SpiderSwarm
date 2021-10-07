@@ -58,9 +58,9 @@ func NewHTTPActionFromTemplate(actionTempl *ActionTemplate) *HTTPAction {
 	var method string
 	var canFail bool
 
-	baseURL, _ = actionTempl.ConstructorParams["baseURL"].(string)
-	method, _ = actionTempl.ConstructorParams["method"].(string)
-	canFail, _ = actionTempl.ConstructorParams["canFail"].(bool)
+	baseURL = actionTempl.ConstructorParams["baseURL"].StringValue
+	method = actionTempl.ConstructorParams["method"].StringValue
+	canFail = actionTempl.ConstructorParams["canFail"].BoolValue
 
 	action := NewHTTPAction(baseURL, method, canFail)
 

@@ -37,7 +37,7 @@ func NewURLJoinAction(baseURL string) *URLJoinAction {
 }
 
 func NewURLJoinActionFromTemplate(actionTempl *ActionTemplate) *URLJoinAction {
-	baseURL, _ := actionTempl.ConstructorParams["baseURL"].(string)
+	baseURL := actionTempl.ConstructorParams["baseURL"].StringValue
 
 	action := NewURLJoinAction(baseURL)
 
