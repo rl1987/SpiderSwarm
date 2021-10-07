@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/davecgh/go-spew/spew"
 	log "github.com/sirupsen/logrus"
@@ -79,12 +80,34 @@ func (ceb *CSVExporterBackend) WriteItem(i *Item) error {
 	row := []string{}
 
 	for _, fieldName := range fieldNames {
-		value, okStr := i.Fields[fieldName].(string)
-		if !okStr {
-			value = fmt.Sprintf("%v", i.Fields[fieldName])
+		/*
+			value, okStr := i.Fields[fieldName].(string)
+			if !okStr {
+				value = fmt.Sprintf("%v", i.Fields[fieldName])
+			}
+
+			row = append(row, value)
+		*/
+
+		var rowStr string
+
+		value := i.Fields[fieldName]
+
+		if value.ValueType == ValueTypeString {
+			rowStr = value.StringValue
+		} else if value.ValueType == ValueTypeStrings {
+			rowStr = "[" + strings.Join(value.StringsValue, ",") + "]"
+		} else if value.ValueType == ValueTypeInt {
+			rowStr = fmt.Sprintf("%d", value.IntValue)
+		} else if value.ValueType == ValueTypeBool {
+			if value.BoolValue {
+				rowStr = "true"
+			} else {
+				rowStr = "false"
+			}
 		}
 
-		row = append(row, value)
+		row = append(row, rowStr)
 	}
 
 	spew.Dump(row)
