@@ -80,15 +80,6 @@ func (ceb *CSVExporterBackend) WriteItem(i *Item) error {
 	row := []string{}
 
 	for _, fieldName := range fieldNames {
-		/*
-			value, okStr := i.Fields[fieldName].(string)
-			if !okStr {
-				value = fmt.Sprintf("%v", i.Fields[fieldName])
-			}
-
-			row = append(row, value)
-		*/
-
 		var rowStr string
 
 		value := i.Fields[fieldName]
