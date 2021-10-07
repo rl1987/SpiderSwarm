@@ -34,17 +34,17 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "HTTP_Form",
 						StructName: "HTTPAction",
-						ConstructorParams: map[string]Value{
-							"baseURL": Value{
-								ValueType:   ValueTypeString,
+						ConstructorParams: map[string]spsw.Value{
+							"baseURL": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "https://apps.fcc.gov/cgb/form499/499a.cfm",
 							},
-							"method": Value{
-								ValueType:   ValueTypeString,
+							"method": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "GET",
 							},
-							"canFail": Value{
-								ValueType: ValueTypeString,
+							"canFail": spsw.Value{
+								ValueType: spsw.ValueTypeString,
 								BoolValue: false,
 							},
 						},
@@ -52,13 +52,13 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "XPath_states",
 						StructName: "XPathAction",
-						ConstructorParams: map[string]Value{
-							"xpath": Value{
-								ValueType:   ValueTypeString,
+						ConstructorParams: map[string]spsw.Value{
+							"xpath": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "//select[@name=\"state\"]/option[not(@selected)]/@value",
 							},
-							"expectMany": Value{
-								ValueType: ValueTypeBool,
+							"expectMany": spsw.Value{
+								ValueType: spsw.ValueTypeBool,
 								BoolValue: true,
 							},
 						},
@@ -66,13 +66,13 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "TaskPromise_ScrapeList",
 						StructName: "TaskPromiseAction",
-						ConstructorParams: map[string]Value{
-							"inputNames": Value{
-								ValueType:    ValueTypeStrings,
+						ConstructorParams: map[string]spsw.Value{
+							"inputNames": spsw.Value{
+								ValueType:    spsw.ValueTypeStrings,
 								StringsValue: []string{"state", "cookies"},
 							},
-							"taskName": Value{
-								ValueType:   ValueTypeString,
+							"taskName": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "ScrapeCompanyList",
 							},
 						},
@@ -111,9 +111,9 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "Const_commType",
 						StructName: "ConstAction",
-						ConstructorParams: map[string]Value{
-							"c": Value{
-								ValueType:   ValueTypeString,
+						ConstructorParams: map[string]spsw.Value{
+							"c": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "Any Type",
 							},
 						},
@@ -121,9 +121,9 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "Const_R1",
 						StructName: "ConstAction",
-						ConstructorParams: map[string]Value{
-							"c": Value{
-								ValueType:   ValueTypeString,
+						ConstructorParams: map[string]spsw.Value{
+							"c": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "and",
 							},
 						},
@@ -131,9 +131,9 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "Const_XML",
 						StructName: "ConstAction",
-						ConstructorParams: map[string]Value{
-							"c": Value{
-								ValueType:   ValueTypeString,
+						ConstructorParams: map[string]spsw.Value{
+							"c": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "FALSE",
 							},
 						},
@@ -141,13 +141,13 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "JoinParams",
 						StructName: "FieldJoinAction",
-						ConstructorParams: map[string]Value{
-							"inputNames": Value{
-								ValueType:    ValueTypeStrings,
+						ConstructorParams: map[string]spsw.Value{
+							"inputNames": spsw.Value{
+								ValueType:    spsw.ValueTypeStrings,
 								StringsValue: []string{"comm_type", "R1", "state", "XML"},
 							},
-							"itemName": Value{
-								ValueType:   ValueTypeString,
+							"itemName": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "params",
 							},
 						},
@@ -155,13 +155,13 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "HTTP_List",
 						StructName: "HTTPAction",
-						ConstructorParams: map[string]Value{
-							"baseURL": Value{
-								ValueType:   ValueTypeString,
+						ConstructorParams: map[string]spsw.Value{
+							"baseURL": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "https://apps.fcc.gov/cgb/form499/499results.cfm",
 							},
-							"canFail": Value{
-								ValueType: ValueTypeBool,
+							"canFail": spsw.Value{
+								ValueType: spsw.ValueTypeBool,
 								BoolValue: false,
 							},
 						},
@@ -169,13 +169,13 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "XPath_Companies",
 						StructName: "XPathAction",
-						ConstructorParams: map[string]Value{
-							"xpath": Value{
-								ValueType:   ValueTypeString,
+						ConstructorParams: map[string]spsw.Value{
+							"xpath": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "//table[@border=\"1\"]//a/@href",
 							},
-							"expectMany": Value{
-								ValueType: ValueTypeBool,
+							"expectMany": spsw.Value{
+								ValueType: spsw.ValueTypeBool,
 								BoolValue: true,
 							},
 						},
@@ -183,18 +183,18 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:              "JoinCookies",
 						StructName:        "HTTPCookieJoinAction",
-						ConstructorParams: map[string]Value{},
+						ConstructorParams: map[string]spsw.Value{},
 					},
 					spsw.ActionTemplate{
 						Name:       "TaskPromise_ScrapeCompanyPage",
 						StructName: "TaskPromiseAction",
-						ConstructorParams: map[string]Value{
-							"inputNames": Value{
-								ValueType:    ValueTypeStrings,
+						ConstructorParams: map[string]spsw.Value{
+							"inputNames": spsw.Value{
+								ValueType:    spsw.ValueTypeStrings,
 								StringsValue: []string{"relativeURL", "cookies"},
 							},
-							"taskName": Value{
-								ValueType:   ValueTypeString,
+							"taskName": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "ScrapeCompanyPage",
 							},
 						},
@@ -278,9 +278,9 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "URLJoin",
 						StructName: "URLJoinAction",
-						ConstructorParams: map[string]Value{
-							"baseURL": Value{
-								ValueType:   ValueTypeString,
+						ConstructorParams: map[string]spsw.Value{
+							"baseURL": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "https://apps.fcc.gov/cgb/form499/",
 							},
 						},
@@ -288,13 +288,13 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "HTTP_Company",
 						StructName: "HTTPAction",
-						ConstructorParams: map[string]Value{
-							"method": Value{
-								ValueType:   ValueTypeString,
+						ConstructorParams: map[string]spsw.Value{
+							"method": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "GET",
 							},
-							"canFail": Value{
-								ValueType: ValueTypeBool,
+							"canFail": spsw.Value{
+								ValueType: spsw.ValueTypeBool,
 								BoolValue: false,
 							},
 						},
@@ -302,18 +302,18 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:              "BodyBytesToStr",
 						StructName:        "UTF8DecodeAction",
-						ConstructorParams: map[string]Value{},
+						ConstructorParams: map[string]spsw.Value{},
 					},
 					spsw.ActionTemplate{
 						Name:       "GetFilerID",
 						StructName: "StringCutAction",
-						ConstructorParams: map[string]Value{
-							"from": Value{
-								ValueType:   ValueTypeString,
+						ConstructorParams: map[string]spsw.Value{
+							"from": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "499 Filer ID Number:                <b>",
 							},
-							"to": Value{
-								ValueType:   ValueTypeString,
+							"to": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "</b>",
 							},
 						},
@@ -321,13 +321,13 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "GetLegalName",
 						StructName: "StringCutAction",
-						ConstructorParams: map[string]Value{
-							"from": Value{
-								ValueType:   ValueTypeString,
+						ConstructorParams: map[string]spsw.Value{
+							"from": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "Legal Name of Reporting Entity:     <b>",
 							},
-							"to": Value{
-								ValueType:   ValueTypeString,
+							"to": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "</b>",
 							},
 						},
@@ -335,13 +335,13 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "GetDBA",
 						StructName: "StringCutAction",
-						ConstructorParams: map[string]Value{
-							"from": Value{
-								ValueType:   ValueTypeString,
+						ConstructorParams: map[string]spsw.Value{
+							"from": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "Doing Business As:                  <b>",
 							},
-							"to": Value{
-								ValueType:   ValueTypeString,
+							"to": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "</b>",
 							},
 						},
@@ -349,13 +349,13 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "GetPhone",
 						StructName: "StringCutAction",
-						ConstructorParams: map[string]Value{
-							"from": Value{
-								ValueType:   ValueTypeString,
+						ConstructorParams: map[string]spsw.Value{
+							"from": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "Customer Inquiries Telephone:       <b>",
 							},
-							"to": Value{
-								ValueType:   ValueTypeString,
+							"to": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "</b>",
 							},
 						},
@@ -363,13 +363,13 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "MakeItem",
 						StructName: "FieldJoinAction",
-						ConstructorParams: map[string]Value{
-							"inputNames": Value{
-								ValueType:    ValueTypeStrings,
+						ConstructorParams: map[string]spsw.Value{
+							"inputNames": spsw.Value{
+								ValueType:    spsw.ValueTypeStrings,
 								StringsValue: []string{"filer_id", "legal_name", "dba", "phone"},
 							},
-							"itemName": Value{
-								ValueType:   ValueTypeString,
+							"itemName": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
 								StringValue: "company",
 							},
 						},
