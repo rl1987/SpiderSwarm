@@ -3,7 +3,7 @@ package spsw
 type ActionTemplate struct {
 	Name              string
 	StructName        string
-	ConstructorParams map[string]interface{} // XXX: should this be defined more strictly?
+	ConstructorParams map[string]Value
 }
 
 type DataPipeTemplate struct {

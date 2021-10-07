@@ -34,26 +34,47 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "HTTP_Form",
 						StructName: "HTTPAction",
-						ConstructorParams: map[string]interface{}{
-							"baseURL": "https://apps.fcc.gov/cgb/form499/499a.cfm",
-							"method":  "GET",
-							"canFail": false,
+						ConstructorParams: map[string]Value{
+							"baseURL": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "https://apps.fcc.gov/cgb/form499/499a.cfm",
+							},
+							"method": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "GET",
+							},
+							"canFail": Value{
+								ValueType: ValueTypeString,
+								BoolValue: false,
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:       "XPath_states",
 						StructName: "XPathAction",
-						ConstructorParams: map[string]interface{}{
-							"xpath":      "//select[@name=\"state\"]/option[not(@selected)]/@value",
-							"expectMany": true,
+						ConstructorParams: map[string]Value{
+							"xpath": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "//select[@name=\"state\"]/option[not(@selected)]/@value",
+							},
+							"expectMany": Value{
+								ValueType: ValueTypeBool,
+								BoolValue: true,
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:       "TaskPromise_ScrapeList",
 						StructName: "TaskPromiseAction",
-						ConstructorParams: map[string]interface{}{
-							"inputNames": []string{"state", "cookies"},
-							"taskName":   "ScrapeCompanyList",
+						ConstructorParams: map[string]Value{
+							"inputNames": Value{
+								ValueType:    ValueTypeStrings,
+								StringsValue: []string{"state", "cookies"},
+							},
+							"taskName": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "ScrapeCompanyList",
+							},
 						},
 					},
 				},
@@ -90,59 +111,92 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "Const_commType",
 						StructName: "ConstAction",
-						ConstructorParams: map[string]interface{}{
-							"c": "Any Type",
+						ConstructorParams: map[string]Value{
+							"c": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "Any Type",
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:       "Const_R1",
 						StructName: "ConstAction",
-						ConstructorParams: map[string]interface{}{
-							"c": "and",
+						ConstructorParams: map[string]Value{
+							"c": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "and",
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:       "Const_XML",
 						StructName: "ConstAction",
-						ConstructorParams: map[string]interface{}{
-							"c": "FALSE",
+						ConstructorParams: map[string]Value{
+							"c": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "FALSE",
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:       "JoinParams",
 						StructName: "FieldJoinAction",
-						ConstructorParams: map[string]interface{}{
-							"inputNames": []string{"comm_type", "R1", "state", "XML"},
-							"itemName":   "params",
+						ConstructorParams: map[string]Value{
+							"inputNames": Value{
+								ValueType:    ValueTypeStrings,
+								StringsValue: []string{"comm_type", "R1", "state", "XML"},
+							},
+							"itemName": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "params",
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:       "HTTP_List",
 						StructName: "HTTPAction",
-						ConstructorParams: map[string]interface{}{
-							"baseURL": "https://apps.fcc.gov/cgb/form499/499results.cfm",
-							"canFail": false,
+						ConstructorParams: map[string]Value{
+							"baseURL": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "https://apps.fcc.gov/cgb/form499/499results.cfm",
+							},
+							"canFail": Value{
+								ValueType: ValueTypeBool,
+								BoolValue: false,
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:       "XPath_Companies",
 						StructName: "XPathAction",
-						ConstructorParams: map[string]interface{}{
-							"xpath":      "//table[@border=\"1\"]//a/@href",
-							"expectMany": true,
+						ConstructorParams: map[string]Value{
+							"xpath": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "//table[@border=\"1\"]//a/@href",
+							},
+							"expectMany": Value{
+								ValueType: ValueTypeBool,
+								BoolValue: true,
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:              "JoinCookies",
 						StructName:        "HTTPCookieJoinAction",
-						ConstructorParams: map[string]interface{}{},
+						ConstructorParams: map[string]Value{},
 					},
 					spsw.ActionTemplate{
 						Name:       "TaskPromise_ScrapeCompanyPage",
 						StructName: "TaskPromiseAction",
-						ConstructorParams: map[string]interface{}{
-							"inputNames": []string{"relativeURL", "cookies"},
-							"taskName":   "ScrapeCompanyPage",
+						ConstructorParams: map[string]Value{
+							"inputNames": Value{
+								ValueType:    ValueTypeStrings,
+								StringsValue: []string{"relativeURL", "cookies"},
+							},
+							"taskName": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "ScrapeCompanyPage",
+							},
 						},
 					},
 				},
@@ -224,61 +278,100 @@ func runTestWorkflow() {
 					spsw.ActionTemplate{
 						Name:       "URLJoin",
 						StructName: "URLJoinAction",
-						ConstructorParams: map[string]interface{}{
-							"baseURL": "https://apps.fcc.gov/cgb/form499/",
+						ConstructorParams: map[string]Value{
+							"baseURL": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "https://apps.fcc.gov/cgb/form499/",
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:       "HTTP_Company",
 						StructName: "HTTPAction",
-						ConstructorParams: map[string]interface{}{
-							"method":  "GET",
-							"canFail": false,
+						ConstructorParams: map[string]Value{
+							"method": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "GET",
+							},
+							"canFail": Value{
+								ValueType: ValueTypeBool,
+								BoolValue: false,
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:              "BodyBytesToStr",
 						StructName:        "UTF8DecodeAction",
-						ConstructorParams: map[string]interface{}{},
+						ConstructorParams: map[string]Value{},
 					},
 					spsw.ActionTemplate{
 						Name:       "GetFilerID",
 						StructName: "StringCutAction",
-						ConstructorParams: map[string]interface{}{
-							"from": "499 Filer ID Number:                <b>",
-							"to":   "</b>",
+						ConstructorParams: map[string]Value{
+							"from": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "499 Filer ID Number:                <b>",
+							},
+							"to": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "</b>",
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:       "GetLegalName",
 						StructName: "StringCutAction",
-						ConstructorParams: map[string]interface{}{
-							"from": "Legal Name of Reporting Entity:     <b>",
-							"to":   "</b>",
+						ConstructorParams: map[string]Value{
+							"from": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "Legal Name of Reporting Entity:     <b>",
+							},
+							"to": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "</b>",
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:       "GetDBA",
 						StructName: "StringCutAction",
-						ConstructorParams: map[string]interface{}{
-							"from": "Doing Business As:                  <b>",
-							"to":   "</b>",
+						ConstructorParams: map[string]Value{
+							"from": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "Doing Business As:                  <b>",
+							},
+							"to": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "</b>",
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:       "GetPhone",
 						StructName: "StringCutAction",
-						ConstructorParams: map[string]interface{}{
-							"from": "Customer Inquiries Telephone:       <b>",
-							"to":   "</b>",
+						ConstructorParams: map[string]Value{
+							"from": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "Customer Inquiries Telephone:       <b>",
+							},
+							"to": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "</b>",
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:       "MakeItem",
 						StructName: "FieldJoinAction",
-						ConstructorParams: map[string]interface{}{
-							"inputNames": []string{"filer_id", "legal_name", "dba", "phone"},
-							"itemName":   "company",
+						ConstructorParams: map[string]Value{
+							"inputNames": Value{
+								ValueType:    ValueTypeStrings,
+								StringsValue: []string{"filer_id", "legal_name", "dba", "phone"},
+							},
+							"itemName": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "company",
+							},
 						},
 					},
 				},
