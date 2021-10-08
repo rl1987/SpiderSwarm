@@ -135,23 +135,38 @@ func TestNewTaskFromTemplate(t *testing.T) {
 					ActionTemplate{
 						Name:       "HTTP1",
 						StructName: "HTTPAction",
-						ConstructorParams: map[string]interface{}{
-							"baseURL": "https://news.ycombinator.com/",
-							"method":  "GET",
-							"canFail": false,
+						ConstructorParams: map[string]Value{
+							"baseURL": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "https://news.ycombinator.com/",
+							},
+							"method": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "GET",
+							},
+							"canFail": Value{
+								ValueType: ValueTypeBool,
+								BoolValue: false,
+							},
 						},
 					},
 					ActionTemplate{
 						Name:              "UTF8Decode",
 						StructName:        "UTF8DecodeAction",
-						ConstructorParams: map[string]interface{}{},
+						ConstructorParams: map[string]Value{},
 					},
 					ActionTemplate{
 						Name:       "MakePromise",
 						StructName: "TaskPromiseAction",
-						ConstructorParams: map[string]interface{}{
-							"inputNames": []string{"htmlStr1", "htmlStr2"},
-							"taskName":   "ParseHTML",
+						ConstructorParams: map[string]Value{
+							"inputNames": Value{
+								ValueType:    ValueTypeStrings,
+								StringsValue: []string{"htmlStr1", "htmlStr2"},
+							},
+							"taskName": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "ParseHTML",
+							},
 						},
 					},
 				},
@@ -284,10 +299,19 @@ func TestNewTaskFromPromise(t *testing.T) {
 					ActionTemplate{
 						Name:       "HTTP",
 						StructName: "HTTPAction",
-						ConstructorParams: map[string]interface{}{
-							"baseURL": "https://news.ycombinator.com/",
-							"method":  "GET",
-							"canFail": false,
+						ConstructorParams: map[string]Value{
+							"baseURL": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "https://news.ycombinator.com/",
+							},
+							"method": Value{
+								ValueType:   ValueTypeString,
+								StringValue: "GET",
+							},
+							"canFail": Value{
+								ValueType: ValueTypeBool,
+								BoolValue: false,
+							},
 						},
 					},
 				},
