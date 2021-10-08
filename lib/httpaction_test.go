@@ -38,10 +38,19 @@ func TestNewHTTPActionFromTemplate(t *testing.T) {
 	method := "HEAD"
 	canFail := false
 
-	constructorParams := map[string]interface{}{
-		"baseURL": baseURL,
-		"method":  method,
-		"canFail": canFail,
+	constructorParams := map[string]Value{
+		"baseURL": Value{
+			ValueType:   ValueTypeString,
+			StringValue: baseURL,
+		},
+		"method": Value{
+			ValueType:   ValueTypeString,
+			StringValue: method,
+		},
+		"canFail": Value{
+			ValueType: ValueTypeBool,
+			BoolValue: canFail,
+		},
 	}
 
 	actionTempl := &ActionTemplate{
