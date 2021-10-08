@@ -7,9 +7,15 @@ import (
 )
 
 func TestNewStringCutActionFromTemplate(t *testing.T) {
-	constructorParams := map[string]interface{}{
-		"from": "here",
-		"to":   "eternity",
+	constructorParams := map[string]Value{
+		"from": Value{
+			ValueType:   ValueTypeString,
+			StringValue: "here",
+		},
+		"to": Value{
+			ValueType:   ValueTypeString,
+			StringValue: "eternity",
+		},
 	}
 
 	actionTempl := &ActionTemplate{
