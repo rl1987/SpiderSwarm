@@ -12,9 +12,15 @@ func TestNewTaskPromiseActionFromTemplate(t *testing.T) {
 	actionTempl := &ActionTemplate{
 		Name:       "testAction",
 		StructName: "TaskPromiseAction",
-		ConstructorParams: map[string]interface{}{
-			"inputNames": []string{"page", "session"},
-			"taskName":   taskName,
+		ConstructorParams: map[string]Value{
+			"inputNames": Value{
+				ValueType:    ValueTypeStrings,
+				StringsValue: []string{"page", "session"},
+			},
+			"taskName": Value{
+				ValueType:   ValueTypeString,
+				StringValue: taskName,
+			},
 		},
 	}
 
@@ -37,9 +43,15 @@ func TestTaskPromiseActionRun(t *testing.T) {
 	actionTempl := &ActionTemplate{
 		Name:       "testAction",
 		StructName: "TaskPromiseAction",
-		ConstructorParams: map[string]interface{}{
-			"inputNames": []string{"page", "session"},
-			"taskName":   taskName,
+		ConstructorParams: map[string]Value{
+			"inputNames": Value{
+				ValueType:    ValueTypeString,
+				StringsValue: []string{"page", "session"},
+			},
+			"taskName": Value{
+				ValueType:   ValueTypeString,
+				StringValue: taskName,
+			},
 		},
 	}
 
