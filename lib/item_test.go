@@ -8,36 +8,60 @@ import (
 
 func TestItemIsSplayable(t *testing.T) {
 	item1 := &Item{
-		Fields: map[string]interface{}{
-			"field1": "a",
-			"field2": "b",
+		Fields: map[string]*Value{
+			"field1": &Value{
+				ValueType:   ValueTypeString,
+				StringValue: "a",
+			},
+			"field2": &Value{
+				ValueType:   ValueTypeString,
+				StringValue: "b",
+			},
 		},
 	}
 
 	assert.False(t, item1.IsSplayable())
 
 	item2 := &Item{
-		Fields: map[string]interface{}{
-			"field1": []interface{}{"a", "b", "c"},
-			"field2": []interface{}{"1", "2", "3"},
+		Fields: map[string]*Value{
+			"field1": &Value{
+				ValueType:    ValueTypeStrings,
+				StringsValue: []string{"a", "b", "c"},
+			},
+			"field2": &Value{
+				ValueType:    ValueTypeStrings,
+				StringsValue: []string{"1", "2", "3"},
+			},
 		},
 	}
 
 	assert.True(t, item2.IsSplayable())
 
 	item3 := &Item{
-		Fields: map[string]interface{}{
-			"field1": []interface{}{"x", "y", "z"},
-			"field2": []interface{}{"0", "1"},
+		Fields: map[string]*Value{
+			"field1": &Value{
+				ValueType:    ValueTypeStrings,
+				StringsValue: []string{"x", "y", "z"},
+			},
+			"field2": &Value{
+				ValueType:    ValueTypeStrings,
+				StringsValue: []string{"0", "1"},
+			},
 		},
 	}
 
 	assert.False(t, item3.IsSplayable())
 
 	item4 := &Item{
-		Fields: map[string]interface{}{
-			"field1": "a",
-			"field2": []interface{}{},
+		Fields: map[string]*Value{
+			"field1": &Value{
+				ValueType:   ValueTypeString,
+				StringValue: "a",
+			},
+			"field2": &Value{
+				ValueType:    ValueTypeStrings,
+				StringsValue: []string{},
+			},
 		},
 	}
 
@@ -46,9 +70,9 @@ func TestItemIsSplayable(t *testing.T) {
 
 func TestItemSplay(t *testing.T) {
 	simpleItem := &Item{
-		Fields: map[string]interface{}{
-			"field1": "a",
-			"field2": "1",
+		Fields: map[string]*Value{
+			"field1": &Value{ValueType: ValueTypeString, StringValue: "a"},
+			"field2": &Value{ValueType: ValueTypeString, StringValue: "1"},
 		},
 	}
 
@@ -57,33 +81,33 @@ func TestItemSplay(t *testing.T) {
 	assert.Equal(t, []*Item{simpleItem}, items)
 
 	compositeItem := &Item{
-		Fields: map[string]interface{}{
-			"field1": []interface{}{"a", "b", "c"},
-			"field2": []interface{}{"1", "2", "3"},
-			"field3": "C",
+		Fields: map[string]*Value{
+			"field1": &Value{ValueType: ValueTypeStrings, StringsValue: []string{"a", "b", "c"}},
+			"field2": &Value{ValueType: ValueTypeStrings, StringsValue: []string{"1", "2", "3"}},
+			"field3": &Value{ValueType: ValueTypeString, StringValue: "C"},
 		},
 	}
 
 	expectItems := []*Item{
 		&Item{
-			Fields: map[string]interface{}{
-				"field1": "a",
-				"field2": "1",
-				"field3": "C",
+			Fields: map[string]*Value{
+				"field1": &Value{ValueType: ValueTypeString, StringValue: "a"},
+				"field2": &Value{ValueType: ValueTypeString, StringValue: "1"},
+				"field3": &Value{ValueType: ValueTypeString, StringValue: "C"},
 			},
 		},
 		&Item{
-			Fields: map[string]interface{}{
-				"field1": "b",
-				"field2": "2",
-				"field3": "C",
+			Fields: map[string]*Value{
+				"field1": &Value{ValueType: ValueTypeString, StringValue: "b"},
+				"field2": &Value{ValueType: ValueTypeString, StringValue: "2"},
+				"field3": &Value{ValueType: ValueTypeString, StringValue: "C"},
 			},
 		},
 		&Item{
-			Fields: map[string]interface{}{
-				"field1": "c",
-				"field2": "3",
-				"field3": "C",
+			Fields: map[string]*Value{
+				"field1": &Value{ValueType: ValueTypeString, StringValue: "c"},
+				"field2": &Value{ValueType: ValueTypeString, StringValue: "3"},
+				"field3": &Value{ValueType: ValueTypeString, StringValue: "C"},
 			},
 		},
 	}
