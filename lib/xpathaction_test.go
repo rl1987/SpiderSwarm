@@ -10,9 +10,15 @@ func TestNewXPathActionFromTemplate(t *testing.T) {
 	xpath := "//title/text()"
 	expectMany := false
 
-	constructorParams := map[string]interface{}{
-		"xpath":      xpath,
-		"expectMany": expectMany,
+	constructorParams := map[string]Value{
+		"xpath": Value{
+			ValueType:   ValueTypeString,
+			StringValue: xpath,
+		},
+		"expectMany": Value{
+			ValueType: ValueTypeBool,
+			BoolValue: expectMany,
+		},
 	}
 
 	actionTempl := &ActionTemplate{
