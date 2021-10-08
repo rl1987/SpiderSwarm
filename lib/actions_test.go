@@ -59,7 +59,7 @@ func TestNewActionFromTemplate(t *testing.T) {
 	assert.True(t, ok4)
 	assert.NotNil(t, action4)
 	assert.Equal(t, actionTempl4.Name, action4.Name)
-	assert.Equal(t, actionTempl4.ConstructorParams["inputNames"], action4.AllowedInputNames)
+	assert.Equal(t, actionTempl4.ConstructorParams["inputNames"].StringsValue, action4.AllowedInputNames)
 
 	actionTempl5 := &ActionTemplate{Name: "UTF8DecodeAction", StructName: "UTF8DecodeAction"}
 	action5, ok5 := NewActionFromTemplate(actionTempl5, workflow.Name, jobUUID).(*UTF8DecodeAction)

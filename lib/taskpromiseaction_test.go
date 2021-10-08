@@ -32,7 +32,7 @@ func TestNewTaskPromiseActionFromTemplate(t *testing.T) {
 
 	assert.NotNil(t, action)
 	assert.Equal(t, taskName, action.TaskName)
-	assert.Equal(t, actionTempl.ConstructorParams["inputNames"], action.AllowedInputNames)
+	assert.Equal(t, actionTempl.ConstructorParams["inputNames"].StringsValue, action.AllowedInputNames)
 	assert.Equal(t, workflow.Name, action.WorkflowName)
 	assert.Equal(t, []string{TaskPromiseActionOutputPromise}, action.AllowedOutputNames)
 }

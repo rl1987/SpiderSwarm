@@ -72,11 +72,11 @@ func TestFieldJoinActionRun(t *testing.T) {
 	err = action.Run()
 	assert.Nil(t, err)
 
-	expectedItemFields := map[string]interface{}{
-		"Name":    "John",
-		"Surname": "Smith",
-		"Phone":   "555-1212",
-		"Email":   "john@smith.int",
+	expectedItemFields := map[string]*Value{
+		"Name":    &Value{ValueType: ValueTypeString, StringValue: "John"},
+		"Surname": &Value{ValueType: ValueTypeString, StringValue: "Smith"},
+		"Phone":   &Value{ValueType: ValueTypeString, StringValue: "555-1212"},
+		"Email":   &Value{ValueType: ValueTypeString, StringValue: "john@smith.int"},
 	}
 
 	item, ok := itemOut.Remove().(*Item)
@@ -93,7 +93,7 @@ func TestFieldJoinActionRun(t *testing.T) {
 	assert.True(t, ok)
 
 	for key, value := range expectedItemFields {
-		assert.Equal(t, value.(string), m[key])
+		assert.Equal(t, value.StringValue, m[key])
 	}
 
 }
