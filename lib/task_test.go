@@ -363,3 +363,22 @@ func TestNewTaskFromPromise(t *testing.T) {
 
 	assert.Equal(t, chunk, task.Inputs["cookies"][0].Queue[0])
 }
+
+func TestNewTask(t *testing.T) {
+	task := NewTask("testTask", "testWorkflow", "08FABCCB-BA57-4389-9A00-4FEF41A74BF6")
+
+	assert.NotNil(t, task)
+	assert.Equal(t, "testTask", task.Name)
+	assert.Equal(t, "testWorkflow", task.WorkflowName)
+	assert.Equal(t, "08FABCCB-BA57-4389-9A00-4FEF41A74BF6", task.JobUUID)
+
+	assert.Equal(t, 0, len(task.Actions))
+	assert.Equal(t, 0, len(task.DataPipes))
+}
+
+func TestNewTaskUniqueUUID(t *testing.T) {
+	task1 := NewTask("testTask", "testWorkflow", "08FABCCB-BA57-4389-9A00-4FEF41A74BF1")
+	task2 := NewTask("testTask", "testWorkflow", "AAAAAACB-BA57-4389-9A00-4FEF41A74BF1")
+
+	assert.NotEqual(t, task1.UUID, task2.UUID)
+}
