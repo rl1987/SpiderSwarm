@@ -13,9 +13,15 @@ func TestNewFieldJoinActionFromTemplate(t *testing.T) {
 	actionTempl := &ActionTemplate{
 		Name:       "testAction",
 		StructName: "FieldJoinAction",
-		ConstructorParams: map[string]interface{}{
-			"inputNames": []string{"title", "link"},
-			"itemName":   itemName,
+		ConstructorParams: map[string]Value{
+			"inputNames": Value{
+				ValueType:    ValueTypeStrings,
+				StringsValue: []string{"title", "link"},
+			},
+			"itemName": Value{
+				ValueType:   ValueTypeString,
+				StringValue: itemName,
+			},
 		},
 	}
 
