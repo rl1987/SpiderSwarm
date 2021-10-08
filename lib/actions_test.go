@@ -20,9 +20,15 @@ func TestNewActionFromTemplate(t *testing.T) {
 	actionTempl2 := &ActionTemplate{
 		Name:       "XPathAction",
 		StructName: "XPathAction",
-		ConstructorParams: map[string]interface{}{
-			"xpath":      "//title",
-			"expectMany": false,
+		ConstructorParams: map[string]Value{
+			"xpath": Value{
+				ValueType:   ValueTypeString,
+				StringValue: "//title",
+			},
+			"expectMany": Value{
+				ValueType: ValueTypeBool,
+				BoolValue: false,
+			},
 		},
 	}
 	action2, ok2 := NewActionFromTemplate(actionTempl2, workflow.Name, jobUUID).(*XPathAction)
@@ -41,8 +47,11 @@ func TestNewActionFromTemplate(t *testing.T) {
 	actionTempl4 := &ActionTemplate{
 		Name:       "TaskPromiseAction",
 		StructName: "TaskPromiseAction",
-		ConstructorParams: map[string]interface{}{
-			"inputNames": []string{"page", "query"},
+		ConstructorParams: map[string]Value{
+			"inputNames": Value{
+				ValueType:    ValueTypeStrings,
+				StringsValue: []string{"page", "query"},
+			},
 		},
 	}
 	action4, ok4 := NewActionFromTemplate(actionTempl4, workflow.Name, jobUUID).(*TaskPromiseAction)
