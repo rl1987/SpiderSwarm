@@ -18,23 +18,38 @@ func main() {
 					spsw.ActionTemplate{
 						Name:       "HTTP1",
 						StructName: "HTTPAction",
-						ConstructorParams: map[string]interface{}{
-							"baseURL": "https://news.ycombinator.com/",
-							"method":  "GET",
-							"canFail": false,
+						ConstructorParams: map[string]spsw.Value{
+							"baseURL": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
+								StringValue: "https://news.ycombinator.com/",
+							},
+							"method": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
+								StringValue: "GET",
+							},
+							"canFail": spsw.Value{
+								ValueType: spsw.ValueTypeBool,
+								BoolValue: false,
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:              "UTF8Decode",
 						StructName:        "UTF8DecodeAction",
-						ConstructorParams: map[string]interface{}{},
+						ConstructorParams: map[string]spsw.Value{},
 					},
 					spsw.ActionTemplate{
 						Name:       "MakePromise",
 						StructName: "TaskPromiseAction",
-						ConstructorParams: map[string]interface{}{
-							"inputNames": []string{"htmlStr1", "htmlStr2"},
-							"taskName":   "ParseHTML",
+						ConstructorParams: map[string]spsw.Value{
+							"inputNames": spsw.Value{
+								ValueType:    spsw.ValueTypeStrings,
+								StringsValue: []string{"htmlStr1", "htmlStr2"},
+							},
+							"taskName": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
+								StringValue: "ParseHTML",
+							},
 						},
 					},
 				},
@@ -71,25 +86,43 @@ func main() {
 					spsw.ActionTemplate{
 						Name:       "TitleExtraction",
 						StructName: "XPathAction",
-						ConstructorParams: map[string]interface{}{
-							"xpath":      "//a[@class='storylink']/text()",
-							"expectMany": true,
+						ConstructorParams: map[string]spsw.Value{
+							"xpath": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
+								StringValue: "//a[@class='storylink']/text()",
+							},
+							"expectMany": spsw.Value{
+								ValueType: spsw.ValueTypeBool,
+								BoolValue: true,
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:       "LinkExtraction",
 						StructName: "XPathAction",
-						ConstructorParams: map[string]interface{}{
-							"xpath":      "//a[@class='storylink']/@href",
-							"expectMany": true,
+						ConstructorParams: map[string]spsw.Value{
+							"xpath": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
+								StringValue: "//a[@class='storylink']/@href",
+							},
+							"expectMany": spsw.Value{
+								ValueType: spsw.ValueTypeBool,
+								BoolValue: true,
+							},
 						},
 					},
 					spsw.ActionTemplate{
 						Name:       "YieldItem",
 						StructName: "FieldJoinAction",
-						ConstructorParams: map[string]interface{}{
-							"inputNames": []string{"title", "link"},
-							"itemName":   "HNItem",
+						ConstructorParams: map[string]spsw.Value{
+							"inputNames": spsw.Value{
+								ValueType:    spsw.ValueTypeStrings,
+								StringsValue: []string{"title", "link"},
+							},
+							"itemName": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
+								StringValue: "HNItem",
+							},
 						},
 					},
 				},
@@ -127,13 +160,4 @@ func main() {
 	}
 
 	spew.Dump(workflow)
-
-	/*
-		items, err := workflow.Run()
-		if err != nil {
-			spew.Dump(err)
-		} else {
-			spew.Dump(items)
-		}
-	*/
 }
