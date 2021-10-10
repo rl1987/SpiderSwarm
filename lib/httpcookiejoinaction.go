@@ -52,7 +52,9 @@ func (hcja *HTTPCookieJoinAction) Run() error {
 
 	updatedCookies := map[string]string{}
 
-	oldCookies, ok1 := hcja.Inputs[HTTPCookieJoinActionInputOldCookies].Remove().(map[string]string)
+	// HACK to make FCC workflow work when map[string]string somehow becomes map[string]interface{}
+	// FIXME after the root problem is addressed.
+	oldCookies, ok1 := hcja.Inputs[HTTPCookieJoinActionInputOldCookies].Remove().(map[string]interface{})
 	if !ok1 {
 		return errors.New("Failed to get old cookies")
 	}
@@ -63,7 +65,9 @@ func (hcja *HTTPCookieJoinAction) Run() error {
 	}
 
 	for key, value := range oldCookies {
-		updatedCookies[key] = value
+		if valueStr, ok := value.(string); ok {
+			updatedCookies[key] = valueStr
+		}
 	}
 
 	for key, value := range newCookies {
