@@ -7,53 +7,58 @@ import (
 	"github.com/google/uuid"
 )
 
-const DataChunkTypeString = "DataChunkTypeString"
-const DataChunkTypeMapStringToString = "DataChunkTypeMapStringToString"
-const DataChunkTypeMapStringToStrings = "DataChunkTypeMapStringToStrings"
-const DataChunkTypeBytes = "DataChunkTypeBytes"
-const DataChunkTypeHTTPHeader = "DataChunkTypeHTTPHeader"
-const DataChunkTypeInt = "DataChunkTypeInt"
 const DataChunkTypeItem = "DataChunkTypeItem"
 const DataChunkTypePromise = "DataChunkTypePromise"
 const DataChunkTypeValue = "DataChunkTypeValue"
 
 type DataChunk struct {
-	Type    string
-	Payload interface{}
-	UUID    string
+	Type           string
+	PayloadItem    Item
+	PayloadPromise TaskPromise
+	PayloadValue   Value
+	UUID           string
 }
 
 func NewDataChunkWithType(t string, payload interface{}) *DataChunk {
-	return &DataChunk{
-		Type:    t,
-		Payload: payload,
-		UUID:    uuid.New().String(),
+	dc := &DataChunk{
+		Type: t,
+		UUID: uuid.New().String(),
 	}
+
+	if t == DataChunkTypeItem {
+		dc.PayloadItem = *payload.(*Item)
+	} else if t == DataChunkTypePromise {
+		dc.PayloadPromise = *payload.(*TaskPromise)
+	} else if t == DataChunkTypeValue {
+		dc.PayloadValue = *payload.(*Value)
+	}
+
+	return dc
 }
 
 func NewDataChunk(payload interface{}) (*DataChunk, error) {
 	if _, okStr := payload.(string); okStr {
-		return NewDataChunkWithType(DataChunkTypeString, payload), nil
+		return NewDataChunkWithType(DataChunkTypeValue, NewValueFromString(payload.(string))), nil
 	}
 
 	if _, okMapString := payload.(map[string]string); okMapString {
-		return NewDataChunkWithType(DataChunkTypeMapStringToString, payload), nil
+		return NewDataChunkWithType(DataChunkTypeValue, NewValueFromMapStringToString(payload.(map[string]string))), nil
 	}
 
 	if _, okMapStrings := payload.(map[string][]string); okMapStrings {
-		return NewDataChunkWithType(DataChunkTypeMapStringToStrings, payload), nil
+		return NewDataChunkWithType(DataChunkTypeValue, NewValueFromMapStringToStrings(payload.(map[string][]string))), nil
 	}
 
 	if _, okBytes := payload.([]byte); okBytes {
-		return NewDataChunkWithType(DataChunkTypeBytes, payload), nil
+		return NewDataChunkWithType(DataChunkTypeValue, NewValueFromBytes(payload.([]byte))), nil
 	}
 
 	if _, okHeader := payload.(http.Header); okHeader {
-		return NewDataChunkWithType(DataChunkTypeHTTPHeader, payload), nil
+		return NewDataChunkWithType(DataChunkTypeValue, NewValueFromHTTPHeaders(payload.(http.Header))), nil
 	}
 
 	if _, okInt := payload.(int); okInt {
-		return NewDataChunkWithType(DataChunkTypeInt, payload), nil
+		return NewDataChunkWithType(DataChunkTypeValue, NewValueFromInt(payload.(int))), nil
 	}
 
 	if _, okItem := payload.(*Item); okItem {
