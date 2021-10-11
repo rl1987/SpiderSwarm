@@ -70,6 +70,8 @@ func (tp *TaskPromise) splayOff() *TaskPromise {
 				s, chunkValue.StringsValue = chunkValue.StringsValue[0], chunkValue.StringsValue[1:]
 				newChunk, _ := NewDataChunk(s)
 				newPromise.InputDataChunksByInputName[name] = newChunk
+			} else {
+				newPromise.InputDataChunksByInputName[name] = chunk
 			}
 		} else {
 			newPromise.InputDataChunksByInputName[name] = chunk
