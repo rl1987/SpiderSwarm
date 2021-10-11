@@ -14,8 +14,8 @@ func TestNewDataChunkStr(t *testing.T) {
 	strChunk, err := NewDataChunk(testStr)
 	assert.Nil(t, err)
 	assert.NotNil(t, strChunk)
-	assert.Equal(t, testStr, strChunk.Payload)
-	assert.Equal(t, DataChunkTypeString, strChunk.Type)
+	assert.Equal(t, testStr, strChunk.PayloadValue.StringValue)
+	assert.Equal(t, DataChunkTypeValue, strChunk.Type)
 }
 
 func TestNewDataChunkMapStringToStrings(t *testing.T) {
@@ -27,8 +27,8 @@ func TestNewDataChunkMapStringToStrings(t *testing.T) {
 	chunk, err := NewDataChunk(params)
 	assert.Nil(t, err)
 	assert.NotNil(t, chunk)
-	assert.Equal(t, params, chunk.Payload)
-	assert.Equal(t, DataChunkTypeMapStringToStrings, chunk.Type)
+	assert.Equal(t, params, chunk.PayloadValue.MapStringToStringsValue)
+	assert.Equal(t, DataChunkTypeValue, chunk.Type)
 }
 
 func TestNewDataChunkHTTPHeader(t *testing.T) {
@@ -40,8 +40,8 @@ func TestNewDataChunkHTTPHeader(t *testing.T) {
 	chunk, err := NewDataChunk(headers)
 	assert.Nil(t, err)
 	assert.NotNil(t, chunk)
-	assert.Equal(t, headers, chunk.Payload)
-	assert.Equal(t, DataChunkTypeHTTPHeader, chunk.Type)
+	assert.Equal(t, headers, chunk.PayloadValue.HTTPHeadersValue)
+	assert.Equal(t, DataChunkTypeValue, chunk.Type)
 }
 
 func TestNewDataChunkInt(t *testing.T) {
@@ -50,8 +50,8 @@ func TestNewDataChunkInt(t *testing.T) {
 	chunk, err := NewDataChunk(i)
 	assert.Nil(t, err)
 	assert.NotNil(t, chunk)
-	assert.Equal(t, i, chunk.Payload)
-	assert.Equal(t, DataChunkTypeInt, chunk.Type)
+	assert.Equal(t, i, chunk.PayloadValue.IntValue)
+	assert.Equal(t, DataChunkTypeValue, chunk.Type)
 }
 
 func TestNewDataChunkItem(t *testing.T) {
@@ -60,7 +60,7 @@ func TestNewDataChunkItem(t *testing.T) {
 	chunk, err := NewDataChunk(item)
 	assert.Nil(t, err)
 	assert.NotNil(t, chunk)
-	assert.Equal(t, item, chunk.Payload)
+	assert.Equal(t, item, chunk.PayloadItem)
 	assert.Equal(t, DataChunkTypeItem, chunk.Type)
 }
 
@@ -70,7 +70,7 @@ func TestNewDataChunkTaskPromise(t *testing.T) {
 	chunk, err := NewDataChunk(promise)
 	assert.Nil(t, err)
 	assert.NotNil(t, chunk)
-	assert.Equal(t, promise, chunk.Payload)
+	assert.Equal(t, promise, chunk.PayloadPromise)
 	assert.Equal(t, DataChunkTypePromise, chunk.Type)
 }
 

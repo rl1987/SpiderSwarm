@@ -334,9 +334,12 @@ func TestNewTaskFromPromise(t *testing.T) {
 	jobUUID := "45FF108C-CB87-40C4-A759-31577CC9567A"
 
 	chunk := &DataChunk{
-		Type: DataChunkTypeMapStringToString,
-		Payload: map[string]string{
-			"session": "S1234",
+		Type: DataChunkTypeValue,
+		PayloadValue: Value{
+			ValueType: ValueTypeMapStringToString,
+			MapStringToStringValue: map[string]string{
+				"session": "S1234",
+			},
 		},
 	}
 

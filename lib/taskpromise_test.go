@@ -95,11 +95,11 @@ func TestTaskPromiseSplay(t *testing.T) {
 		assert.Equal(t, promise.WorkflowName, newPromise.WorkflowName)
 		assert.Equal(t, promise.JobUUID, newPromise.JobUUID)
 
-		assert.Equal(t, "aa", promise.InputDataChunksByInputName["param1"].Payload)
+		assert.Equal(t, "aa", promise.InputDataChunksByInputName["param1"].PayloadValue.StringValue)
 	}
 
-	assert.Equal(t, "1", gotPromises[0].InputDataChunksByInputName["param2"].Payload)
-	assert.Equal(t, "2", gotPromises[1].InputDataChunksByInputName["param2"].Payload)
-	assert.Equal(t, "3", gotPromises[2].InputDataChunksByInputName["param2"].Payload)
+	assert.Equal(t, "1", gotPromises[0].InputDataChunksByInputName["param2"].PayloadValue.StringValue)
+	assert.Equal(t, "2", gotPromises[1].InputDataChunksByInputName["param2"].PayloadValue.StringValue)
+	assert.Equal(t, "3", gotPromises[2].InputDataChunksByInputName["param2"].PayloadValue.StringValue)
 
 }

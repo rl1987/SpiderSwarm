@@ -87,6 +87,6 @@ func TestTaskPromiseActionRun(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, taskName, promise.TaskName)
 	assert.Equal(t, workflow.Name, promise.WorkflowName)
-	assert.Equal(t, page, promise.InputDataChunksByInputName["page"].Payload)
-	assert.Equal(t, session, promise.InputDataChunksByInputName["session"].Payload)
+	assert.Equal(t, page, promise.InputDataChunksByInputName["page"].PayloadValue.StringValue)
+	assert.Equal(t, session, promise.InputDataChunksByInputName["session"].PayloadValue.StringValue)
 }
