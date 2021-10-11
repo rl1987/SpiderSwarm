@@ -50,8 +50,34 @@ func (dp *DataPipe) Remove() interface{} {
 	}
 
 	lastIdx := len(dp.Queue) - 1
-	x := dp.Queue[lastIdx].Payload
+	lastChunk := dp.Queue[lastIdx]
 	dp.Queue = dp.Queue[:lastIdx]
 
-	return x
+	if lastChunk.Type == DataChunkTypeItem {
+		return lastChunk.PayloadItem
+	} else if lastChunk.Type == DataChunkTypePromise {
+		return lastChunk.PayloadPromise
+	} else if lastChunk.Type == DataChunkTypeValue {
+		value := lastChunk.PayloadValue
+
+		if value.ValueType == ValueTypeInt {
+			return value.IntValue
+		} else if value.ValueType == ValueTypeBool {
+			return value.BoolValue
+		} else if value.ValueType == ValueTypeString {
+			return value.StringValue
+		} else if value.ValueType == ValueTypeStrings {
+			return value.StringsValue
+		} else if value.ValueType == ValueTypeMapStringToString {
+			return value.MapStringToStringValue
+		} else if value.ValueType == ValueTypeMapStringToStrings {
+			return value.MapStringToStringsValue
+		} else if value.ValueType == ValueTypeBytes {
+			return value.BytesValue
+		} else if value.ValueType == ValueTypeHTTPHeaders {
+			return value.HTTPHeadersValue
+		}
+	}
+
+	return nil
 }

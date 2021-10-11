@@ -223,13 +223,15 @@ func (t *Task) Run() error {
 
 	for _, outDP := range t.Outputs {
 		for _, chunk := range outDP.Queue {
-			if item, okItem := chunk.Payload.(*Item); okItem {
+			if chunk.Type == DataChunkTypeItem {
+				item := chunk.PayloadItem
 				item.JobUUID = t.JobUUID
 				item.TaskUUID = t.UUID
 				item.WorkflowName = t.WorkflowName
 			}
 
-			if promise, okPromise := chunk.Payload.(*TaskPromise); okPromise {
+			if chunk.Type == DataChunkTypePromise {
+				promise := chunk.PayloadPromise
 				promise.JobUUID = t.JobUUID
 				promise.WorkflowName = t.WorkflowName
 			}

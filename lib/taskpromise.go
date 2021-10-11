@@ -34,10 +34,7 @@ func (tp *TaskPromise) IsSplayable() bool {
 
 	for _, chunk := range tp.InputDataChunksByInputName {
 		if chunk.Type == DataChunkTypeValue {
-			chunkValue, ok := chunk.Payload.(*Value)
-			if !ok {
-				return false
-			}
+			chunkValue := chunk.PayloadValue
 
 			if chunkValue.ValueType == ValueTypeStrings {
 				hasLists = true
@@ -67,10 +64,10 @@ func (tp *TaskPromise) splayOff() *TaskPromise {
 
 	for name, chunk := range tp.InputDataChunksByInputName {
 		if chunk.Type == DataChunkTypeValue {
-			chunkValue := chunk.Payload.(*Value)
+			chunkValue := chunk.PayloadValue
 			if chunkValue.ValueType == ValueTypeStrings {
 				var s string
-				s, chunk.Payload = chunkValue.StringsValue[0], NewValueFromStrings(chunkValue.StringsValue[1:])
+				s, chunkValue.StringsValue = chunkValue.StringsValue[0], chunkValue.StringsValue[1:]
 				newChunk, _ := NewDataChunk(s)
 				newPromise.InputDataChunksByInputName[name] = newChunk
 			}
