@@ -54,9 +54,9 @@ func (dp *DataPipe) Remove() interface{} {
 	dp.Queue = dp.Queue[:lastIdx]
 
 	if lastChunk.Type == DataChunkTypeItem {
-		return lastChunk.PayloadItem
+		return &lastChunk.PayloadItem
 	} else if lastChunk.Type == DataChunkTypePromise {
-		return lastChunk.PayloadPromise
+		return &lastChunk.PayloadPromise
 	} else if lastChunk.Type == DataChunkTypeValue {
 		value := lastChunk.PayloadValue
 
