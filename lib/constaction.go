@@ -44,7 +44,10 @@ func (ca *ConstAction) Run() error {
 	}
 
 	for _, output := range ca.Outputs[ConstActionOutput] {
-		output.Add(ca.C)
+		err := output.Add(ca.C)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	return nil
