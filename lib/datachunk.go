@@ -13,9 +13,9 @@ const DataChunkTypeValue = "DataChunkTypeValue"
 
 type DataChunk struct {
 	Type           string
-	PayloadItem    Item
-	PayloadPromise TaskPromise
-	PayloadValue   Value
+	PayloadItem    *Item
+	PayloadPromise *TaskPromise
+	PayloadValue   *Value
 	UUID           string
 }
 
@@ -26,11 +26,11 @@ func NewDataChunkWithType(t string, payload interface{}) *DataChunk {
 	}
 
 	if t == DataChunkTypeItem {
-		dc.PayloadItem = *payload.(*Item)
+		dc.PayloadItem = payload.(*Item)
 	} else if t == DataChunkTypePromise {
-		dc.PayloadPromise = *payload.(*TaskPromise)
+		dc.PayloadPromise = payload.(*TaskPromise)
 	} else if t == DataChunkTypeValue {
-		dc.PayloadValue = *payload.(*Value)
+		dc.PayloadValue = payload.(*Value)
 	}
 
 	return dc

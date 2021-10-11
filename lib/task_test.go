@@ -335,7 +335,7 @@ func TestNewTaskFromPromise(t *testing.T) {
 
 	chunk := &DataChunk{
 		Type: DataChunkTypeValue,
-		PayloadValue: Value{
+		PayloadValue: &Value{
 			ValueType: ValueTypeMapStringToString,
 			MapStringToStringValue: map[string]string{
 				"session": "S1234",
