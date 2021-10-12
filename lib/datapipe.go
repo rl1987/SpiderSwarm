@@ -59,24 +59,7 @@ func (dp *DataPipe) Remove() interface{} {
 		return lastChunk.PayloadPromise
 	} else if lastChunk.Type == DataChunkTypeValue {
 		value := lastChunk.PayloadValue
-
-		if value.ValueType == ValueTypeInt {
-			return value.IntValue
-		} else if value.ValueType == ValueTypeBool {
-			return value.BoolValue
-		} else if value.ValueType == ValueTypeString {
-			return value.StringValue
-		} else if value.ValueType == ValueTypeStrings {
-			return value.StringsValue
-		} else if value.ValueType == ValueTypeMapStringToString {
-			return value.MapStringToStringValue
-		} else if value.ValueType == ValueTypeMapStringToStrings {
-			return value.MapStringToStringsValue
-		} else if value.ValueType == ValueTypeBytes {
-			return value.BytesValue
-		} else if value.ValueType == ValueTypeHTTPHeaders {
-			return value.HTTPHeadersValue
-		}
+		return value.GetUnderlyingValue()
 	}
 
 	return nil

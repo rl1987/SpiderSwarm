@@ -10,10 +10,10 @@ const ConstActionOutput = "ConstActionOutput"
 
 type ConstAction struct {
 	AbstractAction
-	C interface{}
+	C *Value
 }
 
-func NewConstAction(c interface{}) *ConstAction {
+func NewConstAction(c *Value) *ConstAction {
 	return &ConstAction{
 		AbstractAction: AbstractAction{
 			CanFail:            false,
@@ -29,9 +29,9 @@ func NewConstAction(c interface{}) *ConstAction {
 }
 
 func NewConstActionFromTemplate(actionTempl *ActionTemplate) *ConstAction {
-	c, _ := actionTempl.ConstructorParams["c"]
+	c := actionTempl.ConstructorParams["c"]
 
-	action := NewConstAction(c)
+	action := NewConstAction(&c)
 
 	action.Name = actionTempl.Name
 
@@ -44,7 +44,7 @@ func (ca *ConstAction) Run() error {
 	}
 
 	for _, output := range ca.Outputs[ConstActionOutput] {
-		err := output.Add(ca.C)
+		err := output.Add(ca.C.GetUnderlyingValue())
 		if err != nil {
 			panic(err)
 		}

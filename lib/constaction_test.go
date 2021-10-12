@@ -9,7 +9,7 @@ import (
 func TestConstActionRun(t *testing.T) {
 	c := "A flower raised in a greenhouse is still beautiful, even though it knows no adversity. But a flower growing in the field that has braved wind, rain, cold, and heat possesses something more than just beauty."
 
-	action := NewConstAction(c)
+	action := NewConstAction(&Value{ValueType: ValueTypeString, StringValue: c})
 
 	dataOut := NewDataPipe()
 
