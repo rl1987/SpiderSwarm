@@ -101,5 +101,35 @@ func TestTaskPromiseSplay(t *testing.T) {
 	assert.Equal(t, "1", gotPromises[0].InputDataChunksByInputName["param2"].PayloadValue.StringValue)
 	assert.Equal(t, "2", gotPromises[1].InputDataChunksByInputName["param2"].PayloadValue.StringValue)
 	assert.Equal(t, "3", gotPromises[2].InputDataChunksByInputName["param2"].PayloadValue.StringValue)
+}
 
+func TestTaskPromiseSplay2(t *testing.T) {
+	taskName := "HTTP2"
+	workflowName := "testWorkflow"
+	jobUUID := "97F34D30-7355-4C82-9480-A3B9CD086825"
+
+	promise := &TaskPromise{
+		TaskName:     taskName,
+		WorkflowName: workflowName,
+		JobUUID:      jobUUID,
+		InputDataChunksByInputName: map[string]*DataChunk{
+			"param1": NewDataChunk_(NewValueFromString("aa")),
+			"param2": NewDataChunk_(NewValueFromStrings([]string{"1", "2"})),
+		},
+	}
+
+	gotPromises := promise.Splay()
+
+	assert.Equal(t, 2, len(gotPromises))
+
+	for _, newPromise := range gotPromises {
+		assert.Equal(t, promise.TaskName, newPromise.TaskName)
+		assert.Equal(t, promise.WorkflowName, newPromise.WorkflowName)
+		assert.Equal(t, promise.JobUUID, newPromise.JobUUID)
+
+		assert.Equal(t, "aa", promise.InputDataChunksByInputName["param1"].PayloadValue.StringValue)
+	}
+
+	assert.Equal(t, "1", gotPromises[0].InputDataChunksByInputName["param2"].PayloadValue.StringValue)
+	assert.Equal(t, "2", gotPromises[1].InputDataChunksByInputName["param2"].PayloadValue.StringValue)
 }
