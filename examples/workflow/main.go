@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	spsw "github.com/spiderswarm/spiderswarm/lib"
 
 	"github.com/davecgh/go-spew/spew"
@@ -160,4 +162,6 @@ func main() {
 	}
 
 	spew.Dump(workflow)
+
+	fmt.Println(workflow.ToYAML())
 }

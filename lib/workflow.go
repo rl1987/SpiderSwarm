@@ -1,5 +1,7 @@
 package spsw
 
+import yaml "gopkg.in/yaml.v3"
+
 type ActionTemplate struct {
 	Name              string
 	StructName        string
@@ -40,4 +42,14 @@ func (w *Workflow) FindTaskTemplate(taskName string) *TaskTemplate {
 	}
 
 	return taskTempl
+}
+
+func (w *Workflow) ToYAML() string {
+	yamlBytes, err := yaml.Marshal(w)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return string(yamlBytes)
 }
