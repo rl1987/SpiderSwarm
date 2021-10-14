@@ -13,14 +13,14 @@ const ValueTypeHTTPHeaders = "ValueTypeHTTPHeaders"
 
 type Value struct {
 	ValueType               string
-	BoolValue               bool
-	IntValue                int
-	StringValue             string
-	StringsValue            []string
-	MapStringToStringValue  map[string]string
-	MapStringToStringsValue map[string][]string
-	BytesValue              []byte
-	HTTPHeadersValue        http.Header
+	BoolValue               bool                `yaml:"BoolValue,omitempty"`
+	IntValue                int                 `yaml:"IntValue,omitempty"`
+	StringValue             string              `yaml:"StringValue,omitempty"`
+	StringsValue            []string            `yaml:"StringsValue,omitempty"`
+	MapStringToStringValue  map[string]string   `yaml:"MapStringToStringValue,omitempty"`
+	MapStringToStringsValue map[string][]string `yaml:"MapStringToStringsValue,omitempty"`
+	BytesValue              []byte              `yaml:"BytesValue,omitempty"`
+	HTTPHeadersValue        http.Header         `yaml:"HTTPHeadersValue,omitempty"`
 }
 
 func NewValueFromInt(i int) *Value {
