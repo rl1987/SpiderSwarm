@@ -161,7 +161,9 @@ func main() {
 		},
 	}
 
-	spew.Dump(workflow)
+	yamlStr := workflow.ToYAML()
+	fmt.Println(yamlStr)
 
-	fmt.Println(workflow.ToYAML())
+	workflow = spsw.NewWorkflowFromYAML(yamlStr)
+	spew.Dump(workflow)
 }

@@ -30,6 +30,20 @@ type Workflow struct {
 	TaskTemplates []TaskTemplate
 }
 
+func NewWorkflowFromYAML(yamlStr string) *Workflow {
+	yamlBytes := []byte(yamlStr)
+
+	workflow := &Workflow{}
+
+	err := yaml.Unmarshal(yamlBytes, workflow)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return workflow
+}
+
 func (w *Workflow) FindTaskTemplate(taskName string) *TaskTemplate {
 	var taskTempl *TaskTemplate
 	taskTempl = nil
