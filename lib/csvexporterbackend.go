@@ -101,8 +101,6 @@ func (ceb *CSVExporterBackend) WriteItem(i *Item) error {
 		row = append(row, rowStr)
 	}
 
-	spew.Dump(row)
-
 	err := csvWriter.WriteAll([][]string{row})
 	if err != nil {
 		return err

@@ -177,8 +177,6 @@ func runTestWorkflow() {
 		},
 	}
 
-	spew.Dump(workflow)
-
 	spiderBusBackend := spsw.NewSQLiteSpiderBusBackend("")
 	spiderBus := spsw.NewSpiderBus()
 	spiderBus.Backend = spiderBusBackend
@@ -248,8 +246,6 @@ func main() {
 		// TODO: client for REST API
 		fmt.Println("client part not implemented yet")
 	default:
-
 		runTestWorkflow()
 	}
-
 }

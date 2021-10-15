@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -213,7 +212,6 @@ func (t *Task) Run() error {
 
 	for _, action := range order {
 		log.Info(fmt.Sprintf("Running action: %v", action))
-		spew.Dump(action)
 		err := action.Run()
 		if err != nil && !action.IsFailureAllowed() {
 			log.Error(fmt.Sprintf("Action failed with error: %v", err))
