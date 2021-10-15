@@ -1,11 +1,32 @@
 package spsw
 
 import (
+	"database/sql"
+	"fmt"
 	"os"
+	"strconv"
 	"testing"
 
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
 )
+
+func getCountForTable(sqliteFilePath string, tableName string) int {
+	var output string
+
+	dbConn, _ := sql.Open("sqlite3", sqliteFilePath+"?cache=shared&mode=rwc")
+	defer dbConn.Close()
+
+	query, _ := dbConn.Prepare(fmt.Sprintf("SELECT COUNT(*) FROM %s;", tableName))
+
+	defer query.Close()
+
+	query.QueryRow().Scan(&output)
+
+	count, _ := strconv.Atoi(output)
+
+	return count
+}
 
 func TestSQLiteSpiderBusBackendScheduledTaskE2E(t *testing.T) {
 	taskPromise := &TaskPromise{UUID: "D412D565-B2A8-4BE3-B3CB-B37008FDA099"}
@@ -25,6 +46,7 @@ func TestSQLiteSpiderBusBackendScheduledTaskE2E(t *testing.T) {
 		os.Remove(backend.sqliteFilePath)
 	}()
 
+	assert.Equal(t, 0, getCountForTable(backend.sqliteFilePath, "scheduledTasks"))
 	assert.NotNil(t, backend)
 
 	gotScheduledTask := backend.ReceiveScheduledTask()
@@ -32,12 +54,14 @@ func TestSQLiteSpiderBusBackendScheduledTaskE2E(t *testing.T) {
 
 	err := backend.SendScheduledTask(scheduledTask)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, getCountForTable(backend.sqliteFilePath, "scheduledTasks"))
 
 	gotScheduledTask2 := backend.ReceiveScheduledTask()
 	assert.Equal(t, scheduledTask, gotScheduledTask2)
 
 	gotScheduledTask = backend.ReceiveScheduledTask()
 	assert.Nil(t, gotScheduledTask)
+	assert.Equal(t, 0, getCountForTable(backend.sqliteFilePath, "scheduledTasks"))
 }
 
 func TestSQLiteSpiderBusBackendTaskPromiseE2E(t *testing.T) {
@@ -49,6 +73,7 @@ func TestSQLiteSpiderBusBackendTaskPromiseE2E(t *testing.T) {
 		os.Remove(backend.sqliteFilePath)
 	}()
 
+	assert.Equal(t, 0, getCountForTable(backend.sqliteFilePath, "taskPromises"))
 	assert.NotNil(t, backend)
 
 	gotTaskPromise := backend.ReceiveTaskPromise()
@@ -56,12 +81,14 @@ func TestSQLiteSpiderBusBackendTaskPromiseE2E(t *testing.T) {
 
 	err := backend.SendTaskPromise(taskPromise)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, getCountForTable(backend.sqliteFilePath, "taskPromises"))
 
 	gotTaskPromise2 := backend.ReceiveTaskPromise()
 	assert.Equal(t, taskPromise, gotTaskPromise2)
 
 	gotTaskPromise = backend.ReceiveTaskPromise()
 	assert.Nil(t, gotTaskPromise)
+	assert.Equal(t, 0, getCountForTable(backend.sqliteFilePath, "taskPromises"))
 }
 
 func TestSQLiteSpiderBusBackendItemE2E(t *testing.T) {
@@ -74,16 +101,19 @@ func TestSQLiteSpiderBusBackendItemE2E(t *testing.T) {
 	}()
 
 	assert.NotNil(t, backend)
+	assert.Equal(t, 0, getCountForTable(backend.sqliteFilePath, "items"))
 
 	gotItem := backend.ReceiveItem()
 	assert.Nil(t, gotItem)
 
 	err := backend.SendItem(item)
 	assert.Nil(t, err)
+	assert.Equal(t, 1, getCountForTable(backend.sqliteFilePath, "items"))
 
 	gotItem = backend.ReceiveItem()
 	assert.Equal(t, item, gotItem)
 
 	gotItem = backend.ReceiveItem()
 	assert.Nil(t, gotItem)
+	assert.Equal(t, 0, getCountForTable(backend.sqliteFilePath, "items"))
 }
