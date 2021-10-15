@@ -191,7 +191,7 @@ func runTestWorkflow() {
 
 	// FIXME: refrain from hardcoding field names; consider finding them from
 	// Workflow.
-	err := exporterBackend.StartExporting(manager.JobUUID, []string{"filer_id", "legal_name", "dba", "phone"})
+	err := exporterBackend.StartExporting(manager.JobUUID, []string{"link", "title"})
 	if err != nil {
 		spew.Dump(err)
 		return
