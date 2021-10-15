@@ -83,8 +83,9 @@ func (ceb *CSVExporterBackend) WriteItem(i *Item) error {
 		var rowStr string
 
 		value := i.Fields[fieldName]
-
-		if value.ValueType == ValueTypeString {
+		if value == nil {
+			rowStr = ""
+		} else if value.ValueType == ValueTypeString {
 			rowStr = value.StringValue
 		} else if value.ValueType == ValueTypeStrings {
 			rowStr = "[" + strings.Join(value.StringsValue, ",") + "]"
