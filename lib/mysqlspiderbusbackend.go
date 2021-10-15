@@ -4,6 +4,4 @@ import ()
 
 type MySQLSpiderBusBackend struct {
 	SpiderBusBackend
-
-	dbConn *sql.DB
 }
