@@ -88,7 +88,6 @@ func (sba *SpiderBusAdapter) Start() {
 				taskPromise, err := sba.Bus.Dequeue(SpiderBusEntryTypeTaskPromise)
 
 				if taskPromise == nil || err != nil {
-					fmt.Println("!")
 					time.Sleep(10 * time.Second)
 					continue
 				}
@@ -106,20 +105,18 @@ func (sba *SpiderBusAdapter) Start() {
 		}()
 	}
 
-	/*
-		if sba.ItemsOut != nil {
-			go func() {
-				for {
-					item, err := sba.Bus.Dequeue(SpiderBusEntryTypeItem)
+	if sba.ItemsOut != nil {
+		go func() {
+			for {
+				item, err := sba.Bus.Dequeue(SpiderBusEntryTypeItem)
 
-					if item == nil || err != nil {
-						time.Sleep(1)
-						continue
-					}
-
-					sba.ItemsOut <- item.(*Item)
+				if item == nil || err != nil {
+					time.Sleep(1)
+					continue
 				}
-			}()
-		}
-	*/
+
+				sba.ItemsOut <- item.(*Item)
+			}
+		}()
+	}
 }
