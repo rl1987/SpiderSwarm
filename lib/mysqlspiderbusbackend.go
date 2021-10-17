@@ -84,10 +84,12 @@ func (msbb *MySQLSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 	var row_id int
 	var raw []byte
 
+	msbb.dbConn.Exec("START TRANSACTION")
 	row := msbb.dbConn.QueryRow("SELECT * FROM scheduledTasks ORDER BY id ASC LIMIT 1")
 
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
+		msbb.dbConn.Exec("ROLLBACK")
 		return nil
 	}
 
@@ -96,6 +98,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 	decodeEntry(raw, scheduledTask)
 
 	msbb.dbConn.Exec(fmt.Sprintf("DELETE FROM scheduledTasks WHERE id=%d", row_id))
+	msbb.dbConn.Exec("COMMIT")
 
 	return scheduledTask
 }
@@ -115,10 +118,12 @@ func (msbb *MySQLSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
 	var row_id int
 	var raw []byte
 
+	msbb.dbConn.Exec("START TRANSACTION")
 	row := msbb.dbConn.QueryRow("SELECT * FROM taskPromises ORDER BY id ASC LIMIT 1")
 
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
+		msbb.dbConn.Exec("ROLLBACK")
 		msbb.maybePrintError(err)
 		return nil
 	}
@@ -128,6 +133,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
 	decodeEntry(raw, taskPromise)
 
 	msbb.dbConn.Exec(fmt.Sprintf("DELETE FROM taskPromises WHERE id=%d", row_id))
+	msbb.dbConn.Exec("COMMIT")
 
 	return taskPromise
 }
@@ -144,10 +150,12 @@ func (msbb *MySQLSpiderBusBackend) ReceiveItem() *Item {
 	var row_id int
 	var raw []byte
 
+	msbb.dbConn.Exec("START TRANSACTION")
 	row := msbb.dbConn.QueryRow("SELECT * FROM items ORDER BY id ASC LIMIT 1")
 
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
+		msbb.dbConn.Exec("ROLLBACK")
 		msbb.maybePrintError(err)
 		return nil
 	}
@@ -157,6 +165,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveItem() *Item {
 	decodeEntry(raw, item)
 
 	msbb.dbConn.Exec(fmt.Sprintf("DELETE FROM items WHERE id=%d", row_id))
+	msbb.dbConn.Exec("COMMIT")
 
 	return item
 }
