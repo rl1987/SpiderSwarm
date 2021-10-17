@@ -177,7 +177,7 @@ func runTestWorkflow() {
 		},
 	}
 
-	spiderBusBackend := spsw.NewSQLiteSpiderBusBackend("")
+	spiderBusBackend := spsw.NewMySQLSpiderBusBackend("username:password@tcp(159.223.27.109:3306)/spsw")
 	spiderBus := spsw.NewSpiderBus()
 	spiderBus.Backend = spiderBusBackend
 

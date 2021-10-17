@@ -21,7 +21,7 @@ type MySQLSpiderBusBackend struct {
 }
 
 func NewMySQLSpiderBusBackend(dsn string) *MySQLSpiderBusBackend {
-	dbConn, err := sql.Open("mysql", dsn)
+	dbConn, err := sql.Open("mysql", dsn+"?autocommit=true")
 	if err != nil {
 		panic(err)
 	}
@@ -30,13 +30,9 @@ func NewMySQLSpiderBusBackend(dsn string) *MySQLSpiderBusBackend {
 	dbConn.SetMaxOpenConns(10)
 	dbConn.SetMaxIdleConns(10)
 
-	tx, _ := dbConn.Begin()
-
-	tx.Exec("CREATE TABLE IF NOT EXISTS scheduledTasks (id INTEGER PRIMARY KEY AUTOINCREMENT, raw TEXT)")
-	tx.Exec("CREATE TABLE IF NOT EXISTS taskPromises (id INTEGER PRIMARY KEY AUTOINCREMENT, raw TEXT)")
-	tx.Exec("CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY AUTOINCREMENT, raw TEXT)")
-
-	tx.Commit()
+	dbConn.Exec("CREATE TABLE IF NOT EXISTS scheduledTasks (id INT PRIMARY KEY AUTO_INCREMENT, raw LONGTEXT)")
+	dbConn.Exec("CREATE TABLE IF NOT EXISTS taskPromises (id INT PRIMARY KEY AUTO_INCREMENT, raw LONGTEXT)")
+	dbConn.Exec("CREATE TABLE IF NOT EXISTS items (id INT PRIMARY KEY AUTO_INCREMENT, raw LONGTEXT)")
 
 	return &MySQLSpiderBusBackend{
 		dbConn: dbConn,
@@ -76,27 +72,22 @@ func (msbb *MySQLSpiderBusBackend) maybePrintError(err error) {
 func (msbb *MySQLSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTask) error {
 	raw := encodeEntry(scheduledTask)
 
-	tx, _ := msbb.dbConn.Begin()
-
-	tx.Exec("INSERT INTO scheduledTasks (raw) VALUES (?)", raw)
-
-	tx.Commit()
+	_, err := msbb.dbConn.Exec("INSERT INTO scheduledTasks (raw) VALUES (?)", raw)
+	if err != nil {
+		spew.Dump(err)
+	}
 
 	return nil
 }
 
 func (msbb *MySQLSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
-	tx, _ := msbb.dbConn.Begin()
-
 	var row_id int
 	var raw []byte
 
-	row := tx.QueryRow("SELECT * FROM scheduledTasks ORDER BY id ASC LIMIT 1")
+	row := msbb.dbConn.QueryRow("SELECT * FROM scheduledTasks ORDER BY id ASC LIMIT 1")
 
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
-		tx.Rollback()
-		msbb.maybePrintError(err)
 		return nil
 	}
 
@@ -104,8 +95,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 
 	decodeEntry(raw, scheduledTask)
 
-	tx.Exec(fmt.Sprintf("DELETE FROM scheduledTasks WHERE id=%d", row_id))
-	tx.Commit()
+	msbb.dbConn.Exec(fmt.Sprintf("DELETE FROM scheduledTasks WHERE id=%d", row_id))
 
 	return scheduledTask
 }
@@ -113,26 +103,22 @@ func (msbb *MySQLSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 func (msbb *MySQLSpiderBusBackend) SendTaskPromise(taskPromise *TaskPromise) error {
 	raw := encodeEntry(taskPromise)
 
-	tx, _ := msbb.dbConn.Begin()
-
-	tx.Exec("INSERT INTO taskPromises (raw) VALUES (?)", raw)
-
-	tx.Commit()
+	_, err := msbb.dbConn.Exec("INSERT INTO taskPromises (raw) VALUES (?)", raw)
+	if err != nil {
+		spew.Dump(err)
+	}
 
 	return nil
 }
 
 func (msbb *MySQLSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
-	tx, _ := msbb.dbConn.Begin()
-
 	var row_id int
 	var raw []byte
 
-	row := tx.QueryRow("SELECT * FROM taskPromises ORDER BY id ASC LIMIT 1")
+	row := msbb.dbConn.QueryRow("SELECT * FROM taskPromises ORDER BY id ASC LIMIT 1")
 
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
-		tx.Rollback()
 		msbb.maybePrintError(err)
 		return nil
 	}
@@ -141,8 +127,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
 
 	decodeEntry(raw, taskPromise)
 
-	tx.Exec(fmt.Sprintf("DELETE FROM taskPromises WHERE id=%d", row_id))
-	tx.Commit()
+	msbb.dbConn.Exec(fmt.Sprintf("DELETE FROM taskPromises WHERE id=%d", row_id))
 
 	return taskPromise
 }
@@ -150,26 +135,19 @@ func (msbb *MySQLSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
 func (msbb *MySQLSpiderBusBackend) SendItem(item *Item) error {
 	raw := encodeEntry(item)
 
-	tx, _ := msbb.dbConn.Begin()
-
-	tx.Exec("INSERT INTO items (raw) VALUES (?)", raw)
-
-	tx.Commit()
+	msbb.dbConn.Exec("INSERT INTO items (raw) VALUES (?)", raw)
 
 	return nil
 }
 
 func (msbb *MySQLSpiderBusBackend) ReceiveItem() *Item {
-	tx, _ := msbb.dbConn.Begin()
-
 	var row_id int
 	var raw []byte
 
-	row := tx.QueryRow("SELECT * FROM items ORDER BY id ASC LIMIT 1")
+	row := msbb.dbConn.QueryRow("SELECT * FROM items ORDER BY id ASC LIMIT 1")
 
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
-		tx.Rollback()
 		msbb.maybePrintError(err)
 		return nil
 	}
@@ -178,8 +156,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveItem() *Item {
 
 	decodeEntry(raw, item)
 
-	tx.Exec(fmt.Sprintf("DELETE FROM items WHERE id=%d", row_id))
-	tx.Commit()
+	msbb.dbConn.Exec(fmt.Sprintf("DELETE FROM items WHERE id=%d", row_id))
 
 	return item
 }
