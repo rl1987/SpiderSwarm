@@ -21,7 +21,7 @@ type MySQLSpiderBusBackend struct {
 }
 
 func NewMySQLSpiderBusBackend(dsn string) *MySQLSpiderBusBackend {
-	dbConn, err := sql.Open("mysql", dsn+"?autocommit=true")
+	dbConn, err := sql.Open("mysql", dsn)
 	if err != nil {
 		panic(err)
 	}
@@ -33,6 +33,7 @@ func NewMySQLSpiderBusBackend(dsn string) *MySQLSpiderBusBackend {
 	dbConn.Exec("CREATE TABLE IF NOT EXISTS scheduledTasks (id INT PRIMARY KEY AUTO_INCREMENT, raw LONGTEXT)")
 	dbConn.Exec("CREATE TABLE IF NOT EXISTS taskPromises (id INT PRIMARY KEY AUTO_INCREMENT, raw LONGTEXT)")
 	dbConn.Exec("CREATE TABLE IF NOT EXISTS items (id INT PRIMARY KEY AUTO_INCREMENT, raw LONGTEXT)")
+	dbConn.Exec("SET GLOBAL ISOLATION LEVEL SERIALIZABLE")
 
 	return &MySQLSpiderBusBackend{
 		dbConn: dbConn,
@@ -85,7 +86,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 	var raw []byte
 
 	msbb.dbConn.Exec("START TRANSACTION")
-	row := msbb.dbConn.QueryRow("SELECT * FROM scheduledTasks ORDER BY id ASC LIMIT 1")
+	row := msbb.dbConn.QueryRow("SELECT * FROM scheduledTasks ORDER BY id ASC LIMIT 1 FOR UPDATE")
 
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
@@ -119,7 +120,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
 	var raw []byte
 
 	msbb.dbConn.Exec("START TRANSACTION")
-	row := msbb.dbConn.QueryRow("SELECT * FROM taskPromises ORDER BY id ASC LIMIT 1")
+	row := msbb.dbConn.QueryRow("SELECT * FROM taskPromises ORDER BY id ASC LIMIT 1 FOR UPDATE")
 
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
@@ -151,7 +152,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveItem() *Item {
 	var raw []byte
 
 	msbb.dbConn.Exec("START TRANSACTION")
-	row := msbb.dbConn.QueryRow("SELECT * FROM items ORDER BY id ASC LIMIT 1")
+	row := msbb.dbConn.QueryRow("SELECT * FROM items ORDER BY id ASC LIMIT 1 FOR UPDATE")
 
 	err := row.Scan(&row_id, &raw)
 	if err != nil {

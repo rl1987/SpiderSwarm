@@ -3,6 +3,7 @@ package spsw
 import (
 	"fmt"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -52,10 +53,12 @@ func (m *Manager) Run() error {
 
 		newPromise := NewTaskPromise(taskTempl.TaskName,
 			m.CurrentWorkflow.Name, m.JobUUID, map[string]*DataChunk{})
-		log.Info(fmt.Sprintf("Enqueing promise %v", newPromise))
+		log.Info(fmt.Sprintf("Fulfilling promise %v", newPromise))
 
 		scheduledTask := NewScheduledTask(newPromise, &taskTempl,
 			m.CurrentWorkflow.Name, m.CurrentWorkflow.Version, m.JobUUID)
+
+		spew.Dump(scheduledTask)
 
 		m.ScheduledTasksOut <- scheduledTask
 	}
@@ -73,6 +76,7 @@ func (m *Manager) Run() error {
 				continue
 			}
 
+			spew.Dump(newScheduledTask)
 			m.ScheduledTasksOut <- newScheduledTask
 		}
 

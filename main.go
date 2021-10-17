@@ -199,8 +199,16 @@ func runTestWorkflow() {
 
 	exporter.AddBackend(exporterBackend)
 
+	spiderBusBackend = spsw.NewMySQLSpiderBusBackend("username:password@tcp(159.223.27.109:3306)/spsw")
+	spiderBus = spsw.NewSpiderBus()
+	spiderBus.Backend = spiderBusBackend
+
 	managerAdapter := spsw.NewSpiderBusAdapterForManager(spiderBus, manager)
 	managerAdapter.Start()
+
+	spiderBusBackend = spsw.NewMySQLSpiderBusBackend("username:password@tcp(159.223.27.109:3306)/spsw")
+	spiderBus = spsw.NewSpiderBus()
+	spiderBus.Backend = spiderBusBackend
 
 	exporterAdapter := spsw.NewSpiderBusAdapterForExporter(spiderBus, exporter)
 	exporterAdapter.Start()
@@ -210,6 +218,10 @@ func runTestWorkflow() {
 
 	for i := 0; i < 4; i++ {
 		go func() {
+			spiderBusBackend = spsw.NewMySQLSpiderBusBackend("username:password@tcp(159.223.27.109:3306)/spsw")
+			spiderBus = spsw.NewSpiderBus()
+			spiderBus.Backend = spiderBusBackend
+
 			worker := spsw.NewWorker()
 			adapter := spsw.NewSpiderBusAdapterForWorker(spiderBus, worker)
 			adapter.Start()
@@ -219,7 +231,7 @@ func runTestWorkflow() {
 
 	// HACK!
 	// Since at this point we don't have a way to track the task execution state we
-	// try to detect the end of scraping job by checking if all SQLite tables are empty.
+	// try to detect the end of scraping job by checking if all DB tables are empty.
 	// This is unreliable as one or more Tasks might still be in progress.
 	time.Sleep(100 * time.Second)
 
