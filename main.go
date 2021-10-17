@@ -217,8 +217,19 @@ func runTestWorkflow() {
 		}()
 	}
 
+	// HACK!
+	// Since at this point we don't have a way to track the task execution state we
+	// try to detect the end of scraping job by checking if all SQLite tables are empty.
+	// This is unreliable as one or more Tasks might still be in progress.
+	time.Sleep(100 * time.Second)
+
 	for {
-		time.Sleep(1)
+		time.Sleep(10 * time.Second)
+		if spiderBusBackend.IsEmpty() {
+			log.Info("It appears scraping job is done!")
+			break
+		}
+
 	}
 }
 

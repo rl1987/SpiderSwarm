@@ -221,6 +221,14 @@ func (ssbb *SQLiteSpiderBusBackend) getCountForTable(tableName string) int {
 	return count
 }
 
+func (ssbb *SQLiteSpiderBusBackend) IsEmpty() bool {
+	nScheduledTasks := ssbb.getCountForTable("scheduledTasks")
+	nPromises := ssbb.getCountForTable("taskPromises")
+	nItems := ssbb.getCountForTable("items")
+
+	return nScheduledTasks == 0 && nPromises == 0 && nItems == 0
+}
+
 func (ssbb *SQLiteSpiderBusBackend) Close() {
 	ssbb.dbConn.Close()
 }
