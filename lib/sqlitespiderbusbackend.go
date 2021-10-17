@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 
 	"github.com/davecgh/go-spew/spew"
 	_ "github.com/mattn/go-sqlite3"
@@ -204,6 +205,20 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveItem() *Item {
 	tx.Commit()
 
 	return item
+}
+
+func (ssbb *SQLiteSpiderBusBackend) getCountForTable(tableName string) int {
+	var output string
+
+	query, _ := ssbb.dbConn.Prepare(fmt.Sprintf("SELECT COUNT(*) FROM %s;", tableName))
+
+	defer query.Close()
+
+	query.QueryRow().Scan(&output)
+
+	count, _ := strconv.Atoi(output)
+
+	return count
 }
 
 func (ssbb *SQLiteSpiderBusBackend) Close() {

@@ -46,7 +46,7 @@ func TestSQLiteSpiderBusBackendScheduledTaskE2E(t *testing.T) {
 		os.Remove(backend.sqliteFilePath)
 	}()
 
-	assert.Equal(t, 0, getCountForTable(backend.sqliteFilePath, "scheduledTasks"))
+	assert.Equal(t, 0, backend.getCountForTable("scheduledTasks"))
 	assert.NotNil(t, backend)
 
 	gotScheduledTask := backend.ReceiveScheduledTask()
@@ -54,14 +54,14 @@ func TestSQLiteSpiderBusBackendScheduledTaskE2E(t *testing.T) {
 
 	err := backend.SendScheduledTask(scheduledTask)
 	assert.Nil(t, err)
-	assert.Equal(t, 1, getCountForTable(backend.sqliteFilePath, "scheduledTasks"))
+	assert.Equal(t, 1, backend.getCountForTable("scheduledTasks"))
 
 	gotScheduledTask2 := backend.ReceiveScheduledTask()
 	assert.Equal(t, scheduledTask, gotScheduledTask2)
 
 	gotScheduledTask = backend.ReceiveScheduledTask()
 	assert.Nil(t, gotScheduledTask)
-	assert.Equal(t, 0, getCountForTable(backend.sqliteFilePath, "scheduledTasks"))
+	assert.Equal(t, 0, backend.getCountForTable("scheduledTasks"))
 }
 
 func TestSQLiteSpiderBusBackendTaskPromiseE2E(t *testing.T) {
@@ -73,7 +73,7 @@ func TestSQLiteSpiderBusBackendTaskPromiseE2E(t *testing.T) {
 		os.Remove(backend.sqliteFilePath)
 	}()
 
-	assert.Equal(t, 0, getCountForTable(backend.sqliteFilePath, "taskPromises"))
+	assert.Equal(t, 0, backend.getCountForTable("taskPromises"))
 	assert.NotNil(t, backend)
 
 	gotTaskPromise := backend.ReceiveTaskPromise()
@@ -81,14 +81,14 @@ func TestSQLiteSpiderBusBackendTaskPromiseE2E(t *testing.T) {
 
 	err := backend.SendTaskPromise(taskPromise)
 	assert.Nil(t, err)
-	assert.Equal(t, 1, getCountForTable(backend.sqliteFilePath, "taskPromises"))
+	assert.Equal(t, 1, backend.getCountForTable("taskPromises"))
 
 	gotTaskPromise2 := backend.ReceiveTaskPromise()
 	assert.Equal(t, taskPromise, gotTaskPromise2)
 
 	gotTaskPromise = backend.ReceiveTaskPromise()
 	assert.Nil(t, gotTaskPromise)
-	assert.Equal(t, 0, getCountForTable(backend.sqliteFilePath, "taskPromises"))
+	assert.Equal(t, 0, backend.getCountForTable("taskPromises"))
 }
 
 func TestSQLiteSpiderBusBackendItemE2E(t *testing.T) {
@@ -101,19 +101,19 @@ func TestSQLiteSpiderBusBackendItemE2E(t *testing.T) {
 	}()
 
 	assert.NotNil(t, backend)
-	assert.Equal(t, 0, getCountForTable(backend.sqliteFilePath, "items"))
+	assert.Equal(t, 0, backend.getCountForTable("items"))
 
 	gotItem := backend.ReceiveItem()
 	assert.Nil(t, gotItem)
 
 	err := backend.SendItem(item)
 	assert.Nil(t, err)
-	assert.Equal(t, 1, getCountForTable(backend.sqliteFilePath, "items"))
+	assert.Equal(t, 1, backend.getCountForTable("items"))
 
 	gotItem = backend.ReceiveItem()
 	assert.Equal(t, item, gotItem)
 
 	gotItem = backend.ReceiveItem()
 	assert.Nil(t, gotItem)
-	assert.Equal(t, 0, getCountForTable(backend.sqliteFilePath, "items"))
+	assert.Equal(t, 0, backend.getCountForTable("items"))
 }
