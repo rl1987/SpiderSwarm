@@ -86,7 +86,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 	var raw []byte
 
 	msbb.dbConn.Exec("START TRANSACTION")
-	row := msbb.dbConn.QueryRow("SELECT * FROM scheduledTasks ORDER BY id ASC LIMIT 1 FOR UPDATE")
+	row := msbb.dbConn.QueryRow("SELECT * FROM scheduledTasks ORDER BY id ASC LIMIT 1 FOR UPDATE SKIP LOCKED")
 
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
@@ -120,7 +120,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
 	var raw []byte
 
 	msbb.dbConn.Exec("START TRANSACTION")
-	row := msbb.dbConn.QueryRow("SELECT * FROM taskPromises ORDER BY id ASC LIMIT 1 FOR UPDATE")
+	row := msbb.dbConn.QueryRow("SELECT * FROM taskPromises ORDER BY id ASC LIMIT 1 FOR UPDATE SKIP LOCKED")
 
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
@@ -152,7 +152,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveItem() *Item {
 	var raw []byte
 
 	msbb.dbConn.Exec("START TRANSACTION")
-	row := msbb.dbConn.QueryRow("SELECT * FROM items ORDER BY id ASC LIMIT 1 FOR UPDATE")
+	row := msbb.dbConn.QueryRow("SELECT * FROM items ORDER BY id ASC LIMIT 1 FOR UPDATE SKIP LOCKED")
 
 	err := row.Scan(&row_id, &raw)
 	if err != nil {
