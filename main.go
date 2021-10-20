@@ -236,6 +236,7 @@ func runTestWorkflow() {
 	time.Sleep(100 * time.Second)
 
 	for {
+		// FIXME: use time.Tick() here.
 		time.Sleep(10 * time.Second)
 		if spiderBusBackend.IsEmpty() {
 			log.Info("It appears scraping job is done!")
@@ -252,6 +253,10 @@ func main() {
 	go func() {
 		log.Println(http.ListenAndServe("localhost:6060", nil))
 	}()
+
+	// FIXME: remove this
+	rsbb := spsw.NewRedisSpiderBusBackend("127.0.0.1:6379", "")
+	spew.Dump(rsbb)
 
 	if len(os.Args) < 2 {
 		printUsage()

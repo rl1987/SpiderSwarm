@@ -3,7 +3,9 @@ package spsw
 import (
 	"context"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/go-redis/redis/v8"
+	"github.com/google/uuid"
 )
 
 type RedisSpiderBusBackend struct {
@@ -12,6 +14,7 @@ type RedisSpiderBusBackend struct {
 	ctx         context.Context
 	serverAddr  string
 	redisClient *redis.Client
+	consumerId  string
 }
 
 func NewRedisSpiderBusBackend(serverAddr string, password string) *RedisSpiderBusBackend {
@@ -23,10 +26,20 @@ func NewRedisSpiderBusBackend(serverAddr string, password string) *RedisSpiderBu
 
 	ctx := context.Background()
 
+	consumerId := uuid.New().String()
+
+	status := redisClient.XGroupCreateMkStream(ctx, "items", consumerId, "$")
+	spew.Dump(status)
+	status = redisClient.XGroupCreateMkStream(ctx, "task_promises", consumerId, "$")
+	spew.Dump(status)
+	status = redisClient.XGroupCreateMkStream(ctx, "scheduled_tasks", consumerId, "$")
+	spew.Dump(status)
+
 	return &RedisSpiderBusBackend{
 		ctx:         ctx,
 		serverAddr:  serverAddr,
 		redisClient: redisClient,
+		consumerId:  consumerId,
 	}
 }
 
