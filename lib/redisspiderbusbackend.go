@@ -55,4 +55,5 @@ func (rsbb *RedisSpiderBusBackend) ReceiveItem() *Item {
 }
 
 func (rsbb *RedisSpiderBusBackend) Close() {
+	rsbb.redisClient.Close()
 }
