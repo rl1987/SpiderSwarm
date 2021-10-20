@@ -6,7 +6,7 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 	"os"
-	"time"
+	"strconv"
 
 	spsw "github.com/spiderswarm/spiderswarm/lib"
 
@@ -46,6 +46,7 @@ func runManager(workflow *spsw.Workflow) *spsw.Manager {
 	managerAdapter.Start()
 
 	if workflow != nil {
+		log.Info(fmt.Sprintf("Starting Manager %v", manager))
 		go manager.Run()
 	}
 
@@ -64,6 +65,7 @@ func runExporter(outputDirPath string) *spsw.Exporter {
 	exporterAdapter := spsw.NewSpiderBusAdapterForExporter(spiderBus, exporter)
 	exporterAdapter.Start()
 
+	log.Info(fmt.Sprintf("Starting Exporter %v", exporter))
 	go exporter.Run()
 
 	return exporter
@@ -85,6 +87,7 @@ func runWorkers(n int) []*spsw.Worker {
 
 			adapter := spsw.NewSpiderBusAdapterForWorker(spiderBus, worker)
 			adapter.Start()
+			log.Info(fmt.Sprintf("Starting Worker %v", worker))
 			worker.Run()
 		}(worker)
 	}
@@ -263,21 +266,11 @@ func runTestWorkflow() {
 
 	go manager.Run()
 
-	// HACK!
-	// Since at this point we don't have a way to track the task execution state we
-	// try to detect the end of scraping job by checking if all DB tables are empty.
-	// This is unreliable as one or more Tasks might still be in progress.
-	time.Sleep(100 * time.Second)
+	manager.StartScrapingJob(workflow)
 
+	// https://medium.com/@ashishstiwari/dont-simply-run-forever-loop-for-1594464040b1
 	for {
-		// FIXME: use time.Tick() here.
-		time.Sleep(10 * time.Second)
-		/*
-			if spiderBusBackend.IsEmpty() {
-				log.Info("It appears scraping job is done!")
-				break
-			}
-		*/
+		select {}
 	}
 }
 
@@ -301,6 +294,22 @@ func main() {
 	case "singlenode":
 		singleNodeCmd.Parse(os.Args[2:])
 		log.Info(fmt.Sprintf("Number of worker goroutines: %d", *singleNodeWorkers))
+	case "worker":
+		n, _ := strconv.Atoi(os.Args[2])
+		runWorkers(n)
+		for {
+			select {}
+		}
+	case "manager":
+		runManager(nil)
+		for {
+			select {}
+		}
+	case "exporter":
+		runExporter(os.Args[2])
+		for {
+			select {}
+		}
 	case "client":
 		// TODO: client for REST API
 		fmt.Println("client part not implemented yet")
