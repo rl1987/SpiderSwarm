@@ -80,13 +80,13 @@ func runWorkers(n int) []*spsw.Worker {
 	}
 
 	for _, worker := range workers {
-		go func() {
+		go func(worker *spsw.Worker) {
 			spiderBus := setupSpiderBus()
 
 			adapter := spsw.NewSpiderBusAdapterForWorker(spiderBus, worker)
 			adapter.Start()
 			worker.Run()
-		}()
+		}(worker)
 	}
 
 	return workers
