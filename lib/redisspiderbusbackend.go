@@ -3,6 +3,7 @@ package spsw
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/go-redis/redis/v8"
@@ -44,13 +45,17 @@ func NewRedisSpiderBusBackend(serverAddr string, password string) *RedisSpiderBu
 func (rsbb *RedisSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTask) error {
 	raw := scheduledTask.EncodeToJSON()
 
-	err := rsbb.redisClient.XAdd(rsbb.ctx, &redis.XAddArgs{
+	resp := rsbb.redisClient.XAdd(rsbb.ctx, &redis.XAddArgs{
 		Stream: "scheduled_tasks",
-		ID:     "$",
+		ID:     "*",
 		Values: map[string]interface{}{
-			"raw": raw,
+			"raw": string(raw),
 		},
-	}).Err()
+	})
+
+	spew.Dump(resp)
+
+	err := resp.Err()
 
 	if err != nil {
 		spew.Dump(err)
@@ -64,15 +69,14 @@ func (rsbb *RedisSpiderBusBackend) readRawMessageFromStream(stream string) ([]by
 	resp := rsbb.redisClient.XReadGroup(rsbb.ctx, &redis.XReadGroupArgs{
 		Group:    rsbb.consumerId,
 		Consumer: rsbb.consumerId,
-		Streams:  []string{stream},
+		Streams:  []string{stream, ">"},
 		Count:    1,
-		Block:    0,
+		Block:    1 * time.Second,
 		NoAck:    false,
 	})
 
 	s, err := resp.Result()
 	if err != nil {
-		spew.Dump(err)
 		return nil, err
 	}
 
@@ -106,7 +110,7 @@ func (rsbb *RedisSpiderBusBackend) SendTaskPromise(taskPromise *TaskPromise) err
 		Stream: "task_promises",
 		ID:     "$",
 		Values: map[string]interface{}{
-			"raw": raw,
+			"raw": string(raw),
 		},
 	}).Err()
 
@@ -136,7 +140,7 @@ func (rsbb *RedisSpiderBusBackend) SendItem(item *Item) error {
 		Stream: "items",
 		ID:     "$",
 		Values: map[string]interface{}{
-			"raw": raw,
+			"raw": string(raw),
 		},
 	}).Err()
 
