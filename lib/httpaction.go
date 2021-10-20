@@ -147,7 +147,14 @@ func (ha *HTTPAction) Run() error {
 
 	request.URL.RawQuery = q.Encode()
 
-	client := &http.Client{}
+	// https://stackoverflow.com/questions/51845690/how-to-program-go-to-use-a-proxy-when-using-a-custom-transport
+	transport := &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+	}
+
+	client := &http.Client{
+		Transport: transport,
+	}
 
 	resp, err := client.Do(request)
 	if err != nil {
