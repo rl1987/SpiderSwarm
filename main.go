@@ -24,6 +24,74 @@ func printUsage() {
 	fmt.Println("Read the code for now")
 }
 
+func setupSpiderBus() *spsw.SpiderBus {
+	//spiderBusBackend = spsw.NewRedisSpiderBusBackend("127.0.0.1:6379", "")
+	spiderBusBackend := spsw.NewSQLiteSpiderBusBackend("")
+	spiderBus := spsw.NewSpiderBus()
+	spiderBus.Backend = spiderBusBackend
+
+	return spiderBus
+}
+
+func runManager(workflow *spsw.Workflow) *spsw.Manager {
+	manager := spsw.NewManager()
+
+	if workflow != nil {
+		manager.StartScrapingJob(workflow)
+	}
+
+	spiderBus := setupSpiderBus()
+
+	managerAdapter := spsw.NewSpiderBusAdapterForManager(spiderBus, manager)
+	managerAdapter.Start()
+
+	if workflow != nil {
+		go manager.Run()
+	}
+
+	return manager
+}
+
+func runExporter(outputDirPath string) *spsw.Exporter {
+	exporter := spsw.NewExporter()
+
+	exporterBackend := spsw.NewCSVExporterBackend(outputDirPath)
+
+	exporter.AddBackend(exporterBackend)
+
+	spiderBus := setupSpiderBus()
+
+	exporterAdapter := spsw.NewSpiderBusAdapterForExporter(spiderBus, exporter)
+	exporterAdapter.Start()
+
+	go exporter.Run()
+
+	return exporter
+}
+
+func runWorkers(n int) []*spsw.Worker {
+	var workers []*spsw.Worker
+
+	workers = []*spsw.Worker{}
+
+	for i := 0; i < n; i++ {
+		worker := spsw.NewWorker()
+		workers = append(workers, worker)
+	}
+
+	for _, worker := range workers {
+		go func() {
+			spiderBus := setupSpiderBus()
+
+			adapter := spsw.NewSpiderBusAdapterForWorker(spiderBus, worker)
+			adapter.Start()
+			worker.Run()
+		}()
+	}
+
+	return workers
+}
+
 func runTestWorkflow() {
 	workflow := &spsw.Workflow{
 		Name:    "testWorkflow",
@@ -177,57 +245,23 @@ func runTestWorkflow() {
 		},
 	}
 
-	spiderBusBackend := spsw.NewRedisSpiderBusBackend("127.0.0.1:6379", "")
-	spiderBus := spsw.NewSpiderBus()
-	spiderBus.Backend = spiderBusBackend
+	workers := runWorkers(4)
 
-	manager := spsw.NewManager()
+	manager := runManager(nil)
+	exporter := runExporter("/tmp")
+
+	spew.Dump(workers)
 
 	manager.StartScrapingJob(workflow)
-
-	exporter := spsw.NewExporter()
-	// TODO: make ExporterBackend API more abstract to enable plugin architecture.
-	exporterBackend := spsw.NewCSVExporterBackend("/tmp")
-
 	// FIXME: refrain from hardcoding field names; consider finding them from
 	// Workflow.
-	err := exporterBackend.StartExporting(manager.JobUUID, []string{"link", "title"})
+	err := exporter.Backends[0].StartExporting(manager.JobUUID, []string{"link", "title"})
 	if err != nil {
 		spew.Dump(err)
 		return
 	}
 
-	exporter.AddBackend(exporterBackend)
-
-	spiderBusBackend = spsw.NewRedisSpiderBusBackend("127.0.0.1:6379", "")
-	spiderBus = spsw.NewSpiderBus()
-	spiderBus.Backend = spiderBusBackend
-
-	managerAdapter := spsw.NewSpiderBusAdapterForManager(spiderBus, manager)
-	managerAdapter.Start()
-
-	spiderBusBackend = spsw.NewRedisSpiderBusBackend("127.0.0.1:6379", "")
-	spiderBus = spsw.NewSpiderBus()
-	spiderBus.Backend = spiderBusBackend
-
-	exporterAdapter := spsw.NewSpiderBusAdapterForExporter(spiderBus, exporter)
-	exporterAdapter.Start()
-
-	go exporter.Run()
 	go manager.Run()
-
-	for i := 0; i < 4; i++ {
-		go func() {
-			spiderBusBackend = spsw.NewRedisSpiderBusBackend("127.0.0.1:6379", "")
-			spiderBus = spsw.NewSpiderBus()
-			spiderBus.Backend = spiderBusBackend
-
-			worker := spsw.NewWorker()
-			adapter := spsw.NewSpiderBusAdapterForWorker(spiderBus, worker)
-			adapter.Start()
-			worker.Run()
-		}()
-	}
 
 	// HACK!
 	// Since at this point we don't have a way to track the task execution state we
