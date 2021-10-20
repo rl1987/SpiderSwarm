@@ -177,7 +177,7 @@ func runTestWorkflow() {
 		},
 	}
 
-	spiderBusBackend := spsw.NewMySQLSpiderBusBackend("username:password@tcp(159.223.27.109:3306)/spsw")
+	spiderBusBackend := spsw.NewRedisSpiderBusBackend("127.0.0.1:6379", "")
 	spiderBus := spsw.NewSpiderBus()
 	spiderBus.Backend = spiderBusBackend
 
@@ -199,14 +199,14 @@ func runTestWorkflow() {
 
 	exporter.AddBackend(exporterBackend)
 
-	spiderBusBackend = spsw.NewMySQLSpiderBusBackend("username:password@tcp(159.223.27.109:3306)/spsw")
+	spiderBusBackend = spsw.NewRedisSpiderBusBackend("127.0.0.1:6379", "")
 	spiderBus = spsw.NewSpiderBus()
 	spiderBus.Backend = spiderBusBackend
 
 	managerAdapter := spsw.NewSpiderBusAdapterForManager(spiderBus, manager)
 	managerAdapter.Start()
 
-	spiderBusBackend = spsw.NewMySQLSpiderBusBackend("username:password@tcp(159.223.27.109:3306)/spsw")
+	spiderBusBackend = spsw.NewRedisSpiderBusBackend("127.0.0.1:6379", "")
 	spiderBus = spsw.NewSpiderBus()
 	spiderBus.Backend = spiderBusBackend
 
@@ -218,7 +218,7 @@ func runTestWorkflow() {
 
 	for i := 0; i < 4; i++ {
 		go func() {
-			spiderBusBackend = spsw.NewMySQLSpiderBusBackend("username:password@tcp(159.223.27.109:3306)/spsw")
+			spiderBusBackend = spsw.NewRedisSpiderBusBackend("127.0.0.1:6379", "")
 			spiderBus = spsw.NewSpiderBus()
 			spiderBus.Backend = spiderBusBackend
 
@@ -238,11 +238,12 @@ func runTestWorkflow() {
 	for {
 		// FIXME: use time.Tick() here.
 		time.Sleep(10 * time.Second)
-		if spiderBusBackend.IsEmpty() {
-			log.Info("It appears scraping job is done!")
-			break
-		}
-
+		/*
+			if spiderBusBackend.IsEmpty() {
+				log.Info("It appears scraping job is done!")
+				break
+			}
+		*/
 	}
 }
 
@@ -253,10 +254,6 @@ func main() {
 	go func() {
 		log.Println(http.ListenAndServe("localhost:6060", nil))
 	}()
-
-	// FIXME: remove this
-	rsbb := spsw.NewRedisSpiderBusBackend("127.0.0.1:6379", "")
-	spew.Dump(rsbb)
 
 	if len(os.Args) < 2 {
 		printUsage()
