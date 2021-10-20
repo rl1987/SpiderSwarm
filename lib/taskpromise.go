@@ -1,6 +1,9 @@
 package spsw
 
 import (
+	"bytes"
+	"encoding/json"
+	"io/ioutil"
 	"time"
 
 	"github.com/google/uuid"
@@ -25,6 +28,20 @@ func NewTaskPromise(taskName string, workflowName string, jobUUID string, inputD
 		InputDataChunksByInputName: inputDataChunksByInputName,
 		CreatedAt:                  time.Now(),
 	}
+}
+
+func NewTaskPromiseFromJSON(raw []byte) *TaskPromise {
+	taskPromise := &TaskPromise{}
+
+	buffer := bytes.NewBuffer(raw)
+	decoder := json.NewDecoder(buffer)
+
+	err := decoder.Decode(taskPromise)
+	if err != nil {
+		return nil
+	}
+
+	return taskPromise
 }
 
 func (tp *TaskPromise) IsSplayable() bool {
@@ -103,4 +120,15 @@ func (tp *TaskPromise) Splay() []*TaskPromise {
 	}
 
 	return promises
+}
+
+func (tp *TaskPromise) EncodeToJSON() []byte {
+	buffer := bytes.NewBuffer([]byte{})
+	encoder := json.NewEncoder(buffer)
+
+	encoder.Encode(tp)
+
+	bytes, _ := ioutil.ReadAll(buffer)
+
+	return bytes
 }

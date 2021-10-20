@@ -1,11 +1,8 @@
 package spsw
 
 import (
-	"bytes"
 	"database/sql"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"strconv"
 	"time"
 
@@ -41,29 +38,6 @@ func NewMySQLSpiderBusBackend(dsn string) *MySQLSpiderBusBackend {
 	}
 }
 
-func encodeEntry(entry interface{}) []byte {
-	buffer := bytes.NewBuffer([]byte{})
-	encoder := json.NewEncoder(buffer)
-
-	encoder.Encode(entry)
-
-	bytes, _ := ioutil.ReadAll(buffer)
-
-	return bytes
-}
-
-func decodeEntry(raw []byte, entry interface{}) interface{} {
-	buffer := bytes.NewBuffer(raw)
-	decoder := json.NewDecoder(buffer)
-
-	err := decoder.Decode(entry)
-	if err != nil {
-		spew.Dump(err)
-	}
-
-	return &entry
-}
-
 func (msbb *MySQLSpiderBusBackend) maybePrintError(err error) {
 	if err != nil && err != sql.ErrNoRows {
 		spew.Dump(err)
@@ -71,7 +45,7 @@ func (msbb *MySQLSpiderBusBackend) maybePrintError(err error) {
 }
 
 func (msbb *MySQLSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTask) error {
-	raw := encodeEntry(scheduledTask)
+	raw := scheduledTask.EncodeToJSON()
 
 	_, err := msbb.dbConn.Exec("INSERT INTO scheduledTasks (raw) VALUES (?)", raw)
 	if err != nil {
@@ -94,9 +68,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 		return nil
 	}
 
-	scheduledTask := &ScheduledTask{}
-
-	decodeEntry(raw, scheduledTask)
+	scheduledTask := NewScheduledTaskFromJSON(raw)
 
 	msbb.dbConn.Exec(fmt.Sprintf("DELETE FROM scheduledTasks WHERE id=%d", row_id))
 	msbb.dbConn.Exec("COMMIT")
@@ -105,7 +77,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 }
 
 func (msbb *MySQLSpiderBusBackend) SendTaskPromise(taskPromise *TaskPromise) error {
-	raw := encodeEntry(taskPromise)
+	raw := taskPromise.EncodeToJSON()
 
 	_, err := msbb.dbConn.Exec("INSERT INTO taskPromises (raw) VALUES (?)", raw)
 	if err != nil {
@@ -129,9 +101,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
 		return nil
 	}
 
-	taskPromise := &TaskPromise{}
-
-	decodeEntry(raw, taskPromise)
+	taskPromise := NewTaskPromiseFromJSON(raw)
 
 	msbb.dbConn.Exec(fmt.Sprintf("DELETE FROM taskPromises WHERE id=%d", row_id))
 	msbb.dbConn.Exec("COMMIT")
@@ -140,7 +110,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
 }
 
 func (msbb *MySQLSpiderBusBackend) SendItem(item *Item) error {
-	raw := encodeEntry(item)
+	raw := item.EncodeToJSON()
 
 	msbb.dbConn.Exec("INSERT INTO items (raw) VALUES (?)", raw)
 
@@ -161,9 +131,7 @@ func (msbb *MySQLSpiderBusBackend) ReceiveItem() *Item {
 		return nil
 	}
 
-	item := &Item{}
-
-	decodeEntry(raw, item)
+	item := NewItemFromJSON(raw)
 
 	msbb.dbConn.Exec(fmt.Sprintf("DELETE FROM items WHERE id=%d", row_id))
 	msbb.dbConn.Exec("COMMIT")

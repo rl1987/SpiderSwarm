@@ -1,6 +1,10 @@
 package spsw
 
 import (
+	"bytes"
+	"encoding/json"
+	"io/ioutil"
+
 	"github.com/google/uuid"
 )
 
@@ -22,4 +26,29 @@ func NewScheduledTask(promise *TaskPromise, template *TaskTemplate, workflowName
 		WorkflowVersion: workflowVersion,
 		JobUUID:         jobUUID,
 	}
+}
+
+func NewScheduledTaskFromJSON(raw []byte) *ScheduledTask {
+	scheduledTask := &ScheduledTask{}
+
+	buffer := bytes.NewBuffer(raw)
+	decoder := json.NewDecoder(buffer)
+
+	err := decoder.Decode(scheduledTask)
+	if err != nil {
+		return nil
+	}
+
+	return scheduledTask
+}
+
+func (st *ScheduledTask) EncodeToJSON() []byte {
+	buffer := bytes.NewBuffer([]byte{})
+	encoder := json.NewEncoder(buffer)
+
+	encoder.Encode(st)
+
+	bytes, _ := ioutil.ReadAll(buffer)
+
+	return bytes
 }

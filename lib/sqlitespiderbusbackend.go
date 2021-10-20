@@ -1,9 +1,7 @@
 package spsw
 
 import (
-	"bytes"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -61,31 +59,8 @@ func (ssbb *SQLiteSpiderBusBackend) maybePrintError(err error) {
 	}
 }
 
-func (ssbb *SQLiteSpiderBusBackend) encodeEntry(entry interface{}) []byte {
-	buffer := bytes.NewBuffer([]byte{})
-	encoder := json.NewEncoder(buffer)
-
-	encoder.Encode(entry)
-
-	bytes, _ := ioutil.ReadAll(buffer)
-
-	return bytes
-}
-
-func (ssbb *SQLiteSpiderBusBackend) decodeEntry(raw []byte, entry interface{}) interface{} {
-	buffer := bytes.NewBuffer(raw)
-	decoder := json.NewDecoder(buffer)
-
-	err := decoder.Decode(entry)
-	if err != nil {
-		spew.Dump(err)
-	}
-
-	return &entry
-}
-
 func (ssbb *SQLiteSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTask) error {
-	raw := ssbb.encodeEntry(scheduledTask)
+	raw := scheduledTask.EncodeToJSON()
 
 	tmpDbConn, _ := sql.Open("sqlite3", ssbb.sqliteFilePath+"?cache=shared&mode=rwc")
 	defer tmpDbConn.Close()
@@ -115,9 +90,7 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 		return nil
 	}
 
-	scheduledTask := &ScheduledTask{}
-
-	ssbb.decodeEntry(raw, scheduledTask)
+	scheduledTask := NewScheduledTaskFromJSON(raw)
 
 	tx.Exec(fmt.Sprintf("DELETE FROM scheduledTasks WHERE id=%d", row_id))
 	tx.Commit()
@@ -126,7 +99,7 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 }
 
 func (ssbb *SQLiteSpiderBusBackend) SendTaskPromise(taskPromise *TaskPromise) error {
-	raw := ssbb.encodeEntry(taskPromise)
+	raw := taskPromise.EncodeToJSON()
 
 	tmpDbConn, _ := sql.Open("sqlite3", ssbb.sqliteFilePath+"?cache=shared&mode=rwc")
 	defer tmpDbConn.Close()
@@ -156,9 +129,7 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
 		return nil
 	}
 
-	taskPromise := &TaskPromise{}
-
-	ssbb.decodeEntry(raw, taskPromise)
+	taskPromise := NewTaskPromiseFromJSON(raw)
 
 	tx.Exec(fmt.Sprintf("DELETE FROM taskPromises WHERE id=%d", row_id))
 	tx.Commit()
@@ -167,7 +138,7 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
 }
 
 func (ssbb *SQLiteSpiderBusBackend) SendItem(item *Item) error {
-	raw := ssbb.encodeEntry(item)
+	raw := item.EncodeToJSON()
 
 	tmpDbConn, _ := sql.Open("sqlite3", ssbb.sqliteFilePath+"?cache=shared&mode=rwc")
 	defer tmpDbConn.Close()
@@ -197,9 +168,7 @@ func (ssbb *SQLiteSpiderBusBackend) ReceiveItem() *Item {
 		return nil
 	}
 
-	item := &Item{}
-
-	ssbb.decodeEntry(raw, item)
+	item := NewItemFromJSON(raw)
 
 	tx.Exec(fmt.Sprintf("DELETE FROM items WHERE id=%d", row_id))
 	tx.Commit()

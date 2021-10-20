@@ -1,6 +1,9 @@
 package spsw
 
 import (
+	"bytes"
+	"encoding/json"
+	"io/ioutil"
 	"time"
 
 	"github.com/google/uuid"
@@ -28,6 +31,20 @@ func NewItem(name string, workflowName string, jobUUID string, taskUUID string) 
 		Fields:       map[string]*Value{},
 		Name:         name,
 	}
+}
+
+func NewItemFromJSON(raw []byte) *Item {
+	item := &Item{}
+
+	buffer := bytes.NewBuffer(raw)
+	decoder := json.NewDecoder(buffer)
+
+	err := decoder.Decode(item)
+	if err != nil {
+		return nil
+	}
+
+	return item
 }
 
 func (i *Item) IsSplayable() bool {
@@ -115,4 +132,15 @@ func (i *Item) SetField(name string, value interface{}) {
 	if b, okBool := value.(bool); okBool {
 		i.Fields[name] = NewValueFromBool(b)
 	}
+}
+
+func (i *Item) EncodeToJSON() []byte {
+	buffer := bytes.NewBuffer([]byte{})
+	encoder := json.NewEncoder(buffer)
+
+	encoder.Encode(i)
+
+	bytes, _ := ioutil.ReadAll(buffer)
+
+	return bytes
 }
