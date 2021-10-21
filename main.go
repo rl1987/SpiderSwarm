@@ -180,7 +180,7 @@ func getWorkflow() *spsw.Workflow {
 						ConstructorParams: map[string]spsw.Value{
 							"xpath": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
-								StringValue: "//a[@class='storylink']/text()",
+								StringValue: "//a[@class='titlelink']/text()",
 							},
 							"expectMany": spsw.Value{
 								ValueType: spsw.ValueTypeBool,
@@ -194,7 +194,7 @@ func getWorkflow() *spsw.Workflow {
 						ConstructorParams: map[string]spsw.Value{
 							"xpath": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
-								StringValue: "//a[@class='storylink']/@href",
+								StringValue: "//a[@class='titlelink']/@href",
 							},
 							"expectMany": spsw.Value{
 								ValueType: spsw.ValueTypeBool,
