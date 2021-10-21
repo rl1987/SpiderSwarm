@@ -24,23 +24,25 @@ func printUsage() {
 	fmt.Println("Read the code for now")
 }
 
-func setupSpiderBus() *spsw.SpiderBus {
+func setupSpiderBus(backendAddr string) *spsw.SpiderBus {
+	// TODO: make RedisSpiderBusBackend functional. Remove backends that are based on relational
+	// databases.
 	//spiderBusBackend = spsw.NewRedisSpiderBusBackend("127.0.0.1:6379", "")
-	spiderBusBackend := spsw.NewSQLiteSpiderBusBackend("")
+	spiderBusBackend := spsw.NewSQLiteSpiderBusBackend(backendAddr)
 	spiderBus := spsw.NewSpiderBus()
 	spiderBus.Backend = spiderBusBackend
 
 	return spiderBus
 }
 
-func runManager(workflow *spsw.Workflow) *spsw.Manager {
+func runManager(workflow *spsw.Workflow, backendAddr string) *spsw.Manager {
 	manager := spsw.NewManager()
 
 	if workflow != nil {
 		manager.StartScrapingJob(workflow)
 	}
 
-	spiderBus := setupSpiderBus()
+	spiderBus := setupSpiderBus(backendAddr)
 
 	managerAdapter := spsw.NewSpiderBusAdapterForManager(spiderBus, manager)
 	managerAdapter.Start()
@@ -53,14 +55,14 @@ func runManager(workflow *spsw.Workflow) *spsw.Manager {
 	return manager
 }
 
-func runExporter(outputDirPath string) *spsw.Exporter {
+func runExporter(outputDirPath string, backendAddr string) *spsw.Exporter {
 	exporter := spsw.NewExporter()
 
 	exporterBackend := spsw.NewCSVExporterBackend(outputDirPath)
 
 	exporter.AddBackend(exporterBackend)
 
-	spiderBus := setupSpiderBus()
+	spiderBus := setupSpiderBus(backendAddr)
 
 	exporterAdapter := spsw.NewSpiderBusAdapterForExporter(spiderBus, exporter)
 	exporterAdapter.Start()
@@ -71,7 +73,7 @@ func runExporter(outputDirPath string) *spsw.Exporter {
 	return exporter
 }
 
-func runWorkers(n int) []*spsw.Worker {
+func runWorkers(n int, backendAddr string) []*spsw.Worker {
 	var workers []*spsw.Worker
 
 	workers = []*spsw.Worker{}
@@ -83,7 +85,7 @@ func runWorkers(n int) []*spsw.Worker {
 
 	for _, worker := range workers {
 		go func(worker *spsw.Worker) {
-			spiderBus := setupSpiderBus()
+			spiderBus := setupSpiderBus(backendAddr)
 
 			adapter := spsw.NewSpiderBusAdapterForWorker(spiderBus, worker)
 			adapter.Start()
@@ -95,8 +97,8 @@ func runWorkers(n int) []*spsw.Worker {
 	return workers
 }
 
-func runTestWorkflow() {
-	workflow := &spsw.Workflow{
+func getWorkflow() *spsw.Workflow {
+	return &spsw.Workflow{
 		Name:    "testWorkflow",
 		Version: "v0.0.0.0.1",
 		TaskTemplates: []spsw.TaskTemplate{
@@ -247,11 +249,16 @@ func runTestWorkflow() {
 			},
 		},
 	}
+}
 
-	workers := runWorkers(4)
+func runTestWorkflow() {
+	backendAddr := "/tmp/spiderbus.db"
+	workflow := getWorkflow()
 
-	manager := runManager(nil)
-	exporter := runExporter("/tmp")
+	workers := runWorkers(4, backendAddr)
+
+	manager := runManager(workflow, backendAddr)
+	exporter := runExporter("/tmp", backendAddr)
 
 	spew.Dump(workers)
 
@@ -287,6 +294,8 @@ func main() {
 		os.Exit(0)
 	}
 
+	workflow := getWorkflow()
+
 	singleNodeCmd := flag.NewFlagSet("singlenode", flag.ExitOnError)
 	singleNodeWorkers := singleNodeCmd.Int("workers", 1, "Number of worker goroutines")
 
@@ -296,17 +305,21 @@ func main() {
 		log.Info(fmt.Sprintf("Number of worker goroutines: %d", *singleNodeWorkers))
 	case "worker":
 		n, _ := strconv.Atoi(os.Args[2])
-		runWorkers(n)
+		backendAddr := os.Args[3]
+		runWorkers(n, backendAddr)
 		for {
 			select {}
 		}
 	case "manager":
-		runManager(nil)
+		backendAddr := os.Args[2]
+		runManager(workflow, backendAddr)
 		for {
 			select {}
 		}
 	case "exporter":
-		runExporter(os.Args[2])
+		outputDir := os.Args[2]
+		backendAddr := os.Args[3]
+		runExporter(outputDir, backendAddr)
 		for {
 			select {}
 		}
