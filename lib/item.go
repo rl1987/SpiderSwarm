@@ -144,3 +144,13 @@ func (i *Item) EncodeToJSON() []byte {
 
 	return bytes
 }
+
+func (i *Item) FieldNames() []string {
+	fieldNames := []string{}
+
+	for key, _ := range i.Fields {
+		fieldNames = append(fieldNames, key)
+	}
+
+	return fieldNames
+}

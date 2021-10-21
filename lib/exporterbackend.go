@@ -5,7 +5,6 @@ import (
 )
 
 type ExporterBackend interface {
-	StartExporting(jobUUID string, fieldNames []string) error
 	WriteItem(i *Item) error
 	FinishExporting(jobUUID string) error
 }

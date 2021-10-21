@@ -260,16 +260,10 @@ func runTestWorkflow() {
 	manager := runManager(workflow, backendAddr)
 	exporter := runExporter("/tmp", backendAddr)
 
+	spew.Dump(exporter)
 	spew.Dump(workers)
 
 	manager.StartScrapingJob(workflow)
-	// FIXME: refrain from hardcoding field names; consider finding them from
-	// Workflow.
-	err := exporter.Backends[0].StartExporting(manager.JobUUID, []string{"link", "title"})
-	if err != nil {
-		spew.Dump(err)
-		return
-	}
 
 	go manager.Run()
 

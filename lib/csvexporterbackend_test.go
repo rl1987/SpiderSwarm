@@ -28,7 +28,7 @@ func TestCSVExporterBackendE2E(t *testing.T) {
 
 	backend := NewCSVExporterBackend(dir)
 
-	err = backend.StartExporting(jobUUID, fieldNames)
+	_, err = backend.StartExporting(jobUUID, fieldNames)
 	assert.Nil(t, err)
 
 	csvFilePath := dir + "/" + jobUUID + ".csv"

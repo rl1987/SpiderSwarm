@@ -37,14 +37,14 @@ func NewCSVExporterBackend(outputDirPath string) *CSVExporterBackend {
 	}
 }
 
-func (ceb *CSVExporterBackend) StartExporting(jobUUID string, fieldNames []string) error {
+func (ceb *CSVExporterBackend) StartExporting(jobUUID string, fieldNames []string) (*csv.Writer, error) {
 	// XXX: maybe include date/time into filename as well?
 	csvFilePath := ceb.OutputDirPath + "/" + jobUUID + ".csv"
 
 	csvFileHandle, err := os.OpenFile(csvFilePath, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		spew.Dump(err)
-		return err
+		return nil, err
 	}
 
 	csvWriter := csv.NewWriter(csvFileHandle)
@@ -52,7 +52,7 @@ func (ceb *CSVExporterBackend) StartExporting(jobUUID string, fieldNames []strin
 	if err != nil {
 		spew.Dump(err)
 		csvFileHandle.Close()
-		return err
+		return nil, err
 	}
 
 	ceb.csvWritersByJob[jobUUID] = csvWriter
@@ -61,20 +61,23 @@ func (ceb *CSVExporterBackend) StartExporting(jobUUID string, fieldNames []strin
 
 	log.Info(fmt.Sprintf("Starting to export items to %s for job %s", csvFilePath, jobUUID))
 
-	return nil
+	return csvWriter, nil
 }
 
 func (ceb *CSVExporterBackend) WriteItem(i *Item) error {
+	var err error
+
 	jobUUID := i.JobUUID
 
-	fieldNames := ceb.fieldNamesByJob[jobUUID]
-	if fieldNames == nil {
-		return errors.New("Field names not found in WriterItem for job " + jobUUID)
+	fieldNames := i.FieldNames()
+	csvWriter := ceb.csvWritersByJob[jobUUID]
+
+	if csvWriter == nil {
+		csvWriter, err = ceb.StartExporting(jobUUID, fieldNames)
 	}
 
-	csvWriter := ceb.csvWritersByJob[jobUUID]
-	if csvWriter == nil {
-		return errors.New("CSV writer not found in WriteItem for job " + jobUUID)
+	if err != nil {
+		return err
 	}
 
 	row := []string{}
@@ -102,7 +105,7 @@ func (ceb *CSVExporterBackend) WriteItem(i *Item) error {
 		row = append(row, rowStr)
 	}
 
-	err := csvWriter.WriteAll([][]string{row})
+	err = csvWriter.WriteAll([][]string{row})
 	if err != nil {
 		return err
 	}

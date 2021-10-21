@@ -458,14 +458,6 @@ func runTestWorkflow() {
 	// TODO: make ExporterBackend API more abstract to enable plugin architecture.
 	exporterBackend := spsw.NewCSVExporterBackend("/tmp")
 
-	// FIXME: refrain from hardcoding field names; consider finding them from
-	// Workflow.
-	err := exporterBackend.StartExporting(manager.JobUUID, []string{"filer_id", "legal_name", "dba", "phone"})
-	if err != nil {
-		spew.Dump(err)
-		return
-	}
-
 	exporter.AddBackend(exporterBackend)
 
 	managerAdapter := spsw.NewSpiderBusAdapterForManager(spiderBus, manager)
