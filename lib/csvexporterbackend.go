@@ -74,6 +74,8 @@ func (ceb *CSVExporterBackend) WriteItem(i *Item) error {
 
 	if csvWriter == nil {
 		csvWriter, err = ceb.StartExporting(jobUUID, fieldNames)
+	} else {
+		fieldNames = ceb.fieldNamesByJob[jobUUID]
 	}
 
 	if err != nil {
