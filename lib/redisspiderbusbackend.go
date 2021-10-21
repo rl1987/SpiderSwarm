@@ -107,14 +107,14 @@ func (rsbb *RedisSpiderBusBackend) SendTaskPromise(taskPromise *TaskPromise) err
 
 	err := rsbb.redisClient.XAdd(rsbb.ctx, &redis.XAddArgs{
 		Stream: "task_promises",
-		ID:     "$",
+		ID:     "*",
 		Values: map[string]interface{}{
 			"raw": string(raw),
 		},
 	}).Err()
 
 	if err != nil {
-		spew.Dump(err)
+		spew.Dump("SendTaskPromise", err)
 		return err
 	}
 
@@ -137,7 +137,7 @@ func (rsbb *RedisSpiderBusBackend) SendItem(item *Item) error {
 
 	err := rsbb.redisClient.XAdd(rsbb.ctx, &redis.XAddArgs{
 		Stream: "items",
-		ID:     "$",
+		ID:     "*",
 		Values: map[string]interface{}{
 			"raw": string(raw),
 		},
