@@ -30,9 +30,9 @@ func NewRedisSpiderBusBackend(serverAddr string, password string) *RedisSpiderBu
 
 	consumerId := uuid.New().String()
 
-	redisClient.XGroupCreateMkStream(ctx, "items", consumerId, "$")
-	redisClient.XGroupCreateMkStream(ctx, "task_promises", consumerId, "$")
-	redisClient.XGroupCreateMkStream(ctx, "scheduled_tasks", consumerId, "$")
+	redisClient.XGroupCreateMkStream(ctx, "items", "items", "$")
+	redisClient.XGroupCreateMkStream(ctx, "task_promises", "task_promises", "$")
+	redisClient.XGroupCreateMkStream(ctx, "scheduled_tasks", "scheduled_tasks", "$")
 
 	return &RedisSpiderBusBackend{
 		ctx:         ctx,
@@ -67,7 +67,7 @@ func (rsbb *RedisSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTas
 
 func (rsbb *RedisSpiderBusBackend) readRawMessageFromStream(stream string) ([]byte, error) {
 	resp := rsbb.redisClient.XReadGroup(rsbb.ctx, &redis.XReadGroupArgs{
-		Group:    rsbb.consumerId,
+		Group:    stream,
 		Consumer: rsbb.consumerId,
 		Streams:  []string{stream, ">"},
 		Count:    1,
