@@ -82,10 +82,9 @@ func (rsbb *RedisSpiderBusBackend) readRawMessageFromStream(stream string) ([]by
 
 	if len(s) == 1 && len(s[0].Messages) == 1 {
 		msg := s[0].Messages[0]
-		if raw, ok := msg.Values["raw"].([]byte); ok {
+		if raw, ok := msg.Values["raw"].(string); ok {
 			rsbb.redisClient.XAck(rsbb.ctx, stream, rsbb.consumerId, msg.ID)
-
-			return raw, nil
+			return []byte(raw), nil
 		}
 	}
 
