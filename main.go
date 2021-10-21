@@ -27,8 +27,8 @@ func printUsage() {
 func setupSpiderBus(backendAddr string) *spsw.SpiderBus {
 	// TODO: make RedisSpiderBusBackend functional. Remove backends that are based on relational
 	// databases.
-	//spiderBusBackend = spsw.NewRedisSpiderBusBackend("127.0.0.1:6379", "")
-	spiderBusBackend := spsw.NewSQLiteSpiderBusBackend(backendAddr)
+	spiderBusBackend := spsw.NewRedisSpiderBusBackend(backendAddr, "")
+	//spiderBusBackend := spsw.NewSQLiteSpiderBusBackend(backendAddr)
 	spiderBus := spsw.NewSpiderBus()
 	spiderBus.Backend = spiderBusBackend
 
