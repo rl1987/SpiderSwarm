@@ -20,6 +20,8 @@ const HTTPActionOutputHeaders = "HTTPActionOutputHeaders"
 const HTTPActionOutputStatusCode = "HTTPActionOutputStatusCode"
 const HTTPActionOutputCookies = "HTTPActionOutputCookies"
 
+// TODO: add output that gives the response URL
+
 type HTTPAction struct {
 	AbstractAction
 	BaseURL string

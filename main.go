@@ -163,16 +163,6 @@ func getWorkflow() *spsw.Workflow {
 						},
 					},
 					spsw.ActionTemplate{
-						Name:       "MakeBookURLAbsolute",
-						StructName: "URLJoinAction",
-						ConstructorParams: map[string]spsw.Value{
-							"baseURL": spsw.Value{
-								ValueType:   spsw.ValueTypeString,
-								StringValue: "http://104.248.27.41:8000/",
-							},
-						},
-					},
-					spsw.ActionTemplate{
 						Name:       "PromiseToScrapeBookPage",
 						StructName: "TaskPromiseAction",
 						ConstructorParams: map[string]spsw.Value{
@@ -222,16 +212,12 @@ func getWorkflow() *spsw.Workflow {
 					spsw.DataPipeTemplate{
 						SourceActionName: "ExtractNextPageURL",
 						SourceOutputName: spsw.XPathActionOutputStr,
+						DestActionName:   "MakeNextPageURLAbsolute",
+						DestInputName:    spsw.URLJoinActionInputRelativeURL,
 					},
 					spsw.DataPipeTemplate{
 						SourceActionName: "ExtractBookLinks",
 						SourceOutputName: spsw.XPathActionOutputStr,
-						DestActionName:   "MakeBookURLAbsolute",
-						DestInputName:    spsw.URLJoinActionInputRelativeURL,
-					},
-					spsw.DataPipeTemplate{
-						SourceActionName: "MakeBookURLAbsolute",
-						SourceOutputName: spsw.URLJoinActionOutputAbsoluteURL,
 						DestActionName:   "PromiseToScrapeBookPage",
 						DestInputName:    "url",
 					},
@@ -250,6 +236,155 @@ func getWorkflow() *spsw.Workflow {
 						SourceActionName: "PromiseToScrapeBookList",
 						SourceOutputName: spsw.TaskPromiseActionOutputPromise,
 						TaskOutputName:   "bookListPromises",
+					},
+				},
+			},
+			spsw.TaskTemplate{
+				TaskName: "ScrapeBookPage",
+				Initial:  false,
+				ActionTemplates: []spsw.ActionTemplate{
+					spsw.ActionTemplate{
+						Name:       "MakeBookURLAbsolute",
+						StructName: "URLJoinAction",
+						ConstructorParams: map[string]spsw.Value{
+							"baseURL": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
+								StringValue: "http://104.248.27.41:8000/",
+							},
+						},
+					},
+					spsw.ActionTemplate{
+						Name:       "GetBookPageHTML",
+						StructName: "HTTPAction",
+						ConstructorParams: map[string]spsw.Value{
+							"baseURL": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
+								StringValue: "http://104.248.27.41:8000/",
+							},
+							"method": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
+								StringValue: "GET",
+							},
+							"canFail": spsw.Value{
+								ValueType: spsw.ValueTypeBool,
+								BoolValue: false,
+							},
+						},
+					},
+					spsw.ActionTemplate{
+						Name:       "ExtractBookTitle",
+						StructName: "XPathAction",
+						ConstructorParams: map[string]spsw.Value{
+							"xpath": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
+								StringValue: "//h1/text()",
+							},
+							"expectMany": spsw.Value{
+								ValueType: spsw.ValueTypeBool,
+								BoolValue: false,
+							},
+						},
+					},
+					spsw.ActionTemplate{
+						Name:       "ExtractDescription",
+						StructName: "XPathAction",
+						ConstructorParams: map[string]spsw.Value{
+							"xpath": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
+								StringValue: "//article[@class=\"product_page\"]/p/text()",
+							},
+							"expectMany": spsw.Value{
+								ValueType: spsw.ValueTypeBool,
+								BoolValue: false,
+							},
+						},
+					},
+					spsw.ActionTemplate{
+						Name:       "ExtractUPC",
+						StructName: "XPathAction",
+						ConstructorParams: map[string]spsw.Value{
+							"xpath": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
+								StringValue: "//tr[./th[text()=\"UPC\"]]/td/text()",
+							},
+							"expectMany": spsw.Value{
+								ValueType: spsw.ValueTypeBool,
+								BoolValue: false,
+							},
+						},
+					},
+					spsw.ActionTemplate{
+						Name:       "MakeItem",
+						StructName: "FieldJoinAction",
+						ConstructorParams: map[string]spsw.Value{
+							"inputNames": spsw.Value{
+								ValueType:    spsw.ValueTypeStrings,
+								StringsValue: []string{"title", "description", "upc", "url"},
+							},
+							"itemName": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
+								StringValue: "book",
+							},
+						},
+					},
+				},
+				DataPipeTemplates: []spsw.DataPipeTemplate{
+					spsw.DataPipeTemplate{
+						TaskInputName:  "url",
+						DestActionName: "MakeBookURLAbsolute",
+						DestInputName:  spsw.URLJoinActionInputRelativeURL,
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "MakeBookURLAbsolute",
+						SourceOutputName: spsw.URLJoinActionOutputAbsoluteURL,
+						DestActionName:   "GetBookPageHTML",
+						DestInputName:    spsw.HTTPActionInputBaseURL,
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "GetBookPageHTML",
+						SourceOutputName: spsw.HTTPActionOutputBody,
+						DestActionName:   "ExtractBookTitle",
+						DestInputName:    spsw.XPathActionInputHTMLBytes,
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "GetBookPageHTML",
+						SourceOutputName: spsw.HTTPActionOutputBody,
+						DestActionName:   "ExtractDescription",
+						DestInputName:    spsw.XPathActionInputHTMLBytes,
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "GetBookPageHTML",
+						SourceOutputName: spsw.HTTPActionOutputBody,
+						DestActionName:   "ExtractUPC",
+						DestInputName:    spsw.XPathActionInputHTMLBytes,
+					},
+					spsw.DataPipeTemplate{
+						TaskInputName:  "url",
+						DestActionName: "MakeItem",
+						DestInputName:  "url",
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "ExtractBookTitle",
+						SourceOutputName: spsw.XPathActionOutputStr,
+						DestActionName:   "MakeItem",
+						DestInputName:    "title",
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "ExtractDescription",
+						SourceOutputName: spsw.XPathActionOutputStr,
+						DestActionName:   "MakeItem",
+						DestInputName:    "description",
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "ExtractUPC",
+						SourceOutputName: spsw.XPathActionOutputStr,
+						DestActionName:   "MakeItem",
+						DestInputName:    "upc",
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "MakeItem",
+						SourceOutputName: spsw.FieldJoinActionOutputItem,
+						TaskOutputName:   "item",
 					},
 				},
 			},
