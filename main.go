@@ -103,8 +103,51 @@ func getWorkflow() *spsw.Workflow {
 		Version: "v0.0.0.0.1",
 		TaskTemplates: []spsw.TaskTemplate{
 			spsw.TaskTemplate{
-				TaskName: "ScrapeListPage",
+				TaskName: "Launch",
 				Initial:  true,
+				ActionTemplates: []spsw.ActionTemplate{
+					spsw.ActionTemplate{
+						Name:       "ConstURL",
+						StructName: "ConstAction",
+						ConstructorParams: map[string]spsw.Value{
+							"c": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
+								StringValue: "http://104.248.27.41:8000/catalogue/category/books_1/index.html",
+							},
+						},
+					},
+					spsw.ActionTemplate{
+						Name:       "Promise1",
+						StructName: "TaskPromiseAction",
+						ConstructorParams: map[string]spsw.Value{
+							"inputNames": spsw.Value{
+								ValueType:    spsw.ValueTypeStrings,
+								StringsValue: []string{"url"},
+							},
+							"taskName": spsw.Value{
+								ValueType:   spsw.ValueTypeString,
+								StringValue: "ScrapeListPage",
+							},
+						},
+					},
+				},
+				DataPipeTemplates: []spsw.DataPipeTemplate{
+					spsw.DataPipeTemplate{
+						SourceActionName: "ConstURL",
+						SourceOutputName: spsw.ConstActionOutput,
+						DestActionName:   "Promise1",
+						DestInputName:    "url",
+					},
+					spsw.DataPipeTemplate{
+						SourceActionName: "Promise1",
+						SourceOutputName: spsw.TaskPromiseActionOutputPromise,
+						TaskOutputName:   "promise1",
+					},
+				},
+			},
+			spsw.TaskTemplate{
+				TaskName: "ScrapeListPage",
+				Initial:  false,
 				ActionTemplates: []spsw.ActionTemplate{
 					spsw.ActionTemplate{
 						Name:       "GetListPage",
@@ -112,7 +155,7 @@ func getWorkflow() *spsw.Workflow {
 						ConstructorParams: map[string]spsw.Value{
 							"baseURL": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
-								StringValue: "http://104.248.27.41:8000/",
+								StringValue: "http://104.248.27.41:8000/catalogue/category/books_/",
 							},
 							"method": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
@@ -144,7 +187,7 @@ func getWorkflow() *spsw.Workflow {
 						ConstructorParams: map[string]spsw.Value{
 							"baseURL": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
-								StringValue: "http://104.248.27.41:8000/",
+								StringValue: "http://104.248.27.41:8000/catalogue/category/books_1/",
 							},
 						},
 					},
@@ -249,7 +292,7 @@ func getWorkflow() *spsw.Workflow {
 						ConstructorParams: map[string]spsw.Value{
 							"baseURL": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
-								StringValue: "http://104.248.27.41:8000/",
+								StringValue: "http://104.248.27.41:8000/catalogue/category/books_1/",
 							},
 						},
 					},
@@ -259,7 +302,7 @@ func getWorkflow() *spsw.Workflow {
 						ConstructorParams: map[string]spsw.Value{
 							"baseURL": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
-								StringValue: "http://104.248.27.41:8000/",
+								StringValue: "",
 							},
 							"method": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
@@ -359,9 +402,10 @@ func getWorkflow() *spsw.Workflow {
 						DestInputName:    spsw.XPathActionInputHTMLBytes,
 					},
 					spsw.DataPipeTemplate{
-						TaskInputName:  "url",
-						DestActionName: "MakeItem",
-						DestInputName:  "url",
+						SourceActionName: "MakeBookURLAbsolute",
+						SourceOutputName: spsw.URLJoinActionOutputAbsoluteURL,
+						DestActionName:   "MakeItem",
+						DestInputName:    "url",
 					},
 					spsw.DataPipeTemplate{
 						SourceActionName: "ExtractBookTitle",
