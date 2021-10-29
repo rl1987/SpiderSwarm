@@ -446,7 +446,7 @@ func runTestWorkflow() {
 
 	spew.Dump(workflow)
 
-	spiderBusBackend := spsw.NewSQLiteSpiderBusBackend("")
+	spiderBusBackend := spsw.NewRedisSpiderBusBackend("127.0.0.1:6379", "")
 	spiderBus := spsw.NewSpiderBus()
 	spiderBus.Backend = spiderBusBackend
 
