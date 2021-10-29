@@ -19,6 +19,7 @@ func NewSpiderBus() *SpiderBus {
 }
 
 func (sb *SpiderBus) Enqueue(x interface{}) error {
+	// TODO: check for duplicates.
 	if scheduledTask, okTask := x.(*ScheduledTask); okTask {
 		return sb.Backend.SendScheduledTask(scheduledTask)
 	}

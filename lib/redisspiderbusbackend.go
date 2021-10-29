@@ -42,6 +42,12 @@ func NewRedisSpiderBusBackend(serverAddr string, password string) *RedisSpiderBu
 	}
 }
 
+func IsScheduledTaskDuplicated(scheduledTask *ScheduledTask, jobUUID string) bool {
+	// TODO: hash the scheduledTask (skipping UUIDs) and check if hash is present in the Redis Set
+	// (use SISMEMBER command).
+	return false
+}
+
 func (rsbb *RedisSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTask) error {
 	raw := scheduledTask.EncodeToJSON()
 
@@ -61,6 +67,8 @@ func (rsbb *RedisSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTas
 		spew.Dump(err)
 		return err
 	}
+
+	// TODO: compute hash for scheduledTask and put it into Redis Set (use SADD command).
 
 	return nil
 }
@@ -102,6 +110,10 @@ func (rsbb *RedisSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 	return scheduledTask
 }
 
+func IsTaskPromiseDuplicated(taskPromise *TaskPromise, jobUUID string) bool {
+	return false
+}
+
 func (rsbb *RedisSpiderBusBackend) SendTaskPromise(taskPromise *TaskPromise) error {
 	raw := taskPromise.EncodeToJSON()
 
@@ -130,6 +142,10 @@ func (rsbb *RedisSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
 	taskPromise := NewTaskPromiseFromJSON(raw)
 
 	return taskPromise
+}
+
+func IsItemDuplicated(item *Item, jobUUID string) bool {
+	return false
 }
 
 func (rsbb *RedisSpiderBusBackend) SendItem(item *Item) error {
