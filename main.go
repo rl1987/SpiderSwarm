@@ -128,6 +128,10 @@ func getWorkflow() *spsw.Workflow {
 								ValueType:   spsw.ValueTypeString,
 								StringValue: "ScrapeListPage",
 							},
+							"requireFields": spsw.Value{
+								ValueType:    spsw.ValueTypeStrings,
+								StringsValue: []string{"url"},
+							},
 						},
 					},
 				},
@@ -230,6 +234,10 @@ func getWorkflow() *spsw.Workflow {
 							"taskName": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
 								StringValue: "ScrapeListPage",
+							},
+							"requireFields": spsw.Value{
+								ValueType:    spsw.ValueTypeStrings,
+								StringsValue: []string{"url"},
 							},
 						},
 					},

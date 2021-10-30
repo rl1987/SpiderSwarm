@@ -8,15 +8,16 @@ import (
 
 type TaskPromiseAction struct {
 	AbstractAction
-	UUID         string
-	TaskName     string
-	WorkflowName string
-	JobUUID      string
+	UUID          string
+	TaskName      string
+	WorkflowName  string
+	JobUUID       string
+	RequireFields []string
 }
 
 const TaskPromiseActionOutputPromise = "TaskPromiseActionOutputPromise"
 
-func NewTaskPromiseAction(inputNames []string, taskName string, workflowName string, jobUUID string) *TaskPromiseAction {
+func NewTaskPromiseAction(inputNames []string, taskName string, workflowName string, jobUUID string, requireFields []string) *TaskPromiseAction {
 	return &TaskPromiseAction{
 		AbstractAction: AbstractAction{
 			AllowedInputNames:  inputNames,
@@ -26,20 +27,23 @@ func NewTaskPromiseAction(inputNames []string, taskName string, workflowName str
 			CanFail:            false,
 			UUID:               uuid.New().String(),
 		},
-		TaskName:     taskName,
-		WorkflowName: workflowName,
-		JobUUID:      jobUUID,
+		TaskName:      taskName,
+		WorkflowName:  workflowName,
+		JobUUID:       jobUUID,
+		RequireFields: requireFields,
 	}
 }
 
 func NewTaskPromiseActionFromTemplate(actionTempl *ActionTemplate, workflowName string) *TaskPromiseAction {
 	var inputNames []string
 	var taskName string
+	var requireFields []string
 
 	inputNames = actionTempl.ConstructorParams["inputNames"].StringsValue
 	taskName = actionTempl.ConstructorParams["taskName"].StringValue
+	requireFields = actionTempl.ConstructorParams["requireFields"].StringsValue
 
-	action := NewTaskPromiseAction(inputNames, taskName, workflowName, "")
+	action := NewTaskPromiseAction(inputNames, taskName, workflowName, "", requireFields)
 
 	action.Name = actionTempl.Name
 
@@ -54,6 +58,14 @@ func (tpa *TaskPromiseAction) Run() error {
 			x := input.Remove()
 			newChunk, _ := NewDataChunk(x)
 			inputDataChunksByInputName[name] = newChunk
+		}
+	}
+
+	for _, rf := range tpa.RequireFields {
+		if inputDataChunksByInputName[rf] == nil ||
+			(len(inputDataChunksByInputName[rf].PayloadValue.StringValue) == 0 && // XXX: this seems bit awkward
+				len(inputDataChunksByInputName[rf].PayloadValue.StringsValue) == 0) {
+			return nil
 		}
 	}
 
