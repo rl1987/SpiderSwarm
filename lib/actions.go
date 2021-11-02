@@ -10,6 +10,7 @@ type Action interface {
 	AddInput(name string, dataPipe *DataPipe) error
 	AddOutput(name string, dataPipe *DataPipe) error
 	GetUniqueID() string
+	GetName() string
 	GetPrecedingActions() []Action
 	IsFailureAllowed() bool
 }
@@ -83,6 +84,10 @@ func (a *AbstractAction) AddOutput(name string, dataPipe *DataPipe) error {
 
 func (a *AbstractAction) GetUniqueID() string {
 	return a.UUID
+}
+
+func (a *AbstractAction) GetName() string {
+	return a.Name
 }
 
 func (a *AbstractAction) GetPrecedingActions() []Action {

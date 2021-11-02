@@ -1,6 +1,8 @@
 package spsw
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 )
 
@@ -24,6 +26,21 @@ func NewDataPipeBetweenActions(fromAction Action, toAction Action) *DataPipe {
 		ToAction:   toAction,
 		UUID:       uuid.New().String(),
 	}
+}
+
+func (dp *DataPipe) String() string {
+	fromActionName := "<null>"
+	if dp.FromAction != nil {
+		fromActionName = dp.FromAction.GetName()
+	}
+
+	toActionName := "<null>"
+	if dp.ToAction != nil {
+		toActionName = dp.ToAction.GetName()
+	}
+
+	return fmt.Sprintf("<DataPipe %v FromAction.Name: %s, ToAction.Name: %s>", dp.UUID,
+		fromActionName, toActionName)
 }
 
 func (dp *DataPipe) Add(x interface{}) error {

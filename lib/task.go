@@ -9,8 +9,8 @@ import (
 )
 
 type Task struct {
-	Name         string
 	UUID         string
+	Name         string
 	CreatedAt    time.Time
 	WorkflowName string
 	JobUUID      string
@@ -34,6 +34,11 @@ func NewTask(name string, workflowName string, jobUUID string) *Task {
 		Actions:   []Action{},
 		DataPipes: []*DataPipe{},
 	}
+}
+
+func (t *Task) String() string {
+	return fmt.Sprintf("<Task %s Name: %s, CreatedAt: %s, WorkflowName: %s, JobUUID: %s, Inputs: %v, Outputs: %v, Actions: %v, DataPipes: %v>",
+		t.UUID, t.Name, t.CreatedAt, t.WorkflowName, t.JobUUID, t.Inputs, t.Outputs, t.Actions, t.DataPipes)
 }
 
 func (t *Task) addDataPipeFromTemplate(dataPipeTemplate *DataPipeTemplate, nameToAction map[string]Action) {
