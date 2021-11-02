@@ -1,6 +1,9 @@
 package spsw
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
 const ValueTypeInt = "ValueTypeInt"
 const ValueTypeBool = "ValueTypeBool"
@@ -77,6 +80,10 @@ func NewValueFromHTTPHeaders(h http.Header) *Value {
 		ValueType:        ValueTypeHTTPHeaders,
 		HTTPHeadersValue: h,
 	}
+}
+
+func (value *Value) String() string {
+	return fmt.Sprintf("<Value %v>", value.GetUnderlyingValue())
 }
 
 func (value *Value) GetUnderlyingValue() interface{} {

@@ -3,6 +3,7 @@ package spsw
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"time"
 
@@ -45,6 +46,11 @@ func NewItemFromJSON(raw []byte) *Item {
 	}
 
 	return item
+}
+
+func (i *Item) String() string {
+	return fmt.Sprintf("<Item %s WorkflowName: %s, JobUUID: %s, TaskUUID: %s, CreatedAt: %v, Name: %s, Fields: %v>",
+		i.UUID, i.WorkflowName, i.JobUUID, i.TaskUUID, i.CreatedAt, i.Name, i.Fields)
 }
 
 func (i *Item) IsSplayable() bool {
