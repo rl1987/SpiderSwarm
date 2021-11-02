@@ -2,6 +2,7 @@ package spsw
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 
 	"github.com/google/uuid"
@@ -44,6 +45,10 @@ func NewURLJoinActionFromTemplate(actionTempl *ActionTemplate) *URLJoinAction {
 	action.Name = actionTempl.Name
 
 	return action
+}
+
+func (uja *URLJoinAction) String() string {
+	return fmt.Sprintf("<URLJoinAction %s Name: %s, BaseURL: %s>", uja.UUID, uja.Name, uja.BaseURL)
 }
 
 func (uja *URLJoinAction) Run() error {

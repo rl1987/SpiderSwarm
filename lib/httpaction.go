@@ -2,6 +2,7 @@ package spsw
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -69,6 +70,10 @@ func NewHTTPActionFromTemplate(actionTempl *ActionTemplate) *HTTPAction {
 	action.Name = actionTempl.Name
 
 	return action
+}
+
+func (ha *HTTPAction) String() string {
+	return fmt.Sprintf("<HTTPAction %s Name: %s CanFail: %v, BaseURL: %s, Method: %s>", ha.UUID, ha.Name, ha.CanFail, ha.BaseURL, ha.Method)
 }
 
 func (ha *HTTPAction) Run() error {

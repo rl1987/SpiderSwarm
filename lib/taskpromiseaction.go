@@ -2,6 +2,7 @@ package spsw
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -48,6 +49,11 @@ func NewTaskPromiseActionFromTemplate(actionTempl *ActionTemplate, workflowName 
 	action.Name = actionTempl.Name
 
 	return action
+}
+
+func (tpa *TaskPromiseAction) String() string {
+	return fmt.Sprintf("<TaskPromiseAction %s Name: %s, AllowedInputNames: %v, TaskName: %s, WorkflowName: %s, JobUUID: %s, RequireFields: %v>",
+		tpa.UUID, tpa.Name, tpa.AllowedInputNames, tpa.TaskName, tpa.WorkflowName, tpa.JobUUID, tpa.RequireFields)
 }
 
 func (tpa *TaskPromiseAction) Run() error {

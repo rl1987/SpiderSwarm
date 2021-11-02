@@ -3,6 +3,7 @@ package spsw
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"golang.org/x/net/html" // XXX
 	"io"
 	"strings"
@@ -72,6 +73,10 @@ func extractAttribute(result string, attribName string) string {
 	result = strings.Replace(result, "</"+attribName+">", "", -1)
 
 	return result
+}
+
+func (xa *XPathAction) String() string {
+	return fmt.Sprintf("<XPathAction %s Name: %s, XPath: %s>", xa.UUID, xa.Name, xa.XPath)
 }
 
 func (xa *XPathAction) Run() error {

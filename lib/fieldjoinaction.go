@@ -2,6 +2,7 @@ package spsw
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -48,6 +49,10 @@ func NewFieldJoinActionFromTemplate(actionTempl *ActionTemplate, workflowName st
 	action.Name = actionTempl.Name
 
 	return action
+}
+
+func (fja *FieldJoinAction) String() string {
+	return fmt.Sprintf("<FieldJoinAction %s WorkflowName: %s, ItemName: %s>", fja.UUID, fja.WorkflowName, fja.ItemName)
 }
 
 func (fja *FieldJoinAction) Run() error {

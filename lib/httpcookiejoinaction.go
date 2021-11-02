@@ -2,6 +2,7 @@ package spsw
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -39,6 +40,10 @@ func NewHTTPCookieJoinActionFromTemplate(actionTempl *ActionTemplate) *HTTPCooki
 	action.Name = actionTempl.Name
 
 	return action
+}
+
+func (hcja *HTTPCookieJoinAction) String() string {
+	return fmt.Sprintf("<HTTPCookieJoinAction %s Name: %s>", hcja.UUID, hcja.Name)
 }
 
 func (hcja *HTTPCookieJoinAction) Run() error {

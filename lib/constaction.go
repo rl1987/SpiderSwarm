@@ -2,6 +2,7 @@ package spsw
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -36,6 +37,10 @@ func NewConstActionFromTemplate(actionTempl *ActionTemplate) *ConstAction {
 	action.Name = actionTempl.Name
 
 	return action
+}
+
+func (ca *ConstAction) String() string {
+	return fmt.Sprintf("<ConstAction %s C: %v>", ca.UUID, ca.C)
 }
 
 func (ca *ConstAction) Run() error {

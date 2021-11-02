@@ -2,6 +2,7 @@ package spsw
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -37,6 +38,10 @@ func NewUTF8DecodeActionFromTemplate(actionTempl *ActionTemplate) *UTF8DecodeAct
 	action := NewUTF8DecodeAction()
 	action.Name = actionTempl.Name
 	return action
+}
+
+func (ua *UTF8DecodeAction) String() string {
+	return fmt.Sprintf("<UTF8DecodeAction %s Name: %s>", ua.UUID, ua.Name)
 }
 
 func (ua *UTF8DecodeAction) Run() error {
@@ -93,6 +98,10 @@ func NewUTF8EncodeActionFromTemplate(actionTempl *ActionTemplate) *UTF8EncodeAct
 	action := NewUTF8EncodeAction()
 	action.Name = actionTempl.Name
 	return action
+}
+
+func (ua *UTF8EncodeAction) String() string {
+	return fmt.Sprintf("<UTF8EncodeAction %s Name: %s>", ua.UUID, ua.Name)
 }
 
 func (ua *UTF8EncodeAction) Run() error {

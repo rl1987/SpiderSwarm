@@ -2,6 +2,7 @@ package spsw
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
@@ -44,6 +45,10 @@ func NewStringCutActionFromTemplate(actionTempl *ActionTemplate) *StringCutActio
 	action.Name = actionTempl.Name
 
 	return action
+}
+
+func (sca *StringCutAction) String() string {
+	return fmt.Sprintf("<StringCutAction %s Name: %s, From: %s, To: %s>", sca.UUID, sca.Name, sca.From, sca.To)
 }
 
 func (sca *StringCutAction) Run() error {
