@@ -449,6 +449,8 @@ func runTestWorkflow() {
 	backendAddr := "/tmp/spiderbus.db"
 	workflow := getWorkflow()
 
+	fmt.Println(workflow)
+
 	workers := runWorkers(4, backendAddr)
 
 	manager := runManager(workflow, backendAddr)
