@@ -3,7 +3,6 @@ package spsw
 import (
 	"fmt"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -62,7 +61,7 @@ func (m *Manager) Run() error {
 		scheduledTask := NewScheduledTask(newPromise, &taskTempl,
 			m.CurrentWorkflow.Name, m.CurrentWorkflow.Version, m.JobUUID)
 
-		spew.Dump(scheduledTask)
+		log.Info(fmt.Sprintf("Created scheduled task %v", scheduledTask))
 
 		m.ScheduledTasksOut <- scheduledTask
 	}
@@ -80,7 +79,7 @@ func (m *Manager) Run() error {
 				continue
 			}
 
-			spew.Dump(newScheduledTask)
+			log.Info(fmt.Sprintf("Created scheduled task %v", newScheduledTask))
 			m.ScheduledTasksOut <- newScheduledTask
 		}
 

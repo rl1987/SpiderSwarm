@@ -3,6 +3,7 @@ package spsw
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 
 	"github.com/google/uuid"
@@ -40,6 +41,11 @@ func NewScheduledTaskFromJSON(raw []byte) *ScheduledTask {
 	}
 
 	return scheduledTask
+}
+
+func (st *ScheduledTask) String() string {
+	return fmt.Sprintf("<ScheduledTask %s Promise: %v Template: %v, WorkflowName: %s, WorkflowVersion: %s, JobUUID: %s>",
+		st.UUID, &st.Promise, &st.Template, st.WorkflowName, st.WorkflowVersion, st.JobUUID)
 }
 
 func (st *ScheduledTask) EncodeToJSON() []byte {

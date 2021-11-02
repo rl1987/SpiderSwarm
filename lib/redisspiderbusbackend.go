@@ -59,8 +59,6 @@ func (rsbb *RedisSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTas
 		},
 	})
 
-	spew.Dump(resp)
-
 	err := resp.Err()
 
 	if err != nil {
