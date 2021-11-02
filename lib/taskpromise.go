@@ -3,6 +3,7 @@ package spsw
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"time"
 
@@ -42,6 +43,11 @@ func NewTaskPromiseFromJSON(raw []byte) *TaskPromise {
 	}
 
 	return taskPromise
+}
+
+func (tp *TaskPromise) String() string {
+	return fmt.Sprintf("<TaskPromise %s TaskName: %s, WorkflowName: %s, JobUUID: %s, InputDataChunksByInputName: %v, CreatedAt: %v",
+		tp.UUID, tp.TaskName, tp.WorkflowName, tp.JobUUID, tp.InputDataChunksByInputName, tp.CreatedAt)
 }
 
 func (tp *TaskPromise) IsSplayable() bool {

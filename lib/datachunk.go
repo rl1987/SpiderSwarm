@@ -2,6 +2,7 @@ package spsw
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -78,4 +79,16 @@ func NewDataChunk(payload interface{}) (*DataChunk, error) {
 	}
 
 	return nil, errors.New("Unsupported payload type")
+}
+
+func (dc *DataChunk) String() string {
+	if dc.Type == DataChunkTypeItem {
+		return fmt.Sprintf("<DataChunk %s PayloadItem: %v>", dc.UUID, dc.PayloadItem)
+	} else if dc.Type == DataChunkTypePromise {
+		return fmt.Sprintf("<DataChunk %s PayloadPromise: %v>", dc.UUID, dc.PayloadPromise)
+	} else if dc.Type == DataChunkTypeValue {
+		return fmt.Sprintf("<DataChunk %s PayloadValue: %v>", dc.UUID, dc.PayloadValue)
+	}
+
+	return fmt.Sprintf("<DataChunk %s>", dc.UUID)
 }
