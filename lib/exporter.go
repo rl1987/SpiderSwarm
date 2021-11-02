@@ -22,6 +22,10 @@ func NewExporter() *Exporter {
 	}
 }
 
+func (e *Exporter) String() string {
+	return fmt.Sprintf("<Exporter %s Backends: %v>", e.UUID, e.Backends)
+}
+
 func (e *Exporter) Run() error {
 	log.Info(fmt.Sprintf("Starting run loop for exporter %s", e.UUID))
 

@@ -25,6 +25,10 @@ func NewWorker() *Worker {
 	}
 }
 
+func (w *Worker) String() string {
+	return fmt.Sprintf("<Worker %s>", w.UUID)
+}
+
 func (w *Worker) executeTask(task *Task) error {
 	err := task.Run()
 	if err != nil {

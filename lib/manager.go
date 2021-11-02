@@ -24,6 +24,10 @@ func NewManager() *Manager {
 	}
 }
 
+func (m *Manager) String() string {
+	return fmt.Sprintf("<Manager %s>", m.UUID)
+}
+
 func (m *Manager) StartScrapingJob(w *Workflow) {
 	m.JobUUID = uuid.New().String()
 	m.CurrentWorkflow = w

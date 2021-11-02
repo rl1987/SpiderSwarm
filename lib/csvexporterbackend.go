@@ -37,6 +37,10 @@ func NewCSVExporterBackend(outputDirPath string) *CSVExporterBackend {
 	}
 }
 
+func (ceb *CSVExporterBackend) String() string {
+	return fmt.Sprintf("<CSVExporterBackend OutputDirPath: %s>", ceb.OutputDirPath)
+}
+
 func (ceb *CSVExporterBackend) StartExporting(jobUUID string, fieldNames []string) (*csv.Writer, error) {
 	// XXX: maybe include date/time into filename as well?
 	csvFilePath := ceb.OutputDirPath + "/" + jobUUID + ".csv"
