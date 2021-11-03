@@ -2,6 +2,7 @@ package spsw
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -43,6 +44,20 @@ func NewTaskPromiseFromJSON(raw []byte) *TaskPromise {
 	}
 
 	return taskPromise
+}
+
+func (tp *TaskPromise) Hash() []byte {
+	h := sha256.New()
+
+	h.Write([]byte(tp.TaskName))
+	h.Write([]byte(tp.WorkflowName))
+
+	for key, dc := range tp.InputDataChunksByInputName {
+		h.Write([]byte(key))
+		h.Write(dc.Hash())
+	}
+
+	return h.Sum(nil)
 }
 
 func (tp *TaskPromise) String() string {

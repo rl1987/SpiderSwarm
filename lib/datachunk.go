@@ -1,6 +1,7 @@
 package spsw
 
 import (
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"net/http"
@@ -79,6 +80,22 @@ func NewDataChunk(payload interface{}) (*DataChunk, error) {
 	}
 
 	return nil, errors.New("Unsupported payload type")
+}
+
+func (dc *DataChunk) Hash() []byte {
+	h := sha256.New()
+
+	h.Write([]byte(dc.Type))
+
+	if dc.Type == DataChunkTypeItem {
+		h.Write(dc.PayloadItem.Hash())
+	} else if dc.Type == DataChunkTypePromise {
+		h.Write(dc.PayloadPromise.Hash())
+	} else if dc.Type == DataChunkTypeValue {
+		h.Write(dc.PayloadValue.Hash())
+	}
+
+	return h.Sum(nil)
 }
 
 func (dc *DataChunk) String() string {

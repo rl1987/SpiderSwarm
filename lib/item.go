@@ -2,6 +2,7 @@ package spsw
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -46,6 +47,21 @@ func NewItemFromJSON(raw []byte) *Item {
 	}
 
 	return item
+}
+
+func (i *Item) Hash() []byte {
+	h := sha256.New()
+
+	h.Write([]byte(i.WorkflowName))
+	h.Write([]byte(i.JobUUID))
+	h.Write([]byte(i.Name))
+
+	for key, value := range i.Fields {
+		h.Write([]byte(key))
+		h.Write(value.Hash())
+	}
+
+	return h.Sum(nil)
 }
 
 func (i *Item) String() string {

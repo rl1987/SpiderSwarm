@@ -1,6 +1,7 @@
 package spsw
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"net/http"
 )
@@ -80,6 +81,15 @@ func NewValueFromHTTPHeaders(h http.Header) *Value {
 		ValueType:        ValueTypeHTTPHeaders,
 		HTTPHeadersValue: h,
 	}
+}
+
+func (value *Value) Hash() []byte {
+	h := sha256.New()
+
+	h.Write([]byte(value.ValueType))
+	h.Write([]byte(fmt.Sprintf("%v", value.GetUnderlyingValue())))
+
+	return h.Sum(nil)
 }
 
 func (value *Value) String() string {
