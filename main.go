@@ -25,10 +25,7 @@ func printUsage() {
 }
 
 func setupSpiderBus(backendAddr string) *spsw.SpiderBus {
-	// TODO: make RedisSpiderBusBackend functional. Remove backends that are based on relational
-	// databases.
 	spiderBusBackend := spsw.NewRedisSpiderBusBackend(backendAddr, "")
-	//spiderBusBackend := spsw.NewSQLiteSpiderBusBackend(backendAddr)
 	spiderBus := spsw.NewSpiderBus()
 	spiderBus.Backend = spiderBusBackend
 
@@ -220,6 +217,10 @@ func getWorkflow() *spsw.Workflow {
 							"taskName": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
 								StringValue: "ScrapeBookPage",
+							},
+							"requireFields": spsw.Value{
+								ValueType:    spsw.ValueTypeStrings,
+								StringsValue: []string{"url"},
 							},
 						},
 					},
