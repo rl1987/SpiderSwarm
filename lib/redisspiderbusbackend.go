@@ -3,11 +3,13 @@ package spsw
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 )
 
 type RedisSpiderBusBackend struct {
@@ -42,13 +44,28 @@ func NewRedisSpiderBusBackend(serverAddr string, password string) *RedisSpiderBu
 	}
 }
 
-func IsScheduledTaskDuplicated(scheduledTask *ScheduledTask, jobUUID string) bool {
-	// TODO: hash the scheduledTask (skipping UUIDs) and check if hash is present in the Redis Set
-	// (use SISMEMBER command).
-	return false
+func (rsbb *RedisSpiderBusBackend) isHashInRedisSet(key string, hashStr string) bool {
+	resp := rsbb.redisClient.SIsMember(rsbb.ctx, key, hashStr)
+	res, err := resp.Result()
+	if err != nil {
+		spew.Dump(err)
+		return false
+	}
+
+	return res
 }
 
 func (rsbb *RedisSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTask) error {
+	hashBytes := scheduledTask.Hash()
+	hashStr := fmt.Sprintf("%v", hashBytes)
+
+	key := "scheduledtasks-" + scheduledTask.JobUUID
+
+	if rsbb.isHashInRedisSet(key, hashStr) {
+		log.Info(fmt.Sprintf("Dropping duplicate: %v", scheduledTask))
+		return nil
+	}
+
 	raw := scheduledTask.EncodeToJSON()
 
 	resp := rsbb.redisClient.XAdd(rsbb.ctx, &redis.XAddArgs{
@@ -66,7 +83,12 @@ func (rsbb *RedisSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTas
 		return err
 	}
 
-	// TODO: compute hash for scheduledTask and put it into Redis Set (use SADD command).
+	resp2 := rsbb.redisClient.SAdd(rsbb.ctx, key, hashStr)
+	err = resp2.Err()
+	if err != nil {
+		spew.Dump(err)
+		return err
+	}
 
 	return nil
 }
@@ -108,11 +130,17 @@ func (rsbb *RedisSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
 	return scheduledTask
 }
 
-func IsTaskPromiseDuplicated(taskPromise *TaskPromise, jobUUID string) bool {
-	return false
-}
-
 func (rsbb *RedisSpiderBusBackend) SendTaskPromise(taskPromise *TaskPromise) error {
+	hashBytes := taskPromise.Hash()
+	hashStr := fmt.Sprintf("%v", hashBytes)
+
+	key := "taskpromises-" + taskPromise.JobUUID
+
+	if rsbb.isHashInRedisSet(key, hashStr) {
+		log.Info(fmt.Sprintf("Dropping duplicate: %v", taskPromise))
+		return nil
+	}
+
 	raw := taskPromise.EncodeToJSON()
 
 	err := rsbb.redisClient.XAdd(rsbb.ctx, &redis.XAddArgs{
@@ -125,6 +153,13 @@ func (rsbb *RedisSpiderBusBackend) SendTaskPromise(taskPromise *TaskPromise) err
 
 	if err != nil {
 		spew.Dump("SendTaskPromise", err)
+		return err
+	}
+
+	resp2 := rsbb.redisClient.SAdd(rsbb.ctx, key, hashStr)
+	err = resp2.Err()
+	if err != nil {
+		spew.Dump(err)
 		return err
 	}
 
@@ -142,11 +177,17 @@ func (rsbb *RedisSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
 	return taskPromise
 }
 
-func IsItemDuplicated(item *Item, jobUUID string) bool {
-	return false
-}
-
 func (rsbb *RedisSpiderBusBackend) SendItem(item *Item) error {
+	hashBytes := item.Hash()
+	hashStr := fmt.Sprintf("%v", hashBytes)
+
+	key := "items-" + item.JobUUID
+
+	if rsbb.isHashInRedisSet(key, hashStr) {
+		log.Warn(fmt.Sprintf("Dropping duplicate: %v", item))
+		return nil
+	}
+
 	raw := item.EncodeToJSON()
 
 	err := rsbb.redisClient.XAdd(rsbb.ctx, &redis.XAddArgs{
@@ -157,6 +198,13 @@ func (rsbb *RedisSpiderBusBackend) SendItem(item *Item) error {
 		},
 	}).Err()
 
+	if err != nil {
+		spew.Dump(err)
+		return err
+	}
+
+	resp2 := rsbb.redisClient.SAdd(rsbb.ctx, key, hashStr)
+	err = resp2.Err()
 	if err != nil {
 		spew.Dump(err)
 		return err
