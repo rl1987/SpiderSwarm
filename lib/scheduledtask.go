@@ -2,6 +2,7 @@ package spsw
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -41,6 +42,19 @@ func NewScheduledTaskFromJSON(raw []byte) *ScheduledTask {
 	}
 
 	return scheduledTask
+}
+
+func (st *ScheduledTask) Hash() []byte {
+	h := sha256.New()
+
+	h.Write(st.Promise.Hash())
+	h.Write([]byte(st.WorkflowName))
+	h.Write([]byte(st.WorkflowVersion))
+	h.Write([]byte(st.JobUUID))
+
+	// We skip .Template because .Promise already references it by name.
+
+	return h.Sum(nil)
 }
 
 func (st *ScheduledTask) String() string {
