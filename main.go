@@ -123,7 +123,7 @@ func getWorkflow() *spsw.Workflow {
 						ConstructorParams: map[string]spsw.Value{
 							"jqArgs": spsw.Value{
 								ValueType:    spsw.ValueTypeStrings,
-								StringsValue: []string{"'.ip_addr'"},
+								StringsValue: []string{".ip_addr"},
 							},
 							"expectMany": spsw.Value{
 								ValueType: spsw.ValueTypeBool,

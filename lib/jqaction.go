@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"os/exec"
 
 	"github.com/davecgh/go-spew/spew"
@@ -88,7 +87,6 @@ func (jqa *JQAction) Run() error {
 	}
 
 	var inBuf bytes.Buffer
-	var outBuf bytes.Buffer
 
 	if jqa.Inputs[JQActionInputJQStdinBytes] != nil {
 		inBytes, ok := jqa.Inputs[JQActionInputJQStdinBytes].Remove().([]byte)
@@ -106,19 +104,13 @@ func (jqa *JQAction) Run() error {
 		inBuf.WriteString(inStr)
 	}
 
-	cmd := exec.Cmd{
-		Path:   "/usr/bin/jq",
-		Args:   jqa.JQArgs,
-		Stdin:  &inBuf,
-		Stdout: &outBuf,
-	}
+	cmd := exec.Command("jq", jqa.JQArgs...)
+	cmd.Stdin = &inBuf
 
-	err := cmd.Run()
+	outBytes, err := cmd.Output()
 	if err != nil {
 		return err
 	}
-
-	outBytes, _ := ioutil.ReadAll(&outBuf)
 
 	if jqa.DecodeOutput {
 		if jqa.ExpectMany {
