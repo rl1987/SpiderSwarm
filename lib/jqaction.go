@@ -2,6 +2,7 @@ package spsw
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"os/exec"
@@ -60,6 +61,22 @@ func NewJQActionFromTemplate(actionTempl *ActionTemplate) *JQAction {
 	return action
 }
 
+func (jqa *JQAction) outputBytes(outBytes []byte) {
+	if jqa.Outputs[JQActionOutputJQStdoutStr] != nil {
+		for _, output := range jqa.Outputs[JQActionOutputJQStdoutStr] {
+			output.Add(outBytes)
+		}
+	}
+
+	if jqa.Outputs[JQActionOutputJQStdoutBytes] != nil {
+		outStr := string(outBytes)
+
+		for _, output := range jqa.Outputs[JQActionOutputJQStdoutBytes] {
+			output.Add(outStr)
+		}
+	}
+}
+
 func (jqa *JQAction) Run() error {
 	if jqa.Inputs[JQActionInputJQStdinStr] == nil && jqa.Inputs[JQActionInputJQStdinBytes] == nil {
 		return errors.New("No inputs connected")
@@ -102,18 +119,30 @@ func (jqa *JQAction) Run() error {
 
 	outBytes, _ := ioutil.ReadAll(&outBuf)
 
-	if jqa.Outputs[JQActionOutputJQStdoutStr] != nil {
-		for _, output := range jqa.Outputs[JQActionOutputJQStdoutStr] {
-			output.Add(outBytes)
-		}
-	}
+	if jqa.DecodeOutput {
+		if jqa.ExpectMany {
+			var strings []string
 
-	if jqa.Outputs[JQActionOutputJQStdoutBytes] != nil {
-		outStr := string(outBytes)
+			err := json.Unmarshal(outBytes, &strings)
+			if err != nil {
+				return err
+			}
 
-		for _, output := range jqa.Outputs[JQActionOutputJQStdoutBytes] {
-			output.Add(outStr)
+			for _, s := range strings {
+				jqa.outputBytes([]byte(s))
+			}
+		} else {
+			var s string
+
+			err := json.Unmarshal(outBytes, &s)
+			if err != nil {
+				return err
+			}
+
+			jqa.outputBytes([]byte(s))
 		}
+	} else {
+		jqa.outputBytes(outBytes)
 	}
 
 	return nil
