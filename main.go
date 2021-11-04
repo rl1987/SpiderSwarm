@@ -100,268 +100,42 @@ func getWorkflow() *spsw.Workflow {
 		Version: "v0.0.0.0.1",
 		TaskTemplates: []spsw.TaskTemplate{
 			spsw.TaskTemplate{
-				TaskName: "Launch",
+				TaskName: "TestTask",
 				Initial:  true,
 				ActionTemplates: []spsw.ActionTemplate{
 					spsw.ActionTemplate{
-						Name:       "ConstURL",
-						StructName: "ConstAction",
-						ConstructorParams: map[string]spsw.Value{
-							"c": spsw.Value{
-								ValueType:   spsw.ValueTypeString,
-								StringValue: "http://104.248.27.41:8000/catalogue/category/books_1/index.html",
-							},
-						},
-					},
-					spsw.ActionTemplate{
-						Name:       "Promise1",
-						StructName: "TaskPromiseAction",
-						ConstructorParams: map[string]spsw.Value{
-							"inputNames": spsw.Value{
-								ValueType:    spsw.ValueTypeStrings,
-								StringsValue: []string{"url"},
-							},
-							"taskName": spsw.Value{
-								ValueType:   spsw.ValueTypeString,
-								StringValue: "ScrapeListPage",
-							},
-							"requireFields": spsw.Value{
-								ValueType:    spsw.ValueTypeStrings,
-								StringsValue: []string{"url"},
-							},
-						},
-					},
-				},
-				DataPipeTemplates: []spsw.DataPipeTemplate{
-					spsw.DataPipeTemplate{
-						SourceActionName: "ConstURL",
-						SourceOutputName: spsw.ConstActionOutput,
-						DestActionName:   "Promise1",
-						DestInputName:    "url",
-					},
-					spsw.DataPipeTemplate{
-						SourceActionName: "Promise1",
-						SourceOutputName: spsw.TaskPromiseActionOutputPromise,
-						TaskOutputName:   "promise1",
-					},
-				},
-			},
-			spsw.TaskTemplate{
-				TaskName: "ScrapeListPage",
-				Initial:  false,
-				ActionTemplates: []spsw.ActionTemplate{
-					spsw.ActionTemplate{
-						Name:       "GetListPage",
+						Name:       "GetJSON",
 						StructName: "HTTPAction",
 						ConstructorParams: map[string]spsw.Value{
 							"baseURL": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
-								StringValue: "http://104.248.27.41:8000/catalogue/category/books_/",
+								StringValue: "https://ifconfig.me/all.json",
 							},
 							"method": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
 								StringValue: "GET",
 							},
+						},
+					},
+					spsw.ActionTemplate{
+						Name:       "ExtractIP",
+						StructName: "JQAction",
+						ConstructorParams: map[string]spsw.Value{
+							"jqArgs": spsw.Value{
+								ValueType:    spsw.ValueTypeStrings,
+								StringsValue: []string{"'.ip_addr'"},
+							},
+							"expectMany": spsw.Value{
+								ValueType: spsw.ValueTypeBool,
+								BoolValue: false,
+							},
 							"canFail": spsw.Value{
 								ValueType: spsw.ValueTypeBool,
 								BoolValue: false,
 							},
-						},
-					},
-					spsw.ActionTemplate{
-						Name:       "ExtractNextPageURL",
-						StructName: "XPathAction",
-						ConstructorParams: map[string]spsw.Value{
-							"xpath": spsw.Value{
-								ValueType:   spsw.ValueTypeString,
-								StringValue: "//li[@class=\"next\"]/a/@href",
-							},
-							"expectMany": spsw.Value{
-								ValueType: spsw.ValueTypeBool,
-								BoolValue: false,
-							},
-						},
-					},
-					spsw.ActionTemplate{
-						Name:       "MakeNextPageURLAbsolute",
-						StructName: "URLJoinAction",
-						ConstructorParams: map[string]spsw.Value{
-							"baseURL": spsw.Value{
-								ValueType:   spsw.ValueTypeString,
-								StringValue: "http://104.248.27.41:8000/catalogue/category/books_1/",
-							},
-						},
-					},
-					spsw.ActionTemplate{
-						Name:       "ExtractBookLinks",
-						StructName: "XPathAction",
-						ConstructorParams: map[string]spsw.Value{
-							"xpath": spsw.Value{
-								ValueType:   spsw.ValueTypeString,
-								StringValue: "//div[@class=\"image_container\"]/a/@href",
-							},
-							"expectMany": spsw.Value{
+							"decodeOutput": spsw.Value{
 								ValueType: spsw.ValueTypeBool,
 								BoolValue: true,
-							},
-						},
-					},
-					spsw.ActionTemplate{
-						Name:       "PromiseToScrapeBookPage",
-						StructName: "TaskPromiseAction",
-						ConstructorParams: map[string]spsw.Value{
-							"inputNames": spsw.Value{
-								ValueType:    spsw.ValueTypeStrings,
-								StringsValue: []string{"url"},
-							},
-							"taskName": spsw.Value{
-								ValueType:   spsw.ValueTypeString,
-								StringValue: "ScrapeBookPage",
-							},
-							"requireFields": spsw.Value{
-								ValueType:    spsw.ValueTypeStrings,
-								StringsValue: []string{"url"},
-							},
-						},
-					},
-					spsw.ActionTemplate{
-						Name:       "PromiseToScrapeBookList",
-						StructName: "TaskPromiseAction",
-						ConstructorParams: map[string]spsw.Value{
-							"inputNames": spsw.Value{
-								ValueType:    spsw.ValueTypeStrings,
-								StringsValue: []string{"url"},
-							},
-							"taskName": spsw.Value{
-								ValueType:   spsw.ValueTypeString,
-								StringValue: "ScrapeListPage",
-							},
-							"requireFields": spsw.Value{
-								ValueType:    spsw.ValueTypeStrings,
-								StringsValue: []string{"url"},
-							},
-						},
-					},
-				},
-				DataPipeTemplates: []spsw.DataPipeTemplate{
-					spsw.DataPipeTemplate{
-						TaskInputName:  "url",
-						DestActionName: "GetListPage",
-						DestInputName:  spsw.HTTPActionInputBaseURL,
-					},
-					spsw.DataPipeTemplate{
-						SourceActionName: "GetListPage",
-						SourceOutputName: spsw.HTTPActionOutputBody,
-						DestActionName:   "ExtractNextPageURL",
-						DestInputName:    spsw.XPathActionInputHTMLBytes,
-					},
-					spsw.DataPipeTemplate{
-						SourceActionName: "GetListPage",
-						SourceOutputName: spsw.HTTPActionOutputBody,
-						DestActionName:   "ExtractBookLinks",
-						DestInputName:    spsw.XPathActionInputHTMLBytes,
-					},
-					spsw.DataPipeTemplate{
-						SourceActionName: "ExtractNextPageURL",
-						SourceOutputName: spsw.XPathActionOutputStr,
-						DestActionName:   "MakeNextPageURLAbsolute",
-						DestInputName:    spsw.URLJoinActionInputRelativeURL,
-					},
-					spsw.DataPipeTemplate{
-						SourceActionName: "ExtractBookLinks",
-						SourceOutputName: spsw.XPathActionOutputStr,
-						DestActionName:   "PromiseToScrapeBookPage",
-						DestInputName:    "url",
-					},
-					spsw.DataPipeTemplate{
-						SourceActionName: "MakeNextPageURLAbsolute",
-						SourceOutputName: spsw.URLJoinActionOutputAbsoluteURL,
-						DestActionName:   "PromiseToScrapeBookList",
-						DestInputName:    "url",
-					},
-					spsw.DataPipeTemplate{
-						SourceActionName: "PromiseToScrapeBookPage",
-						SourceOutputName: spsw.TaskPromiseActionOutputPromise,
-						TaskOutputName:   "bookPagePromises",
-					},
-					spsw.DataPipeTemplate{
-						SourceActionName: "PromiseToScrapeBookList",
-						SourceOutputName: spsw.TaskPromiseActionOutputPromise,
-						TaskOutputName:   "bookListPromises",
-					},
-				},
-			},
-			spsw.TaskTemplate{
-				TaskName: "ScrapeBookPage",
-				Initial:  false,
-				ActionTemplates: []spsw.ActionTemplate{
-					spsw.ActionTemplate{
-						Name:       "MakeBookURLAbsolute",
-						StructName: "URLJoinAction",
-						ConstructorParams: map[string]spsw.Value{
-							"baseURL": spsw.Value{
-								ValueType:   spsw.ValueTypeString,
-								StringValue: "http://104.248.27.41:8000/catalogue/category/books_1/",
-							},
-						},
-					},
-					spsw.ActionTemplate{
-						Name:       "GetBookPageHTML",
-						StructName: "HTTPAction",
-						ConstructorParams: map[string]spsw.Value{
-							"baseURL": spsw.Value{
-								ValueType:   spsw.ValueTypeString,
-								StringValue: "",
-							},
-							"method": spsw.Value{
-								ValueType:   spsw.ValueTypeString,
-								StringValue: "GET",
-							},
-							"canFail": spsw.Value{
-								ValueType: spsw.ValueTypeBool,
-								BoolValue: false,
-							},
-						},
-					},
-					spsw.ActionTemplate{
-						Name:       "ExtractBookTitle",
-						StructName: "XPathAction",
-						ConstructorParams: map[string]spsw.Value{
-							"xpath": spsw.Value{
-								ValueType:   spsw.ValueTypeString,
-								StringValue: "//h1/text()",
-							},
-							"expectMany": spsw.Value{
-								ValueType: spsw.ValueTypeBool,
-								BoolValue: false,
-							},
-						},
-					},
-					spsw.ActionTemplate{
-						Name:       "ExtractDescription",
-						StructName: "XPathAction",
-						ConstructorParams: map[string]spsw.Value{
-							"xpath": spsw.Value{
-								ValueType:   spsw.ValueTypeString,
-								StringValue: "//article[@class=\"product_page\"]/p/text()",
-							},
-							"expectMany": spsw.Value{
-								ValueType: spsw.ValueTypeBool,
-								BoolValue: false,
-							},
-						},
-					},
-					spsw.ActionTemplate{
-						Name:       "ExtractUPC",
-						StructName: "XPathAction",
-						ConstructorParams: map[string]spsw.Value{
-							"xpath": spsw.Value{
-								ValueType:   spsw.ValueTypeString,
-								StringValue: "//tr[./th[text()=\"UPC\"]]/td/text()",
-							},
-							"expectMany": spsw.Value{
-								ValueType: spsw.ValueTypeBool,
-								BoolValue: false,
 							},
 						},
 					},
@@ -371,83 +145,41 @@ func getWorkflow() *spsw.Workflow {
 						ConstructorParams: map[string]spsw.Value{
 							"inputNames": spsw.Value{
 								ValueType:    spsw.ValueTypeStrings,
-								StringsValue: []string{"title", "description", "upc", "url"},
+								StringsValue: []string{"ip_addr"},
 							},
 							"itemName": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
-								StringValue: "book",
+								StringValue: "ip_addr",
 							},
 						},
 					},
 				},
 				DataPipeTemplates: []spsw.DataPipeTemplate{
 					spsw.DataPipeTemplate{
-						TaskInputName:  "url",
-						DestActionName: "MakeBookURLAbsolute",
-						DestInputName:  spsw.URLJoinActionInputRelativeURL,
-					},
-					spsw.DataPipeTemplate{
-						SourceActionName: "MakeBookURLAbsolute",
-						SourceOutputName: spsw.URLJoinActionOutputAbsoluteURL,
-						DestActionName:   "GetBookPageHTML",
-						DestInputName:    spsw.HTTPActionInputBaseURL,
-					},
-					spsw.DataPipeTemplate{
-						SourceActionName: "GetBookPageHTML",
+						SourceActionName: "GetJSON",
 						SourceOutputName: spsw.HTTPActionOutputBody,
-						DestActionName:   "ExtractBookTitle",
-						DestInputName:    spsw.XPathActionInputHTMLBytes,
+						DestActionName:   "ExtractIP",
+						DestInputName:    spsw.JQActionInputJQStdinBytes,
 					},
 					spsw.DataPipeTemplate{
-						SourceActionName: "GetBookPageHTML",
-						SourceOutputName: spsw.HTTPActionOutputBody,
-						DestActionName:   "ExtractDescription",
-						DestInputName:    spsw.XPathActionInputHTMLBytes,
-					},
-					spsw.DataPipeTemplate{
-						SourceActionName: "GetBookPageHTML",
-						SourceOutputName: spsw.HTTPActionOutputBody,
-						DestActionName:   "ExtractUPC",
-						DestInputName:    spsw.XPathActionInputHTMLBytes,
-					},
-					spsw.DataPipeTemplate{
-						SourceActionName: "MakeBookURLAbsolute",
-						SourceOutputName: spsw.URLJoinActionOutputAbsoluteURL,
+						SourceActionName: "ExtractIP",
+						SourceOutputName: spsw.JQActionOutputJQStdoutStr,
 						DestActionName:   "MakeItem",
-						DestInputName:    "url",
-					},
-					spsw.DataPipeTemplate{
-						SourceActionName: "ExtractBookTitle",
-						SourceOutputName: spsw.XPathActionOutputStr,
-						DestActionName:   "MakeItem",
-						DestInputName:    "title",
-					},
-					spsw.DataPipeTemplate{
-						SourceActionName: "ExtractDescription",
-						SourceOutputName: spsw.XPathActionOutputStr,
-						DestActionName:   "MakeItem",
-						DestInputName:    "description",
-					},
-					spsw.DataPipeTemplate{
-						SourceActionName: "ExtractUPC",
-						SourceOutputName: spsw.XPathActionOutputStr,
-						DestActionName:   "MakeItem",
-						DestInputName:    "upc",
+						DestInputName:    "ip_addr",
 					},
 					spsw.DataPipeTemplate{
 						SourceActionName: "MakeItem",
 						SourceOutputName: spsw.FieldJoinActionOutputItem,
-						TaskOutputName:   "item",
+						TaskOutputName:   "ip_addr_item",
 					},
 				},
 			},
 		},
 	}
-
 }
 
 func runTestWorkflow() {
-	backendAddr := "/tmp/spiderbus.db"
+	backendAddr := "127.0.0.1:6379"
 	workflow := getWorkflow()
 
 	fmt.Println(workflow)

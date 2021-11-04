@@ -49,6 +49,8 @@ func NewActionFromTemplate(actionTempl *ActionTemplate, workflowName string, job
 		return NewStringCutActionFromTemplate(actionTempl)
 	} else if actionTempl.StructName == "HTTPCookieJoinAction" {
 		return NewHTTPCookieJoinActionFromTemplate(actionTempl)
+	} else if actionTempl.StructName == "JQAction" {
+		return NewJQActionFromTemplate(actionTempl)
 	}
 
 	return nil

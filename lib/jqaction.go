@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os/exec"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 )
 
@@ -106,7 +107,7 @@ func (jqa *JQAction) Run() error {
 	}
 
 	cmd := exec.Cmd{
-		Path:   "jq",
+		Path:   "/usr/bin/jq",
 		Args:   jqa.JQArgs,
 		Stdin:  &inBuf,
 		Stdout: &outBuf,
@@ -125,6 +126,7 @@ func (jqa *JQAction) Run() error {
 
 			err := json.Unmarshal(outBytes, &strings)
 			if err != nil {
+				spew.Dump(outBytes)
 				return err
 			}
 
@@ -136,6 +138,7 @@ func (jqa *JQAction) Run() error {
 
 			err := json.Unmarshal(outBytes, &s)
 			if err != nil {
+				spew.Dump(outBytes)
 				return err
 			}
 
