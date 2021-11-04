@@ -62,7 +62,7 @@ func (rsbb *RedisSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTas
 	key := "scheduledtasks-" + scheduledTask.JobUUID
 
 	if rsbb.isHashInRedisSet(key, hashStr) {
-		log.Info(fmt.Sprintf("Dropping duplicate: %v", scheduledTask))
+		log.Warning(fmt.Sprintf("Dropping duplicate: %v", scheduledTask))
 		return nil
 	}
 
@@ -137,7 +137,7 @@ func (rsbb *RedisSpiderBusBackend) SendTaskPromise(taskPromise *TaskPromise) err
 	key := "taskpromises-" + taskPromise.JobUUID
 
 	if rsbb.isHashInRedisSet(key, hashStr) {
-		log.Info(fmt.Sprintf("Dropping duplicate: %v", taskPromise))
+		log.Warning(fmt.Sprintf("Dropping duplicate: %v", taskPromise))
 		return nil
 	}
 
