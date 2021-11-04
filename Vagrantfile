@@ -62,6 +62,7 @@ Vagrant.configure("2") do |config|
 
   # https://stackoverflow.com/questions/47415732/best-way-to-install-docker-on-vagrant
   config.vm.provision :docker
+  config.vm.provision :docker_compose
 
   # Enable provisioning with a shell script. Additional provisioners such as
   # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
