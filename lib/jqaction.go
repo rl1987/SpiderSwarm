@@ -1,9 +1,10 @@
 package spsw
 
 import (
-	//"encoding/json"
-	//"io"
-	//"os/exec"
+	"bytes"
+	"errors"
+	"io/ioutil"
+	"os/exec"
 
 	"github.com/google/uuid"
 )
@@ -59,15 +60,61 @@ func NewJQActionFromTemplate(actionTempl *ActionTemplate) *JQAction {
 	return action
 }
 
-func (jq *JQAction) Run() error {
-	//var stdinReader io.Reader
-	//var stoutWriter io.Writer
+func (jqa *JQAction) Run() error {
+	if jqa.Inputs[JQActionInputJQStdinStr] == nil && jqa.Inputs[JQActionInputJQStdinBytes] == nil {
+		return errors.New("No inputs connected")
+	}
 
-	//_ := exec.Cmd{
-	//	Path: "jq",
-	//}
+	if jqa.Outputs[JQActionOutputJQStdoutStr] == nil && jqa.Outputs[JQActionOutputJQStdoutBytes] == nil {
+		return errors.New("No outputs connected")
+	}
 
-	// TODO: implement this
+	var inBuf bytes.Buffer
+	var outBuf bytes.Buffer
+
+	if jqa.Inputs[JQActionInputJQStdinBytes] != nil {
+		inBytes, ok := jqa.Inputs[JQActionInputJQStdinBytes].Remove().([]byte)
+		if !ok {
+			return errors.New("Failed to read bytes from input")
+		}
+
+		inBuf.Write(inBytes)
+	} else if jqa.Inputs[JQActionInputJQStdinStr] != nil {
+		inStr, ok := jqa.Inputs[JQActionInputJQStdinStr].Remove().(string)
+		if !ok {
+			return errors.New("Failed to read JSON string from input")
+		}
+
+		inBuf.WriteString(inStr)
+	}
+
+	cmd := exec.Cmd{
+		Path:   "jq",
+		Args:   jqa.JQArgs,
+		Stdin:  &inBuf,
+		Stdout: &outBuf,
+	}
+
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+
+	outBytes, _ := ioutil.ReadAll(&outBuf)
+
+	if jqa.Outputs[JQActionOutputJQStdoutStr] != nil {
+		for _, output := range jqa.Outputs[JQActionOutputJQStdoutStr] {
+			output.Add(outBytes)
+		}
+	}
+
+	if jqa.Outputs[JQActionOutputJQStdoutBytes] != nil {
+		outStr := string(outBytes)
+
+		for _, output := range jqa.Outputs[JQActionOutputJQStdoutBytes] {
+			output.Add(outStr)
+		}
+	}
 
 	return nil
 }
