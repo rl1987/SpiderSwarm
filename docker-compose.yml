@@ -1,0 +1,18 @@
+version: "3.3"
+services:
+  worker:
+    build: .
+    image: spiderswarm:latest
+    command: worker 4 redis:6379
+  exporter:
+    build: .
+    image: spiderswarm:latest
+    command: exporter /tmp redis:6379
+    volumes:
+      - /tmp:/tmp
+  manager:
+    build: .
+    image: spiderswarm:latest
+    command: manager redis:6379
+  redis: 
+    image: "redis:alpine"
