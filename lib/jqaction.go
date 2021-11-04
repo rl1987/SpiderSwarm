@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os/exec"
 
 	"github.com/davecgh/go-spew/spew"
@@ -75,6 +76,11 @@ func (jqa *JQAction) outputBytes(outBytes []byte) {
 			output.Add(outStr)
 		}
 	}
+}
+
+func (jqa *JQAction) String() string {
+	return fmt.Sprintf("<JQAction %s Name: %s, CanFail: %v, ExpectMany: %v, DecodeOutput: %v, JQArgs: %v>",
+		jqa.UUID, jqa.Name, jqa.CanFail, jqa.ExpectMany, jqa.DecodeOutput, jqa.JQArgs)
 }
 
 func (jqa *JQAction) Run() error {
