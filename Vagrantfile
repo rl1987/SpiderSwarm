@@ -69,7 +69,7 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
    config.vm.provision "shell", inline: <<-SHELL
      apt-get update
-     apt-get install -y libxml2-dev curl git vim tmux graphviz sqlite3 redis-server tcpdump
+     apt-get install -y libxml2-dev curl git vim tmux graphviz sqlite3 redis-server tcpdump jq
      wget https://golang.org/dl/go1.17.2.linux-amd64.tar.gz -O /tmp/go1.17.2.linux-amd64.tar.gz
      tar -C /usr/local -xzf /tmp/go1.17.2.linux-amd64.tar.gz
      echo "export PATH=\$PATH:/usr/local/go/bin" >> /etc/profile
