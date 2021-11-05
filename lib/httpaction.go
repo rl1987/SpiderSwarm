@@ -20,8 +20,7 @@ const HTTPActionOutputBody = "HTTPActionOutputBody"
 const HTTPActionOutputHeaders = "HTTPActionOutputHeaders"
 const HTTPActionOutputStatusCode = "HTTPActionOutputStatusCode"
 const HTTPActionOutputCookies = "HTTPActionOutputCookies"
-
-// TODO: add output that gives the response URL
+const HTTPActionOutputResponseURL = "HTTPActionOutputResponseURL"
 
 type HTTPAction struct {
 	AbstractAction
@@ -46,6 +45,7 @@ func NewHTTPAction(baseURL string, method string, canFail bool) *HTTPAction {
 				HTTPActionOutputHeaders,
 				HTTPActionOutputStatusCode,
 				HTTPActionOutputCookies,
+				HTTPActionOutputResponseURL,
 			},
 			Inputs:  map[string]*DataPipe{},
 			Outputs: map[string][]*DataPipe{},
@@ -203,6 +203,14 @@ func (ha *HTTPAction) Run() error {
 
 		for _, outDP := range ha.Outputs[HTTPActionOutputCookies] {
 			outDP.Add(cookieDict)
+		}
+	}
+
+	if ha.Outputs[HTTPActionOutputResponseURL] != nil {
+		responseURL := resp.Request.URL // XXX: what about redirects?
+
+		for _, outDP := range ha.Outputs[HTTPActionOutputResponseURL] {
+			outDP.Add(responseURL.String())
 		}
 	}
 

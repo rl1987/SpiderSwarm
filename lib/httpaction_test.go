@@ -26,7 +26,7 @@ func TestNewHTTPAction(t *testing.T) {
 	assert.Equal(t, httpAction.AbstractAction.AllowedInputNames[2], HTTPActionInputHeaders)
 	assert.Equal(t, httpAction.AbstractAction.AllowedInputNames[3], HTTPActionInputCookies)
 	assert.Equal(t, httpAction.AbstractAction.AllowedInputNames[4], HTTPActionInputBody)
-	assert.Equal(t, len(httpAction.AbstractAction.AllowedOutputNames), 4)
+	assert.Equal(t, len(httpAction.AbstractAction.AllowedOutputNames), 5)
 	assert.Equal(t, httpAction.AbstractAction.AllowedOutputNames[0], HTTPActionOutputBody)
 	assert.Equal(t, httpAction.AbstractAction.AllowedOutputNames[1], HTTPActionOutputHeaders)
 	assert.Equal(t, httpAction.AbstractAction.AllowedOutputNames[2], HTTPActionOutputStatusCode)
@@ -124,6 +124,10 @@ func TestHTTPActionRunGET(t *testing.T) {
 	err = httpAction.AddOutput(HTTPActionOutputStatusCode, statusOut)
 	assert.Nil(t, err)
 
+	responseURLOut := NewDataPipe()
+	err = httpAction.AddOutput(HTTPActionOutputResponseURL, responseURLOut)
+	assert.Nil(t, err)
+
 	err = httpAction.Run()
 	assert.Nil(t, err)
 
@@ -140,6 +144,9 @@ func TestHTTPActionRunGET(t *testing.T) {
 	assert.True(t, ok3)
 	assert.Equal(t, 200, gotStatus)
 
+	gotRespURL, ok4 := responseURLOut.Remove().(string)
+	assert.True(t, ok4)
+	assert.Equal(t, testServer.URL+"?a=1&b=2", gotRespURL)
 }
 
 func TestHTTPActionRunHEAD(t *testing.T) {
