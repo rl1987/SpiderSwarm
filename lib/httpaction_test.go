@@ -149,6 +149,54 @@ func TestHTTPActionRunGET(t *testing.T) {
 	assert.Equal(t, testServer.URL+"?a=1&b=2", gotRespURL)
 }
 
+func TestHTTPActionHandleRedirect(t *testing.T) {
+	expectedBody := []byte("Test Payload")
+
+	testServer := httptest.NewServer(
+		http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+			u := req.URL
+
+			if u.Path == "/redirectme" {
+				res.Header()["Location"] = []string{"/redirected"}
+				res.WriteHeader(301)
+			} else if u.Path == "/redirected" {
+				res.WriteHeader(200)
+				res.Write(expectedBody)
+			}
+		}))
+
+	defer testServer.Close()
+
+	httpAction := NewHTTPAction(testServer.URL+"/redirectme", http.MethodGet, false)
+
+	statusOut := NewDataPipe()
+	err := httpAction.AddOutput(HTTPActionOutputStatusCode, statusOut)
+	assert.Nil(t, err)
+
+	bodyOut := NewDataPipe()
+	err = httpAction.AddOutput(HTTPActionOutputBody, bodyOut)
+	assert.Nil(t, err)
+
+	responseURLOut := NewDataPipe()
+	err = httpAction.AddOutput(HTTPActionOutputResponseURL, responseURLOut)
+	assert.Nil(t, err)
+
+	err = httpAction.Run()
+	assert.Nil(t, err)
+
+	gotStatus, ok1 := statusOut.Remove().(int)
+	assert.True(t, ok1)
+	assert.Equal(t, 200, gotStatus)
+
+	gotRespURL, ok2 := responseURLOut.Remove().(string)
+	assert.True(t, ok2)
+	assert.Equal(t, testServer.URL+"/redirected", gotRespURL)
+
+	gotBody, ok3 := bodyOut.Remove().([]byte)
+	assert.True(t, ok3)
+	assert.Equal(t, expectedBody, gotBody)
+}
+
 func TestHTTPActionRunHEAD(t *testing.T) {
 	testServer := httptest.NewServer(
 		http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
