@@ -52,6 +52,16 @@ func (upa *URLParseAction) String() string {
 	return fmt.Sprintf("<URLParseAction %s>", upa.UUID)
 }
 
+func (upa *URLParseAction) fixParams(params url.Values) map[string][]string {
+	newParams := map[string][]string{}
+
+	for key, values := range params {
+		newParams[key] = values
+	}
+
+	return newParams
+}
+
 func (upa *URLParseAction) Run() error {
 	if upa.Inputs[URLParseActionInputURL] == nil {
 		return errors.New("Input not connected")
@@ -88,7 +98,7 @@ func (upa *URLParseAction) Run() error {
 	if upa.Outputs[URLParseActionOutputParams] != nil {
 		params, _ := url.ParseQuery(parsed.RawQuery)
 		for _, outDP := range upa.Outputs[URLParseActionOutputParams] {
-			outDP.Add(params)
+			outDP.Add(upa.fixParams(params))
 		}
 	}
 
