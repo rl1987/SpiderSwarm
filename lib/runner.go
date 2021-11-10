@@ -102,5 +102,8 @@ func (r *Runner) RunWorkers(n int) []*Worker {
 func (r *Runner) RunSingleNode(nWorkers int, outputDirPath string, workflow *Workflow) {
 	r.RunWorkers(nWorkers)
 	r.RunExporter(outputDirPath)
-	r.RunManager(workflow)
+	manager := r.RunManager(workflow)
+
+	manager.StartScrapingJob(workflow)
+	go manager.Run()
 }

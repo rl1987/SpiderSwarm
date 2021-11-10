@@ -446,36 +446,13 @@ func runTestWorkflow() {
 
 	spew.Dump(workflow)
 
-	spiderBusBackend := spsw.NewRedisSpiderBusBackend("127.0.0.1:6379", "")
-	spiderBus := spsw.NewSpiderBus()
-	spiderBus.Backend = spiderBusBackend
+	runner := spsw.NewRunner(backendAddr)
 
-	manager := spsw.NewManager()
+	runner.RunSingleNode(4, "/tmp", workflow)
 
-	manager.StartScrapingJob(workflow)
-
-	exporter := spsw.NewExporter()
-	// TODO: make ExporterBackend API more abstract to enable plugin architecture.
-	exporterBackend := spsw.NewCSVExporterBackend("/tmp")
-
-	exporter.AddBackend(exporterBackend)
-
-	managerAdapter := spsw.NewSpiderBusAdapterForManager(spiderBus, manager)
-	managerAdapter.Start()
-
-	exporterAdapter := spsw.NewSpiderBusAdapterForExporter(spiderBus, exporter)
-	exporterAdapter.Start()
-
-	go exporter.Run()
-	go manager.Run()
-
-	for i := 0; i < 4; i++ {
-		go func() {
-			worker := spsw.NewWorker()
-			adapter := spsw.NewSpiderBusAdapterForWorker(spiderBus, worker)
-			adapter.Start()
-			worker.Run()
-		}()
+	// https://medium.com/@ashishstiwari/dont-simply-run-forever-loop-for-1594464040b1
+	for {
+		select {}
 	}
 
 	for {
