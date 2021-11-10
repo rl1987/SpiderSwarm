@@ -44,7 +44,7 @@ func NewJQAction(jqArgs []string, decodeOutput bool, canFail bool, expectMany bo
 	}
 }
 
-func NewJQActionFromTemplate(actionTempl *ActionTemplate) *JQAction {
+func NewJQActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
 	var jqArgs []string
 	var decodeOutput bool
 	var canFail bool

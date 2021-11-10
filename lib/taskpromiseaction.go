@@ -35,7 +35,7 @@ func NewTaskPromiseAction(inputNames []string, taskName string, workflowName str
 	}
 }
 
-func NewTaskPromiseActionFromTemplate(actionTempl *ActionTemplate, workflowName string) *TaskPromiseAction {
+func NewTaskPromiseActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
 	var inputNames []string
 	var taskName string
 	var requireFields []string

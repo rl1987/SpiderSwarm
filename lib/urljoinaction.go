@@ -37,7 +37,7 @@ func NewURLJoinAction(baseURL string) *URLJoinAction {
 	}
 }
 
-func NewURLJoinActionFromTemplate(actionTempl *ActionTemplate) *URLJoinAction {
+func NewURLJoinActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
 	baseURL := actionTempl.ConstructorParams["baseURL"].StringValue
 
 	action := NewURLJoinAction(baseURL)

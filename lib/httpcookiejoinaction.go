@@ -34,7 +34,7 @@ func NewHTTPCookieJoinAction() *HTTPCookieJoinAction {
 	}
 }
 
-func NewHTTPCookieJoinActionFromTemplate(actionTempl *ActionTemplate) *HTTPCookieJoinAction {
+func NewHTTPCookieJoinActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
 	action := NewHTTPCookieJoinAction()
 
 	action.Name = actionTempl.Name

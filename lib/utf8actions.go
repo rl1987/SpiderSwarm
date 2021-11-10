@@ -34,7 +34,7 @@ func NewUTF8DecodeAction() *UTF8DecodeAction {
 	}
 }
 
-func NewUTF8DecodeActionFromTemplate(actionTempl *ActionTemplate) *UTF8DecodeAction {
+func NewUTF8DecodeActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
 	action := NewUTF8DecodeAction()
 	action.Name = actionTempl.Name
 	return action
@@ -94,7 +94,7 @@ func NewUTF8EncodeAction() *UTF8EncodeAction {
 	}
 }
 
-func NewUTF8EncodeActionFromTemplate(actionTempl *ActionTemplate) *UTF8EncodeAction {
+func NewUTF8EncodeActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
 	action := NewUTF8EncodeAction()
 	action.Name = actionTempl.Name
 	return action

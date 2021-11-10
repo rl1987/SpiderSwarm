@@ -56,7 +56,7 @@ func NewHTTPAction(baseURL string, method string, canFail bool) *HTTPAction {
 	}
 }
 
-func NewHTTPActionFromTemplate(actionTempl *ActionTemplate) *HTTPAction {
+func NewHTTPActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
 	var baseURL string
 	var method string
 	var canFail bool

@@ -28,29 +28,27 @@ type AbstractAction struct {
 	UUID               string
 }
 
+type InitFunc func(*ActionTemplate, string) Action
+
+var ActionConstructorTable = map[string]InitFunc{
+	"HTTPAction":           NewHTTPActionFromTemplate,
+	"XPAthAction":          NewXPathActionFromTemplate,
+	"FieldJoinAction":      NewFieldJoinActionFromTemplate,
+	"TaskPromiseAction":    NewTaskPromiseActionFromTemplate,
+	"UTF8DecodeAction":     NewUTF8DecodeActionFromTemplate,
+	"UTF8EncodeAction":     NewUTF8EncodeActionFromTemplate,
+	"ConstAction":          NewConstActionFromTemplate,
+	"URLJoinAction":        NewURLJoinActionFromTemplate,
+	"JQAction":             NewJQActionFromTemplate,
+	"HTTPCookieJoinAction": NewHTTPCookieJoinActionFromTemplate,
+	"URLParseAction":       NewURLParseActionFromTemplate,
+	"StringCutAction":      NewStringCutActionFromTemplate,
+}
+
 func NewActionFromTemplate(actionTempl *ActionTemplate, workflowName string, jobUUID string) Action {
-	if actionTempl.StructName == "HTTPAction" {
-		return NewHTTPActionFromTemplate(actionTempl)
-	} else if actionTempl.StructName == "XPathAction" {
-		return NewXPathActionFromTemplate(actionTempl)
-	} else if actionTempl.StructName == "FieldJoinAction" {
-		return NewFieldJoinActionFromTemplate(actionTempl, workflowName)
-	} else if actionTempl.StructName == "TaskPromiseAction" {
-		return NewTaskPromiseActionFromTemplate(actionTempl, workflowName)
-	} else if actionTempl.StructName == "UTF8DecodeAction" {
-		return NewUTF8DecodeActionFromTemplate(actionTempl)
-	} else if actionTempl.StructName == "UTF8EncodeAction" {
-		return NewUTF8EncodeActionFromTemplate(actionTempl)
-	} else if actionTempl.StructName == "ConstAction" {
-		return NewConstActionFromTemplate(actionTempl)
-	} else if actionTempl.StructName == "URLJoinAction" {
-		return NewURLJoinActionFromTemplate(actionTempl)
-	} else if actionTempl.StructName == "StringCutAction" {
-		return NewStringCutActionFromTemplate(actionTempl)
-	} else if actionTempl.StructName == "HTTPCookieJoinAction" {
-		return NewHTTPCookieJoinActionFromTemplate(actionTempl)
-	} else if actionTempl.StructName == "JQAction" {
-		return NewJQActionFromTemplate(actionTempl)
+	initFunc := ActionConstructorTable[actionTempl.StructName]
+	if initFunc != nil {
+		return initFunc(actionTempl, workflowName)
 	}
 
 	return nil

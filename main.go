@@ -204,6 +204,10 @@ func runTestWorkflow() {
 	}
 }
 
+func NewAbstractAction(actionTempl *spsw.ActionTemplate, workflowName string) spsw.Action {
+	return &spsw.AbstractAction{}
+}
+
 func main() {
 	initLogging()
 	log.Info("Starting spiderswarm instance...")
@@ -216,6 +220,10 @@ func main() {
 		printUsage()
 		os.Exit(0)
 	}
+
+	spsw.ActionConstructorTable["dummy"] = NewAbstractAction
+
+	spew.Dump(spsw.ActionConstructorTable)
 
 	workflow := getWorkflow()
 
