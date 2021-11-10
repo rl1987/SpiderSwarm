@@ -25,3 +25,4 @@ coverage.txt
 examples/action/action
 examples/task/task
 examples/workflow/workflow
+examples/books_workflow/books_workflow
