@@ -455,10 +455,6 @@ func runTestWorkflow() {
 	for {
 		select {}
 	}
-
-	for {
-		time.Sleep(1)
-	}
 }
 
 func main() {
