@@ -445,6 +445,7 @@ func runTestWorkflow() {
 	}
 
 	spew.Dump(workflow)
+	backendAddr := "127.0.0.1:6379"
 
 	runner := spsw.NewRunner(backendAddr)
 
