@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 
 	spsw "github.com/spiderswarm/spiderswarm/lib"
 
@@ -456,10 +455,6 @@ func runTestWorkflow() {
 	// https://medium.com/@ashishstiwari/dont-simply-run-forever-loop-for-1594464040b1
 	for {
 		select {}
-	}
-
-	for {
-		time.Sleep(1)
 	}
 }
 
