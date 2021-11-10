@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	spsw "github.com/spiderswarm/spiderswarm/lib"
 
 	"github.com/davecgh/go-spew/spew"
