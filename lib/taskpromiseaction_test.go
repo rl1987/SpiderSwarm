@@ -28,7 +28,8 @@ func TestNewTaskPromiseActionFromTemplate(t *testing.T) {
 		Name: "testWorkflow",
 	}
 
-	action := NewTaskPromiseActionFromTemplate(actionTempl, workflow.Name)
+	action, ok := NewTaskPromiseActionFromTemplate(actionTempl, workflow.Name).(*TaskPromiseAction)
+	assert.True(t, ok)
 
 	assert.NotNil(t, action)
 	assert.Equal(t, taskName, action.TaskName)

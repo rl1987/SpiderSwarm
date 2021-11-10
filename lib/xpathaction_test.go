@@ -26,7 +26,8 @@ func TestNewXPathActionFromTemplate(t *testing.T) {
 		ConstructorParams: constructorParams,
 	}
 
-	action := NewXPathActionFromTemplate(actionTempl)
+	action, ok := NewXPathActionFromTemplate(actionTempl, "").(*XPathAction)
+	assert.True(t, ok)
 
 	assert.NotNil(t, action)
 	assert.Equal(t, xpath, action.XPath)

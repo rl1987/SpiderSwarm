@@ -25,7 +25,8 @@ func TestNewFieldJoinActionFromTemplate(t *testing.T) {
 		},
 	}
 
-	action := NewFieldJoinActionFromTemplate(actionTempl, workflowName)
+	action, ok := NewFieldJoinActionFromTemplate(actionTempl, workflowName).(*FieldJoinAction)
+	assert.True(t, ok)
 
 	assert.Equal(t, workflowName, action.WorkflowName)
 	assert.Equal(t, itemName, action.ItemName)
