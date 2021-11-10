@@ -32,7 +32,7 @@ type InitFunc func(*ActionTemplate, string) Action
 
 var ActionConstructorTable = map[string]InitFunc{
 	"HTTPAction":           NewHTTPActionFromTemplate,
-	"XPAthAction":          NewXPathActionFromTemplate,
+	"XPathAction":          NewXPathActionFromTemplate,
 	"FieldJoinAction":      NewFieldJoinActionFromTemplate,
 	"TaskPromiseAction":    NewTaskPromiseActionFromTemplate,
 	"UTF8DecodeAction":     NewUTF8DecodeActionFromTemplate,
