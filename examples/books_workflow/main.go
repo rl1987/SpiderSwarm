@@ -451,11 +451,6 @@ func runTestWorkflow() {
 	runner := spsw.NewRunner(backendAddr)
 
 	runner.RunSingleNode(4, "/tmp", workflow)
-
-	// https://medium.com/@ashishstiwari/dont-simply-run-forever-loop-for-1594464040b1
-	for {
-		select {}
-	}
 }
 
 func main() {

@@ -105,5 +105,5 @@ func (r *Runner) RunSingleNode(nWorkers int, outputDirPath string, workflow *Wor
 	manager := r.RunManager(workflow)
 
 	manager.StartScrapingJob(workflow)
-	go manager.Run()
+	manager.Run()
 }
