@@ -32,6 +32,7 @@ func NewRedisSpiderBusBackend(serverAddr string, password string) *RedisSpiderBu
 
 	consumerId := uuid.New().String()
 
+	// TODO: declare constants for stream names
 	redisClient.XGroupCreateMkStream(ctx, "items", "items", "$")
 	redisClient.XGroupCreateMkStream(ctx, "task_promises", "task_promises", "$")
 	redisClient.XGroupCreateMkStream(ctx, "scheduled_tasks", "scheduled_tasks", "$")
@@ -244,7 +245,7 @@ func (rsbb *RedisSpiderBusBackend) SendTaskReport(taskReport *TaskReport) error 
 }
 
 func (rsbb *RedisSpiderBusBackend) ReceiveTaskReport() *TaskReport {
-	raw, err := rsbb.readRawMessageFromStream("task_report")
+	raw, err := rsbb.readRawMessageFromStream("task_reports")
 	if err != nil {
 		return nil
 	}
