@@ -68,6 +68,7 @@ func (m *Manager) Run() error {
 		log.Info(fmt.Sprintf("Created scheduled task %v", scheduledTask))
 
 		m.ScheduledTasksOut <- scheduledTask
+		m.NPendingTasks++
 	}
 
 	for m.NPendingTasks > 0 {
