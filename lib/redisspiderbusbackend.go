@@ -21,6 +21,11 @@ type RedisSpiderBusBackend struct {
 	consumerId  string
 }
 
+const RedisStreamNameItems = "items"
+const RedisStreamNameTaskPromises = "task_promises"
+const RedisStreamNameScheduledTasks = "scheduled_tasks"
+const RedisStreamNameTaskReports = "task_reports"
+
 func NewRedisSpiderBusBackend(serverAddr string, password string) *RedisSpiderBusBackend {
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     serverAddr,
@@ -32,11 +37,10 @@ func NewRedisSpiderBusBackend(serverAddr string, password string) *RedisSpiderBu
 
 	consumerId := uuid.New().String()
 
-	// TODO: declare constants for stream names
-	redisClient.XGroupCreateMkStream(ctx, "items", "items", "$")
-	redisClient.XGroupCreateMkStream(ctx, "task_promises", "task_promises", "$")
-	redisClient.XGroupCreateMkStream(ctx, "scheduled_tasks", "scheduled_tasks", "$")
-	redisClient.XGroupCreateMkStream(ctx, "task_reports", "task_reports", "$")
+	redisClient.XGroupCreateMkStream(ctx, RedisStreamNameItems, RedisStreamNameItems, "$")
+	redisClient.XGroupCreateMkStream(ctx, RedisStreamNameTaskPromises, RedisStreamNameTaskPromises, "$")
+	redisClient.XGroupCreateMkStream(ctx, RedisStreamNameScheduledTasks, RedisStreamNameScheduledTasks, "$")
+	redisClient.XGroupCreateMkStream(ctx, RedisStreamNameTaskReports, RedisStreamNameTaskReports, "$")
 
 	return &RedisSpiderBusBackend{
 		ctx:         ctx,
@@ -76,7 +80,7 @@ func (rsbb *RedisSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTas
 	raw := scheduledTask.EncodeToJSON()
 
 	resp := rsbb.redisClient.XAdd(rsbb.ctx, &redis.XAddArgs{
-		Stream: "scheduled_tasks",
+		Stream: RedisStreamNameScheduledTasks,
 		ID:     "*",
 		Values: map[string]interface{}{
 			"raw": string(raw),
@@ -127,7 +131,7 @@ func (rsbb *RedisSpiderBusBackend) readRawMessageFromStream(stream string) ([]by
 }
 
 func (rsbb *RedisSpiderBusBackend) ReceiveScheduledTask() *ScheduledTask {
-	raw, err := rsbb.readRawMessageFromStream("scheduled_tasks")
+	raw, err := rsbb.readRawMessageFromStream(RedisStreamNameScheduledTasks)
 	if err != nil {
 		return nil
 	}
@@ -151,7 +155,7 @@ func (rsbb *RedisSpiderBusBackend) SendTaskPromise(taskPromise *TaskPromise) err
 	raw := taskPromise.EncodeToJSON()
 
 	err := rsbb.redisClient.XAdd(rsbb.ctx, &redis.XAddArgs{
-		Stream: "task_promises",
+		Stream: RedisStreamNameTaskPromises,
 		ID:     "*",
 		Values: map[string]interface{}{
 			"raw": string(raw),
@@ -174,7 +178,7 @@ func (rsbb *RedisSpiderBusBackend) SendTaskPromise(taskPromise *TaskPromise) err
 }
 
 func (rsbb *RedisSpiderBusBackend) ReceiveTaskPromise() *TaskPromise {
-	raw, err := rsbb.readRawMessageFromStream("task_promises")
+	raw, err := rsbb.readRawMessageFromStream(RedisStreamNameTaskPromises)
 	if err != nil {
 		return nil
 	}
@@ -198,7 +202,7 @@ func (rsbb *RedisSpiderBusBackend) SendItem(item *Item) error {
 	raw := item.EncodeToJSON()
 
 	err := rsbb.redisClient.XAdd(rsbb.ctx, &redis.XAddArgs{
-		Stream: "items",
+		Stream: RedisStreamNameItems,
 		ID:     "*",
 		Values: map[string]interface{}{
 			"raw": string(raw),
@@ -221,7 +225,7 @@ func (rsbb *RedisSpiderBusBackend) SendItem(item *Item) error {
 }
 
 func (rsbb *RedisSpiderBusBackend) ReceiveItem() *Item {
-	raw, err := rsbb.readRawMessageFromStream("items")
+	raw, err := rsbb.readRawMessageFromStream(RedisStreamNameItems)
 	if err != nil {
 		return nil
 	}
@@ -235,7 +239,7 @@ func (rsbb *RedisSpiderBusBackend) SendTaskReport(taskReport *TaskReport) error 
 	raw := taskReport.EncodeToJSON()
 
 	err := rsbb.redisClient.XAdd(rsbb.ctx, &redis.XAddArgs{
-		Stream: "task_reports",
+		Stream: RedisStreamNameTaskReports,
 		ID:     "*",
 		Values: map[string]interface{}{
 			"raw": string(raw),
@@ -250,7 +254,7 @@ func (rsbb *RedisSpiderBusBackend) SendTaskReport(taskReport *TaskReport) error 
 }
 
 func (rsbb *RedisSpiderBusBackend) ReceiveTaskReport() *TaskReport {
-	raw, err := rsbb.readRawMessageFromStream("task_reports")
+	raw, err := rsbb.readRawMessageFromStream(RedisStreamNameTaskReports)
 	if err != nil {
 		return nil
 	}
@@ -261,7 +265,7 @@ func (rsbb *RedisSpiderBusBackend) ReceiveTaskReport() *TaskReport {
 }
 
 func (rsbb *RedisSpiderBusBackend) Close() {
-	for _, stream := range []string{"items", "scheduled_tasks", "task_promises"} {
+	for _, stream := range []string{RedisStreamNameItems, RedisStreamNameScheduledTasks, RedisStreamNameTaskPromises} {
 		rsbb.redisClient.XGroupDelConsumer(rsbb.ctx, stream, rsbb.consumerId, rsbb.consumerId)
 		rsbb.redisClient.XGroupDestroy(rsbb.ctx, stream, rsbb.consumerId)
 	}
