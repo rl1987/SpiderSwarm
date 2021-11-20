@@ -15,6 +15,8 @@ type SpiderBusAdapter struct {
 	ScheduledTasksOut chan *ScheduledTask
 	TaskPromisesIn    chan *TaskPromise
 	TaskPromisesOut   chan *TaskPromise
+	TaskReportsIn     chan *TaskReport
+	TaskReportsOut    chan *TaskReport
 	ItemsIn           chan *Item
 	ItemsOut          chan *Item
 }
@@ -25,6 +27,7 @@ func NewSpiderBusAdapterForWorker(sb *SpiderBus, w *Worker) *SpiderBusAdapter {
 		Bus:               sb,
 		ScheduledTasksOut: w.ScheduledTasksIn,
 		TaskPromisesIn:    w.TaskPromisesOut,
+		TaskReportsIn:     w.TaskReportsOut,
 		ItemsIn:           w.ItemsOut,
 	}
 }
@@ -93,6 +96,14 @@ func (sba *SpiderBusAdapter) Start() {
 				}
 
 				sba.TaskPromisesOut <- taskPromise.(*TaskPromise)
+			}
+		}()
+	}
+
+	if sba.TaskReportsIn != nil {
+		go func() {
+			for taskReport := range sba.TaskReportsIn {
+				sba.Bus.Enqueue(taskReport)
 			}
 		}()
 	}

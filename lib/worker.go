@@ -11,6 +11,7 @@ type Worker struct {
 	UUID             string
 	ScheduledTasksIn chan *ScheduledTask
 	TaskPromisesOut  chan *TaskPromise
+	TaskReportsOut   chan *TaskReport
 	ItemsOut         chan *Item
 	Done             chan interface{}
 }
@@ -20,6 +21,7 @@ func NewWorker() *Worker {
 		UUID:             uuid.New().String(),
 		ScheduledTasksIn: make(chan *ScheduledTask),
 		TaskPromisesOut:  make(chan *TaskPromise),
+		TaskReportsOut:   make(chan *TaskReport),
 		ItemsOut:         make(chan *Item),
 		Done:             make(chan interface{}),
 	}
@@ -33,7 +35,10 @@ func (w *Worker) executeTask(task *Task) error {
 	err := task.Run()
 	if err != nil {
 		log.Error(fmt.Sprintf("Task %v failed with error: %v", task, err))
-		// TODO: send error
+
+		taskReport := NewTaskReport(task.JobUUID, task.UUID, task.Name, false, err)
+		w.TaskReportsOut <- taskReport
+
 		return err
 	}
 
@@ -52,6 +57,9 @@ func (w *Worker) executeTask(task *Task) error {
 			w.TaskPromisesOut <- promise
 		}
 	}
+
+	taskReport := NewTaskReport(task.JobUUID, task.UUID, task.Name, true, nil)
+	w.TaskReportsOut <- taskReport
 
 	return nil
 }
