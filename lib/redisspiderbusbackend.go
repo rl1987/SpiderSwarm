@@ -35,6 +35,7 @@ func NewRedisSpiderBusBackend(serverAddr string, password string) *RedisSpiderBu
 	redisClient.XGroupCreateMkStream(ctx, "items", "items", "$")
 	redisClient.XGroupCreateMkStream(ctx, "task_promises", "task_promises", "$")
 	redisClient.XGroupCreateMkStream(ctx, "scheduled_tasks", "scheduled_tasks", "$")
+	redisClient.XGroupCreateMkStream(ctx, "task_reports", "task_reports", "$")
 
 	return &RedisSpiderBusBackend{
 		ctx:         ctx,
@@ -225,13 +226,32 @@ func (rsbb *RedisSpiderBusBackend) ReceiveItem() *Item {
 }
 
 func (rsbb *RedisSpiderBusBackend) SendTaskReport(taskReport *TaskReport) error {
-	// TODO: implement
-	return nil
+	raw := taskReport.EncodeToJSON()
+
+	err := rsbb.redisClient.XAdd(rsbb.ctx, &redis.XAddArgs{
+		Stream: "task_reports",
+		ID:     "*",
+		Values: map[string]interface{}{
+			"raw": string(raw),
+		},
+	}).Err()
+
+	if err != nil {
+		spew.Dump(err)
+	}
+
+	return err
 }
 
 func (rsbb *RedisSpiderBusBackend) ReceiveTaskReport() *TaskReport {
-	// TODO: implement
-	return nil
+	raw, err := rsbb.readRawMessageFromStream("task_report")
+	if err != nil {
+		return nil
+	}
+
+	taskReport := NewTaskReportFromJSON(raw)
+
+	return taskReport
 }
 
 func (rsbb *RedisSpiderBusBackend) Close() {
