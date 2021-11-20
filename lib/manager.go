@@ -52,8 +52,6 @@ func (m *Manager) createScheduledTaskFromPromise(promise *TaskPromise, jobUUID s
 	scheduledTask := NewScheduledTask(promise, taskTempl,
 		m.CurrentWorkflow.Name, m.CurrentWorkflow.Version, jobUUID)
 
-	// TODO: log this
-
 	return scheduledTask
 }
 
