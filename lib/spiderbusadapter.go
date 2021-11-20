@@ -45,6 +45,7 @@ func NewSpiderBusAdapterForManager(sb *SpiderBus, m *Manager) *SpiderBusAdapter 
 		UUID:             uuid.New().String(),
 		Bus:              sb,
 		TaskPromisesOut:  m.TaskPromisesIn,
+		TaskReportsOut:   m.TaskReportsIn,
 		ScheduledTasksIn: m.ScheduledTasksOut,
 	}
 }
