@@ -15,6 +15,7 @@ type TaskReport struct {
 	TaskName  string
 	Succeeded bool
 	Error     error
+	NPromises int
 }
 
 func NewTaskReport(jobUUID string, taskUUID string, taskName string, succeeded bool, err error) *TaskReport {
@@ -25,6 +26,7 @@ func NewTaskReport(jobUUID string, taskUUID string, taskName string, succeeded b
 		TaskName:  taskName,
 		Succeeded: succeeded,
 		Error:     err,
+		NPromises: 0,
 	}
 }
 

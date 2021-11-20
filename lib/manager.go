@@ -3,6 +3,7 @@ package spsw
 import (
 	"fmt"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -17,6 +18,7 @@ type Manager struct {
 	NPendingTasks     int
 	NFinishedTasks    int
 	NScheduledTasks   int
+	PromiseBalance    int
 }
 
 func NewManager() *Manager {
@@ -26,6 +28,9 @@ func NewManager() *Manager {
 		TaskReportsIn:     make(chan *TaskReport),
 		ScheduledTasksOut: make(chan *ScheduledTask),
 		NPendingTasks:     0,
+		NFinishedTasks:    0,
+		NScheduledTasks:   0,
+		PromiseBalance:    0,
 	}
 }
 
@@ -55,6 +60,7 @@ func (m *Manager) createScheduledTaskFromPromise(promise *TaskPromise, jobUUID s
 func (m *Manager) logPendingTasks() {
 	log.Info(fmt.Sprintf("Manager %s tasks: %d pending, %d finished out of %d scheduled", m.UUID, m.NPendingTasks,
 		m.NFinishedTasks, m.NScheduledTasks))
+	log.Info(fmt.Sprintf("Manager %s task promise balance: %d", m.UUID, m.PromiseBalance))
 }
 
 func (m *Manager) Run() error {
@@ -81,12 +87,14 @@ func (m *Manager) Run() error {
 		m.logPendingTasks()
 	}
 
-	for m.NPendingTasks > 0 {
+	for m.NPendingTasks > 0 || m.PromiseBalance != 0 {
 		select {
 		case promise := <-m.TaskPromisesIn:
 			if promise == nil {
 				continue
 			}
+
+			m.PromiseBalance--
 
 			for _, p := range promise.Splay() {
 				newScheduledTask := m.createScheduledTaskFromPromise(p, m.JobUUID)
@@ -105,9 +113,12 @@ func (m *Manager) Run() error {
 				continue
 			}
 
+			spew.Dump(report)
+
 			// TODO: check report.JobUUID
 			m.NPendingTasks--
 			m.NFinishedTasks++
+			m.PromiseBalance += report.NPromises
 			m.logPendingTasks()
 		}
 	}

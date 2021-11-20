@@ -42,6 +42,8 @@ func (w *Worker) executeTask(task *Task) error {
 		return err
 	}
 
+	nPromises := 0
+
 	for _, outDP := range task.Outputs {
 		if len(outDP.Queue) == 0 {
 			continue
@@ -55,10 +57,12 @@ func (w *Worker) executeTask(task *Task) error {
 
 		if promise, okPromise := x.(*TaskPromise); okPromise {
 			w.TaskPromisesOut <- promise
+			nPromises++
 		}
 	}
 
 	taskReport := NewTaskReport(task.JobUUID, task.UUID, task.Name, true, nil)
+	taskReport.NPromises = nPromises
 	w.TaskReportsOut <- taskReport
 
 	return nil
