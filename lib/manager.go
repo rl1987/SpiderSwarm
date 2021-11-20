@@ -50,6 +50,10 @@ func (m *Manager) createScheduledTaskFromPromise(promise *TaskPromise, jobUUID s
 	return scheduledTask
 }
 
+func (m *Manager) logPendingTasks() {
+	log.Info(fmt.Sprintf("Manager %s has %d pending tasks", m.UUID, m.NPendingTasks))
+}
+
 func (m *Manager) Run() error {
 	log.Info(fmt.Sprintf("Starting runloop for manager %s", m.UUID))
 
@@ -69,6 +73,8 @@ func (m *Manager) Run() error {
 
 		m.ScheduledTasksOut <- scheduledTask
 		m.NPendingTasks++
+
+		m.logPendingTasks()
 	}
 
 	for m.NPendingTasks > 0 {
@@ -87,13 +93,16 @@ func (m *Manager) Run() error {
 				log.Info(fmt.Sprintf("Created scheduled task %v", newScheduledTask))
 				m.ScheduledTasksOut <- newScheduledTask
 				m.NPendingTasks++
+				m.logPendingTasks()
 			}
 		case report := <-m.TaskReportsIn:
 			if report == nil {
 				continue
 			}
 
+			// TODO: check report.JobUUID
 			m.NPendingTasks--
+			m.logPendingTasks()
 		}
 	}
 
