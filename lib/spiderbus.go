@@ -19,13 +19,16 @@ func NewSpiderBus() *SpiderBus {
 }
 
 func (sb *SpiderBus) Enqueue(x interface{}) error {
-	// TODO: check for duplicates.
 	if scheduledTask, okTask := x.(*ScheduledTask); okTask {
 		return sb.Backend.SendScheduledTask(scheduledTask)
 	}
 
 	if promise, okPromise := x.(*TaskPromise); okPromise {
 		return sb.Backend.SendTaskPromise(promise)
+	}
+
+	if report, okReport := x.(*TaskReport); okReport {
+		return sb.Backend.SendTaskReport(report)
 	}
 
 	if item, okItem := x.(*Item); okItem {
@@ -37,6 +40,7 @@ func (sb *SpiderBus) Enqueue(x interface{}) error {
 
 const SpiderBusEntryTypeScheduledTask = "SpiderBusEntryTypeScheduledTask"
 const SpiderBusEntryTypeTaskPromise = "SpiderBusEntryTypeTaskPromise"
+const SpiderBusEntryTypeTaskReport = "SpiderBusEntryTypeTaskReport"
 const SpiderBusEntryTypeItem = "SpiderBusEntryTypeItem"
 
 func (sb *SpiderBus) Dequeue(entryType string) (interface{}, error) {
@@ -50,6 +54,10 @@ func (sb *SpiderBus) Dequeue(entryType string) (interface{}, error) {
 
 	if entryType == SpiderBusEntryTypeTaskPromise {
 		return sb.Backend.ReceiveTaskPromise(), nil
+	}
+
+	if entryType == SpiderBusEntryTypeTaskReport {
+		return sb.Backend.ReceiveTaskReport(), nil
 	}
 
 	if entryType == SpiderBusEntryTypeItem {
