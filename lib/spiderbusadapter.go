@@ -108,6 +108,21 @@ func (sba *SpiderBusAdapter) Start() {
 		}()
 	}
 
+	if sba.TaskReportsOut != nil {
+		go func() {
+			for {
+				taskReport, err := sba.Bus.Dequeue(SpiderBusEntryTypeTaskReport)
+
+				if taskReport == nil || err != nil {
+					time.Sleep(1)
+					continue
+				}
+
+				sba.TaskReportsOut <- taskReport.(*TaskReport)
+			}
+		}()
+	}
+
 	if sba.ItemsIn != nil {
 		go func() {
 			for item := range sba.ItemsIn {

@@ -10,16 +10,20 @@ import (
 type Manager struct {
 	UUID              string
 	TaskPromisesIn    chan *TaskPromise
+	TaskReportsIn     chan *TaskReport
 	ScheduledTasksOut chan *ScheduledTask
 	CurrentWorkflow   *Workflow // TODO: support multiple scraping jobs running concurrently
 	JobUUID           string
+	NPendingTasks     int
 }
 
 func NewManager() *Manager {
 	return &Manager{
 		UUID:              uuid.New().String(),
 		TaskPromisesIn:    make(chan *TaskPromise),
+		TaskReportsIn:     make(chan *TaskReport),
 		ScheduledTasksOut: make(chan *ScheduledTask),
+		NPendingTasks:     0,
 	}
 }
 
@@ -66,23 +70,30 @@ func (m *Manager) Run() error {
 		m.ScheduledTasksOut <- scheduledTask
 	}
 
-	// TODO: workers should report back about success/failure of the task;
-	//       managers should report back about status of the scraping job.
-	for promise := range m.TaskPromisesIn {
-		if promise == nil {
-			continue
-		}
-
-		for _, p := range promise.Splay() {
-			newScheduledTask := m.createScheduledTaskFromPromise(p, m.JobUUID)
-			if newScheduledTask == nil {
+	for m.NPendingTasks > 0 {
+		select {
+		case promise := <-m.TaskPromisesIn:
+			if promise == nil {
 				continue
 			}
 
-			log.Info(fmt.Sprintf("Created scheduled task %v", newScheduledTask))
-			m.ScheduledTasksOut <- newScheduledTask
-		}
+			for _, p := range promise.Splay() {
+				newScheduledTask := m.createScheduledTaskFromPromise(p, m.JobUUID)
+				if newScheduledTask == nil {
+					continue
+				}
 
+				log.Info(fmt.Sprintf("Created scheduled task %v", newScheduledTask))
+				m.ScheduledTasksOut <- newScheduledTask
+				m.NPendingTasks++
+			}
+		case report := <-m.TaskReportsIn:
+			if report == nil {
+				continue
+			}
+
+			m.NPendingTasks--
+		}
 	}
 
 	return nil
