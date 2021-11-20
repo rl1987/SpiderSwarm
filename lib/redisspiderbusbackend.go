@@ -65,6 +65,11 @@ func (rsbb *RedisSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTas
 
 	if rsbb.isHashInRedisSet(key, hashStr) {
 		log.Warning(fmt.Sprintf("Dropping duplicate: %v", scheduledTask))
+
+		taskReport := NewTaskReport(scheduledTask.JobUUID, "", scheduledTask.Promise.TaskName, false, errors.New("Duplicate"))
+
+		rsbb.SendTaskReport(taskReport)
+
 		return nil
 	}
 
