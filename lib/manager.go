@@ -15,6 +15,8 @@ type Manager struct {
 	CurrentWorkflow   *Workflow // TODO: support multiple scraping jobs running concurrently
 	JobUUID           string
 	NPendingTasks     int
+	NFinishedTasks    int
+	NScheduledTasks   int
 }
 
 func NewManager() *Manager {
@@ -51,7 +53,8 @@ func (m *Manager) createScheduledTaskFromPromise(promise *TaskPromise, jobUUID s
 }
 
 func (m *Manager) logPendingTasks() {
-	log.Info(fmt.Sprintf("Manager %s has %d pending tasks", m.UUID, m.NPendingTasks))
+	log.Info(fmt.Sprintf("Manager %s tasks: %d pending, %d finished out of %d scheduled", m.UUID, m.NPendingTasks,
+		m.NFinishedTasks, m.NScheduledTasks))
 }
 
 func (m *Manager) Run() error {
@@ -73,6 +76,7 @@ func (m *Manager) Run() error {
 
 		m.ScheduledTasksOut <- scheduledTask
 		m.NPendingTasks++
+		m.NScheduledTasks++
 
 		m.logPendingTasks()
 	}
@@ -93,6 +97,7 @@ func (m *Manager) Run() error {
 				log.Info(fmt.Sprintf("Created scheduled task %v", newScheduledTask))
 				m.ScheduledTasksOut <- newScheduledTask
 				m.NPendingTasks++
+				m.NScheduledTasks++
 				m.logPendingTasks()
 			}
 		case report := <-m.TaskReportsIn:
@@ -102,6 +107,7 @@ func (m *Manager) Run() error {
 
 			// TODO: check report.JobUUID
 			m.NPendingTasks--
+			m.NFinishedTasks++
 			m.logPendingTasks()
 		}
 	}
