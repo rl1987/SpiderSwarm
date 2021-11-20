@@ -10,6 +10,8 @@ type SpiderBusBackend interface {
 	IsItemDuplicated(item *Item, jobUUID string) bool
 	SendItem(item *Item) error
 	ReceiveItem() *Item
+	SentTaskReport(taskReport *TaskReport) error
+	ReceiveTaskReport() *TaskReport
 }
 
 type AbstractSpiderBusBackend struct {

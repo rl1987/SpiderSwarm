@@ -224,6 +224,16 @@ func (rsbb *RedisSpiderBusBackend) ReceiveItem() *Item {
 	return item
 }
 
+func (rsbb *RedisSpiderBusBackend) SendTaskReport(taskReport *TaskReport) error {
+	// TODO: implement
+	return nil
+}
+
+func (rsbb *RedisSpiderBusBackend) ReceiveTaskReport() *TaskReport {
+	// TODO: implement
+	return nil
+}
+
 func (rsbb *RedisSpiderBusBackend) Close() {
 	for _, stream := range []string{"items", "scheduled_tasks", "task_promises"} {
 		rsbb.redisClient.XGroupDelConsumer(rsbb.ctx, stream, rsbb.consumerId, rsbb.consumerId)
