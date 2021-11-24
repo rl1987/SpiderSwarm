@@ -113,11 +113,12 @@ func (m *Manager) Run() error {
 
 			spew.Dump(report)
 
-			// TODO: check report.JobUUID
-			m.NPendingTasks--
-			m.NFinishedTasks++
-			m.PromiseBalance += report.NPromises
-			m.logPendingTasks()
+			if report.JobUUID == m.JobUUID {
+				m.NPendingTasks--
+				m.NFinishedTasks++
+				m.PromiseBalance += report.NPromises
+				m.logPendingTasks()
+			}
 		}
 	}
 
