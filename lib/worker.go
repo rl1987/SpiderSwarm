@@ -41,12 +41,17 @@ func (w *Worker) executeTask(task *Task) error {
 		taskReport := NewTaskReport(task.JobUUID, task.UUID, task.Name, false, err)
 		w.TaskReportsOut <- taskReport
 
+		taskResult := NewTaskResult(task.JobUUID, task.UUID, task.ScheduledTaskUUID, false, err)
+		w.TaskResultsOut <- taskResult
+
 		return err
 	}
 
+	taskResult := NewTaskResult(task.JobUUID, task.UUID, task.ScheduledTaskUUID, true, nil)
+
 	nPromises := 0
 
-	for _, outDP := range task.Outputs {
+	for outputName, outDP := range task.Outputs {
 		if len(outDP.Queue) == 0 {
 			continue
 		}
@@ -55,17 +60,23 @@ func (w *Worker) executeTask(task *Task) error {
 
 		if item, okItem := x.(*Item); okItem {
 			w.ItemsOut <- item
+
+			taskResult.AddOutputItem(outputName, item)
 		}
 
 		if promise, okPromise := x.(*TaskPromise); okPromise {
 			w.TaskPromisesOut <- promise
 			nPromises++
+
+			taskResult.AddOutputTaskPromise(outputName, promise)
 		}
 	}
 
 	taskReport := NewTaskReport(task.JobUUID, task.UUID, task.Name, true, nil)
 	taskReport.NPromises = nPromises
 	w.TaskReportsOut <- taskReport
+
+	w.TaskResultsOut <- taskResult
 
 	return nil
 }

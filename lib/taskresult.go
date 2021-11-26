@@ -55,3 +55,23 @@ func (tr *TaskResult) EncodeToJSON() []byte {
 
 	return bytes
 }
+
+func (tr *TaskResult) addOutputDataChunk(outputName string, chunk *DataChunk) {
+	if tr.OutputDataChunks[outputName] == nil {
+		tr.OutputDataChunks[outputName] = []*DataChunk{chunk}
+	} else {
+		tr.OutputDataChunks[outputName] = append(tr.OutputDataChunks[outputName], chunk)
+	}
+}
+
+func (tr *TaskResult) AddOutputItem(outputName string, item *Item) {
+	chunk, _ := NewDataChunk(item)
+
+	tr.addOutputDataChunk(outputName, chunk)
+}
+
+func (tr *TaskResult) AddOutputTaskPromise(outputName string, promise *TaskPromise) {
+	chunk, _ := NewDataChunk(promise)
+
+	tr.addOutputDataChunk(outputName, chunk)
+}
