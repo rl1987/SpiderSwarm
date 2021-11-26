@@ -63,6 +63,43 @@ func (m *Manager) logPendingTasks() {
 	log.Info(fmt.Sprintf("Manager %s task promise balance: %d", m.UUID, m.PromiseBalance))
 }
 
+func (m *Manager) handleTaskPromise(promise *TaskPromise) {
+	if promise == nil {
+		return
+	}
+
+	m.PromiseBalance--
+
+	for _, p := range promise.Splay() {
+		newScheduledTask := m.createScheduledTaskFromPromise(p, m.JobUUID)
+		if newScheduledTask == nil {
+			continue
+		}
+
+		log.Info(fmt.Sprintf("Created scheduled task %v", newScheduledTask))
+		m.ScheduledTasksOut <- newScheduledTask
+		m.NPendingTasks++
+		m.NScheduledTasks++
+		m.logPendingTasks()
+	}
+}
+
+func (m *Manager) handleItem(item *Item) {
+	// TODO: push item to SpiderBus
+}
+
+func (m *Manager) processTaskResult(taskResult *TaskResult) {
+	for _, chunks := range taskResult.OutputDataChunks {
+		for _, chunk := range chunks {
+			if chunk.Type == DataChunkTypePromise {
+				m.handleTaskPromise(chunk.PayloadPromise)
+			} else if chunk.Type == DataChunkTypeItem {
+				m.handleItem(chunk.PayloadItem)
+			}
+		}
+	}
+}
+
 func (m *Manager) Run() error {
 	log.Info(fmt.Sprintf("Starting runloop for manager %s", m.UUID))
 
@@ -87,40 +124,15 @@ func (m *Manager) Run() error {
 		m.logPendingTasks()
 	}
 
-	for m.NPendingTasks > 0 || m.PromiseBalance != 0 {
-		select {
-		case promise := <-m.TaskPromisesIn:
-			if promise == nil {
-				continue
-			}
+	for taskResult := range m.TaskResultsIn {
+		spew.Dump(taskResult)
 
-			m.PromiseBalance--
+		m.NPendingTasks--
 
-			for _, p := range promise.Splay() {
-				newScheduledTask := m.createScheduledTaskFromPromise(p, m.JobUUID)
-				if newScheduledTask == nil {
-					continue
-				}
+		m.processTaskResult(taskResult)
 
-				log.Info(fmt.Sprintf("Created scheduled task %v", newScheduledTask))
-				m.ScheduledTasksOut <- newScheduledTask
-				m.NPendingTasks++
-				m.NScheduledTasks++
-				m.logPendingTasks()
-			}
-		case report := <-m.TaskReportsIn:
-			if report == nil {
-				continue
-			}
-
-			spew.Dump(report)
-
-			if report.JobUUID == m.JobUUID {
-				m.NPendingTasks--
-				m.NFinishedTasks++
-				m.PromiseBalance += report.NPromises
-				m.logPendingTasks()
-			}
+		if m.NPendingTasks == 0 {
+			break
 		}
 	}
 
