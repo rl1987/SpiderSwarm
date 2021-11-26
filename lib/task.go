@@ -9,11 +9,12 @@ import (
 )
 
 type Task struct {
-	UUID         string
-	Name         string
-	CreatedAt    time.Time
-	WorkflowName string
-	JobUUID      string
+	UUID              string
+	Name              string
+	CreatedAt         time.Time
+	WorkflowName      string
+	JobUUID           string
+	ScheduledTaskUUID string
 
 	Inputs    map[string][]*DataPipe
 	Outputs   map[string]*DataPipe
@@ -137,6 +138,8 @@ func NewTaskFromPromise(promise *TaskPromise, workflow *Workflow) *Task {
 
 func NewTaskFromScheduledTask(scheduledTask *ScheduledTask) *Task {
 	task := NewTaskFromTemplate(&scheduledTask.Template, scheduledTask.WorkflowName, scheduledTask.JobUUID)
+
+	task.ScheduledTaskUUID = scheduledTask.UUID
 
 	task.populateTaskInputsFromPromise(&scheduledTask.Promise)
 
