@@ -19,14 +19,15 @@ type TaskResult struct {
 	OutputDataChunks  map[string][]*DataChunk
 }
 
-func NewTaskResult(jobUUID string, taskUUID string, succeeded bool, err error) *TaskResult {
+func NewTaskResult(jobUUID string, taskUUID string, scheduledTaskUUID string, succeeded bool, err error) *TaskResult {
 	return &TaskResult{
-		UUID:             uuid.New().String(),
-		JobUUID:          jobUUID,
-		TaskUUID:         taskUUID,
-		Succeeded:        succeeded,
-		Error:            err,
-		OutputDataChunks: map[string][]*DataChunk{},
+		UUID:              uuid.New().String(),
+		JobUUID:           jobUUID,
+		TaskUUID:          taskUUID,
+		ScheduledTaskUUID: scheduledTaskUUID,
+		Succeeded:         succeeded,
+		Error:             err,
+		OutputDataChunks:  map[string][]*DataChunk{},
 	}
 }
 
