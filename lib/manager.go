@@ -89,6 +89,10 @@ func (m *Manager) handleItem(item *Item) {
 }
 
 func (m *Manager) processTaskResult(taskResult *TaskResult) {
+	if taskResult == nil {
+		return
+	}
+
 	for _, chunks := range taskResult.OutputDataChunks {
 		for _, chunk := range chunks {
 			if chunk.Type == DataChunkTypePromise {
