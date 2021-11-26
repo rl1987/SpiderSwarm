@@ -12,6 +12,7 @@ type Worker struct {
 	ScheduledTasksIn chan *ScheduledTask
 	TaskPromisesOut  chan *TaskPromise
 	TaskReportsOut   chan *TaskReport
+	TaskResultsOut   chan *TaskResult
 	ItemsOut         chan *Item
 	Done             chan interface{}
 }
@@ -22,6 +23,7 @@ func NewWorker() *Worker {
 		ScheduledTasksIn: make(chan *ScheduledTask),
 		TaskPromisesOut:  make(chan *TaskPromise),
 		TaskReportsOut:   make(chan *TaskReport),
+		TaskResultsOut:   make(chan *TaskResult),
 		ItemsOut:         make(chan *Item),
 		Done:             make(chan interface{}),
 	}

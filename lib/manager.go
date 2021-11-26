@@ -12,6 +12,7 @@ type Manager struct {
 	UUID              string
 	TaskPromisesIn    chan *TaskPromise
 	TaskReportsIn     chan *TaskReport
+	TaskResultsIn     chan *TaskResult
 	ScheduledTasksOut chan *ScheduledTask
 	CurrentWorkflow   *Workflow // TODO: support multiple scraping jobs running concurrently
 	JobUUID           string
@@ -26,6 +27,7 @@ func NewManager() *Manager {
 		UUID:              uuid.New().String(),
 		TaskPromisesIn:    make(chan *TaskPromise),
 		TaskReportsIn:     make(chan *TaskReport),
+		TaskResultsIn:     make(chan *TaskResult),
 		ScheduledTasksOut: make(chan *ScheduledTask),
 		NPendingTasks:     0,
 		NFinishedTasks:    0,
