@@ -12,14 +12,16 @@ type TaskResult struct {
 	ScheduledTaskUUID string
 	Succeeded         bool
 	Error             error
+	OutputDataChunks  map[string][]*DataChunk
 }
 
 func NewTaskResult(jobUUID string, taskUUID string, succeeded bool, err error) *TaskResult {
 	return &TaskResult{
-		UUID:      uuid.New().String(),
-		JobUUID:   jobUUID,
-		TaskUUID:  taskUUID,
-		Succeeded: succeeded,
-		Error:     err,
+		UUID:             uuid.New().String(),
+		JobUUID:          jobUUID,
+		TaskUUID:         taskUUID,
+		Succeeded:        succeeded,
+		Error:            err,
+		OutputDataChunks: map[string][]*DataChunk{},
 	}
 }
