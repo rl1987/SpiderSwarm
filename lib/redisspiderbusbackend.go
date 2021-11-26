@@ -25,6 +25,7 @@ const RedisStreamNameItems = "items"
 const RedisStreamNameTaskPromises = "task_promises"
 const RedisStreamNameScheduledTasks = "scheduled_tasks"
 const RedisStreamNameTaskReports = "task_reports"
+const RedisStreamNameTaskResults = "task_results"
 
 func NewRedisSpiderBusBackend(serverAddr string, password string) *RedisSpiderBusBackend {
 	redisClient := redis.NewClient(&redis.Options{
@@ -41,6 +42,7 @@ func NewRedisSpiderBusBackend(serverAddr string, password string) *RedisSpiderBu
 	redisClient.XGroupCreateMkStream(ctx, RedisStreamNameTaskPromises, RedisStreamNameTaskPromises, "$")
 	redisClient.XGroupCreateMkStream(ctx, RedisStreamNameScheduledTasks, RedisStreamNameScheduledTasks, "$")
 	redisClient.XGroupCreateMkStream(ctx, RedisStreamNameTaskReports, RedisStreamNameTaskReports, "$")
+	redisClient.XGroupCreateMkStream(ctx, RedisStreamNameTaskResults, RedisStreamNameTaskResults, "$")
 
 	return &RedisSpiderBusBackend{
 		ctx:         ctx,
@@ -262,6 +264,35 @@ func (rsbb *RedisSpiderBusBackend) ReceiveTaskReport() *TaskReport {
 	taskReport := NewTaskReportFromJSON(raw)
 
 	return taskReport
+}
+
+func (rsbb *RedisSpiderBusBackend) SendTaskResult(taskResult *TaskResult) error {
+	raw := taskResult.EncodeToJSON()
+
+	err := rsbb.redisClient.XAdd(rsbb.ctx, &redis.XAddArgs{
+		Stream: RedisStreamNameTaskResults,
+		ID:     "*",
+		Values: map[string]interface{}{
+			"raw": string(raw),
+		},
+	}).Err()
+
+	if err != nil {
+		spew.Dump(err)
+	}
+
+	return err
+}
+
+func (rsbb *RedisSpiderBusBackend) ReceiveTaskResult() *TaskResult {
+	raw, err := rsbb.readRawMessageFromStream(RedisStreamNameTaskResults)
+	if err != nil {
+		return nil
+	}
+
+	taskResult := NewTaskResultFromJSON(raw)
+
+	return taskResult
 }
 
 func (rsbb *RedisSpiderBusBackend) Close() {

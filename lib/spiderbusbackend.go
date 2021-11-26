@@ -12,6 +12,8 @@ type SpiderBusBackend interface {
 	ReceiveItem() *Item
 	SendTaskReport(taskReport *TaskReport) error
 	ReceiveTaskReport() *TaskReport
+	SendTaskResult(taskResult *TaskResult) error
+	ReceiveTaskResult() *TaskResult
 }
 
 type AbstractSpiderBusBackend struct {

@@ -1,6 +1,10 @@
 package spsw
 
 import (
+	"bytes"
+	"encoding/json"
+	"io/ioutil"
+
 	"github.com/google/uuid"
 )
 
@@ -24,4 +28,29 @@ func NewTaskResult(jobUUID string, taskUUID string, succeeded bool, err error) *
 		Error:            err,
 		OutputDataChunks: map[string][]*DataChunk{},
 	}
+}
+
+func NewTaskResultFromJSON(raw []byte) *TaskResult {
+	taskResult := &TaskResult{}
+
+	buffer := bytes.NewBuffer(raw)
+	decoder := json.NewDecoder(buffer)
+
+	err := decoder.Decode(taskResult)
+	if err != nil {
+		return nil
+	}
+
+	return taskResult
+}
+
+func (tr *TaskResult) EncodeToJSON() []byte {
+	buffer := bytes.NewBuffer([]byte{})
+	encoder := json.NewEncoder(buffer)
+
+	encoder.Encode(tr)
+
+	bytes, _ := ioutil.ReadAll(buffer)
+
+	return bytes
 }

@@ -31,6 +31,10 @@ func (sb *SpiderBus) Enqueue(x interface{}) error {
 		return sb.Backend.SendTaskReport(report)
 	}
 
+	if result, okResult := x.(*TaskResult); okResult {
+		return sb.Backend.SendTaskResult(result)
+	}
+
 	if item, okItem := x.(*Item); okItem {
 		return sb.Backend.SendItem(item)
 	}
@@ -41,6 +45,7 @@ func (sb *SpiderBus) Enqueue(x interface{}) error {
 const SpiderBusEntryTypeScheduledTask = "SpiderBusEntryTypeScheduledTask"
 const SpiderBusEntryTypeTaskPromise = "SpiderBusEntryTypeTaskPromise"
 const SpiderBusEntryTypeTaskReport = "SpiderBusEntryTypeTaskReport"
+const SpiderBusEntryTypeTaskResult = "SpiderBusEntryTypeTaskResult"
 const SpiderBusEntryTypeItem = "SpiderBusEntryTypeItem"
 
 func (sb *SpiderBus) Dequeue(entryType string) (interface{}, error) {
@@ -62,6 +67,10 @@ func (sb *SpiderBus) Dequeue(entryType string) (interface{}, error) {
 
 	if entryType == SpiderBusEntryTypeItem {
 		return sb.Backend.ReceiveItem(), nil
+	}
+
+	if entryType == SpiderBusEntryTypeTaskResult {
+		return sb.Backend.ReceiveTaskResult(), nil
 	}
 
 	return nil, errors.New(fmt.Sprintf("SpiderBus.Dequeue: unrecognised entryType: %s", entryType))
