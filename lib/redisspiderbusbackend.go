@@ -24,7 +24,6 @@ type RedisSpiderBusBackend struct {
 const RedisStreamNameItems = "items"
 const RedisStreamNameTaskPromises = "task_promises"
 const RedisStreamNameScheduledTasks = "scheduled_tasks"
-const RedisStreamNameTaskReports = "task_reports"
 const RedisStreamNameTaskResults = "task_results"
 
 func NewRedisSpiderBusBackend(serverAddr string, password string) *RedisSpiderBusBackend {
@@ -41,7 +40,6 @@ func NewRedisSpiderBusBackend(serverAddr string, password string) *RedisSpiderBu
 	redisClient.XGroupCreateMkStream(ctx, RedisStreamNameItems, RedisStreamNameItems, "$")
 	redisClient.XGroupCreateMkStream(ctx, RedisStreamNameTaskPromises, RedisStreamNameTaskPromises, "$")
 	redisClient.XGroupCreateMkStream(ctx, RedisStreamNameScheduledTasks, RedisStreamNameScheduledTasks, "$")
-	redisClient.XGroupCreateMkStream(ctx, RedisStreamNameTaskReports, RedisStreamNameTaskReports, "$")
 	redisClient.XGroupCreateMkStream(ctx, RedisStreamNameTaskResults, RedisStreamNameTaskResults, "$")
 
 	return &RedisSpiderBusBackend{
@@ -72,9 +70,7 @@ func (rsbb *RedisSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTas
 	if rsbb.isHashInRedisSet(key, hashStr) {
 		log.Warning(fmt.Sprintf("Dropping duplicate: %v", scheduledTask))
 
-		taskReport := NewTaskReport(scheduledTask.JobUUID, "", scheduledTask.Promise.TaskName, false, errors.New("Duplicate"))
-
-		rsbb.SendTaskReport(taskReport)
+		// TODO: send TaskResult with error
 
 		return nil
 	}
@@ -235,35 +231,6 @@ func (rsbb *RedisSpiderBusBackend) ReceiveItem() *Item {
 	item := NewItemFromJSON(raw)
 
 	return item
-}
-
-func (rsbb *RedisSpiderBusBackend) SendTaskReport(taskReport *TaskReport) error {
-	raw := taskReport.EncodeToJSON()
-
-	err := rsbb.redisClient.XAdd(rsbb.ctx, &redis.XAddArgs{
-		Stream: RedisStreamNameTaskReports,
-		ID:     "*",
-		Values: map[string]interface{}{
-			"raw": string(raw),
-		},
-	}).Err()
-
-	if err != nil {
-		spew.Dump(err)
-	}
-
-	return err
-}
-
-func (rsbb *RedisSpiderBusBackend) ReceiveTaskReport() *TaskReport {
-	raw, err := rsbb.readRawMessageFromStream(RedisStreamNameTaskReports)
-	if err != nil {
-		return nil
-	}
-
-	taskReport := NewTaskReportFromJSON(raw)
-
-	return taskReport
 }
 
 func (rsbb *RedisSpiderBusBackend) SendTaskResult(taskResult *TaskResult) error {

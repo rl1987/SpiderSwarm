@@ -10,8 +10,6 @@ type SpiderBusBackend interface {
 	IsItemDuplicated(item *Item, jobUUID string) bool
 	SendItem(item *Item) error
 	ReceiveItem() *Item
-	SendTaskReport(taskReport *TaskReport) error
-	ReceiveTaskReport() *TaskReport
 	SendTaskResult(taskResult *TaskResult) error
 	ReceiveTaskResult() *TaskResult
 }

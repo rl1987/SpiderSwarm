@@ -15,8 +15,6 @@ type SpiderBusAdapter struct {
 	ScheduledTasksOut chan *ScheduledTask
 	TaskPromisesIn    chan *TaskPromise
 	TaskPromisesOut   chan *TaskPromise
-	TaskReportsIn     chan *TaskReport
-	TaskReportsOut    chan *TaskReport
 	TaskResultsIn     chan *TaskResult
 	TaskResultsOut    chan *TaskResult
 	ItemsIn           chan *Item
@@ -29,7 +27,6 @@ func NewSpiderBusAdapterForWorker(sb *SpiderBus, w *Worker) *SpiderBusAdapter {
 		Bus:               sb,
 		ScheduledTasksOut: w.ScheduledTasksIn,
 		TaskPromisesIn:    w.TaskPromisesOut,
-		TaskReportsIn:     w.TaskReportsOut,
 		TaskResultsIn:     w.TaskResultsOut,
 		ItemsIn:           w.ItemsOut,
 	}
@@ -48,7 +45,6 @@ func NewSpiderBusAdapterForManager(sb *SpiderBus, m *Manager) *SpiderBusAdapter 
 		UUID:             uuid.New().String(),
 		Bus:              sb,
 		TaskPromisesOut:  m.TaskPromisesIn,
-		TaskReportsOut:   m.TaskReportsIn,
 		TaskResultsOut:   m.TaskResultsIn,
 		ScheduledTasksIn: m.ScheduledTasksOut,
 	}
@@ -101,29 +97,6 @@ func (sba *SpiderBusAdapter) Start() {
 				}
 
 				sba.TaskPromisesOut <- taskPromise.(*TaskPromise)
-			}
-		}()
-	}
-
-	if sba.TaskReportsIn != nil {
-		go func() {
-			for taskReport := range sba.TaskReportsIn {
-				sba.Bus.Enqueue(taskReport)
-			}
-		}()
-	}
-
-	if sba.TaskReportsOut != nil {
-		go func() {
-			for {
-				taskReport, err := sba.Bus.Dequeue(SpiderBusEntryTypeTaskReport)
-
-				if taskReport == nil || err != nil {
-					time.Sleep(1)
-					continue
-				}
-
-				sba.TaskReportsOut <- taskReport.(*TaskReport)
 			}
 		}()
 	}

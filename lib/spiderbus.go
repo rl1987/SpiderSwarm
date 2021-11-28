@@ -27,10 +27,6 @@ func (sb *SpiderBus) Enqueue(x interface{}) error {
 		return sb.Backend.SendTaskPromise(promise)
 	}
 
-	if report, okReport := x.(*TaskReport); okReport {
-		return sb.Backend.SendTaskReport(report)
-	}
-
 	if result, okResult := x.(*TaskResult); okResult {
 		return sb.Backend.SendTaskResult(result)
 	}
@@ -44,7 +40,6 @@ func (sb *SpiderBus) Enqueue(x interface{}) error {
 
 const SpiderBusEntryTypeScheduledTask = "SpiderBusEntryTypeScheduledTask"
 const SpiderBusEntryTypeTaskPromise = "SpiderBusEntryTypeTaskPromise"
-const SpiderBusEntryTypeTaskReport = "SpiderBusEntryTypeTaskReport"
 const SpiderBusEntryTypeTaskResult = "SpiderBusEntryTypeTaskResult"
 const SpiderBusEntryTypeItem = "SpiderBusEntryTypeItem"
 
@@ -59,10 +54,6 @@ func (sb *SpiderBus) Dequeue(entryType string) (interface{}, error) {
 
 	if entryType == SpiderBusEntryTypeTaskPromise {
 		return sb.Backend.ReceiveTaskPromise(), nil
-	}
-
-	if entryType == SpiderBusEntryTypeTaskReport {
-		return sb.Backend.ReceiveTaskReport(), nil
 	}
 
 	if entryType == SpiderBusEntryTypeItem {

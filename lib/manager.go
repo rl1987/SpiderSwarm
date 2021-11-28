@@ -11,7 +11,6 @@ import (
 type Manager struct {
 	UUID              string
 	TaskPromisesIn    chan *TaskPromise
-	TaskReportsIn     chan *TaskReport
 	TaskResultsIn     chan *TaskResult
 	ScheduledTasksOut chan *ScheduledTask
 	CurrentWorkflow   *Workflow // TODO: support multiple scraping jobs running concurrently
@@ -19,20 +18,17 @@ type Manager struct {
 	NPendingTasks     int
 	NFinishedTasks    int
 	NScheduledTasks   int
-	PromiseBalance    int
 }
 
 func NewManager() *Manager {
 	return &Manager{
 		UUID:              uuid.New().String(),
 		TaskPromisesIn:    make(chan *TaskPromise),
-		TaskReportsIn:     make(chan *TaskReport),
 		TaskResultsIn:     make(chan *TaskResult),
 		ScheduledTasksOut: make(chan *ScheduledTask),
 		NPendingTasks:     0,
 		NFinishedTasks:    0,
 		NScheduledTasks:   0,
-		PromiseBalance:    0,
 	}
 }
 
@@ -60,15 +56,12 @@ func (m *Manager) createScheduledTaskFromPromise(promise *TaskPromise, jobUUID s
 func (m *Manager) logPendingTasks() {
 	log.Info(fmt.Sprintf("Manager %s tasks: %d pending, %d finished out of %d scheduled", m.UUID, m.NPendingTasks,
 		m.NFinishedTasks, m.NScheduledTasks))
-	log.Info(fmt.Sprintf("Manager %s task promise balance: %d", m.UUID, m.PromiseBalance))
 }
 
 func (m *Manager) handleTaskPromise(promise *TaskPromise) {
 	if promise == nil {
 		return
 	}
-
-	m.PromiseBalance--
 
 	for _, p := range promise.Splay() {
 		newScheduledTask := m.createScheduledTaskFromPromise(p, m.JobUUID)
@@ -92,6 +85,15 @@ func (m *Manager) processTaskResult(taskResult *TaskResult) {
 	if taskResult == nil {
 		return
 	}
+
+	m.NPendingTasks--
+
+	if !taskResult.Succeeded {
+		spew.Dump(taskResult.Error)
+		return
+	}
+
+	m.NFinishedTasks++
 
 	for _, chunks := range taskResult.OutputDataChunks {
 		for _, chunk := range chunks {
@@ -131,13 +133,13 @@ func (m *Manager) Run() error {
 	for taskResult := range m.TaskResultsIn {
 		spew.Dump(taskResult)
 
-		m.NPendingTasks--
-
 		m.processTaskResult(taskResult)
 
 		if m.NPendingTasks == 0 {
 			break
 		}
+
+		m.logPendingTasks()
 	}
 
 	return nil

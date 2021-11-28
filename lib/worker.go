@@ -11,7 +11,6 @@ type Worker struct {
 	UUID             string
 	ScheduledTasksIn chan *ScheduledTask
 	TaskPromisesOut  chan *TaskPromise
-	TaskReportsOut   chan *TaskReport
 	TaskResultsOut   chan *TaskResult
 	ItemsOut         chan *Item
 	Done             chan interface{}
@@ -22,7 +21,6 @@ func NewWorker() *Worker {
 		UUID:             uuid.New().String(),
 		ScheduledTasksIn: make(chan *ScheduledTask),
 		TaskPromisesOut:  make(chan *TaskPromise),
-		TaskReportsOut:   make(chan *TaskReport),
 		TaskResultsOut:   make(chan *TaskResult),
 		ItemsOut:         make(chan *Item),
 		Done:             make(chan interface{}),
@@ -37,9 +35,6 @@ func (w *Worker) executeTask(task *Task) error {
 	err := task.Run()
 	if err != nil {
 		log.Error(fmt.Sprintf("Task %v failed with error: %v", task, err))
-
-		taskReport := NewTaskReport(task.JobUUID, task.UUID, task.Name, false, err)
-		w.TaskReportsOut <- taskReport
 
 		taskResult := NewTaskResult(task.JobUUID, task.UUID, task.ScheduledTaskUUID, false, err)
 		w.TaskResultsOut <- taskResult
@@ -71,10 +66,6 @@ func (w *Worker) executeTask(task *Task) error {
 			taskResult.AddOutputTaskPromise(outputName, promise)
 		}
 	}
-
-	taskReport := NewTaskReport(task.JobUUID, task.UUID, task.Name, true, nil)
-	taskReport.NPromises = nPromises
-	w.TaskReportsOut <- taskReport
 
 	w.TaskResultsOut <- taskResult
 
