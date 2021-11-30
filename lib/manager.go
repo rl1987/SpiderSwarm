@@ -17,6 +17,7 @@ type Manager struct {
 	JobUUID           string
 	NPendingTasks     int
 	NFinishedTasks    int
+	NFailedTasks      int
 	NScheduledTasks   int
 }
 
@@ -28,6 +29,7 @@ func NewManager() *Manager {
 		ScheduledTasksOut: make(chan *ScheduledTask),
 		NPendingTasks:     0,
 		NFinishedTasks:    0,
+		NFailedTasks:      0,
 		NScheduledTasks:   0,
 	}
 }
