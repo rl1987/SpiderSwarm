@@ -70,12 +70,9 @@ func (rsbb *RedisSpiderBusBackend) SendScheduledTask(scheduledTask *ScheduledTas
 	if rsbb.isHashInRedisSet(key, hashStr) {
 		log.Warning(fmt.Sprintf("Dropping duplicate: %v", scheduledTask))
 
-		err := errors.New("duplicate")
+		// TODO: send TaskResult with error
 
-		taskResult := NewTaskResult(scheduledTask.JobUUID, "", scheduledTask.UUID, false, err)
-		rsbb.SendTaskResult(taskResult)
-
-		return err
+		return nil
 	}
 
 	raw := scheduledTask.EncodeToJSON()
