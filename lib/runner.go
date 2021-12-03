@@ -33,7 +33,9 @@ func (r *Runner) setupSpiderBus() *SpiderBus {
 func (r *Runner) RunManager(workflow *Workflow) *Manager {
 	r.initLogging()
 
-	manager := NewManager()
+	deduplicator := NewDeduplicator(r.BackendAddr)
+
+	manager := NewManager(deduplicator)
 
 	if workflow != nil {
 		manager.StartScrapingJob(workflow)

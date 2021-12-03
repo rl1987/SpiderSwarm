@@ -20,9 +20,10 @@ type Manager struct {
 	NFinishedTasks    int
 	NFailedTasks      int
 	NScheduledTasks   int
+	Deduplicator      *Deduplicator
 }
 
-func NewManager() *Manager {
+func NewManager(deduplicator *Deduplicator) *Manager {
 	return &Manager{
 		UUID:              uuid.New().String(),
 		TaskPromisesIn:    make(chan *TaskPromise),
@@ -33,6 +34,7 @@ func NewManager() *Manager {
 		NFinishedTasks:    0,
 		NFailedTasks:      0,
 		NScheduledTasks:   0,
+		Deduplicator:      deduplicator,
 	}
 }
 
@@ -73,11 +75,18 @@ func (m *Manager) handleTaskPromise(promise *TaskPromise) {
 			continue
 		}
 
+		if m.Deduplicator.IsScheduledTaskDuplicated(newScheduledTask) {
+			log.Info(fmt.Sprintf("Dropping duplicated scheduled task: %v", newScheduledTask))
+			continue
+		}
+
 		log.Info(fmt.Sprintf("Created scheduled task %v", newScheduledTask))
 		m.ScheduledTasksOut <- newScheduledTask
 		m.NPendingTasks++
 		m.NScheduledTasks++
 		m.logPendingTasks()
+
+		m.Deduplicator.NoteScheduledTask(newScheduledTask)
 	}
 }
 
@@ -133,7 +142,11 @@ func (m *Manager) Run() error {
 		m.NPendingTasks++
 		m.NScheduledTasks++
 
+		m.Deduplicator.NoteScheduledTask(scheduledTask)
+
 		m.logPendingTasks()
+
+		break
 	}
 
 	for taskResult := range m.TaskResultsIn {
