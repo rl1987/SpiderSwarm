@@ -17,9 +17,9 @@ func NewDeduplicator(backendAddr string) *Deduplicator {
 }
 
 func (d *Deduplicator) IsScheduledTaskDuplicated(scheduledTask *ScheduledTask) bool {
-	return d.IsScheduledTaskDuplicated(scheduledTask)
+	return d.Backend.IsScheduledTaskDuplicated(scheduledTask)
 }
 
 func (d *Deduplicator) NoteScheduledTask(scheduledTask *ScheduledTask) error {
-	return d.NoteScheduledTask(scheduledTask)
+	return d.Backend.NoteScheduledTask(scheduledTask)
 }
