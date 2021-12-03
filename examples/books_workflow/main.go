@@ -3,14 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"strconv"
 
 	spsw "github.com/spiderswarm/spiderswarm/lib"
 
-	"github.com/davecgh/go-spew/spew"
 	log "github.com/sirupsen/logrus"
 )
 
