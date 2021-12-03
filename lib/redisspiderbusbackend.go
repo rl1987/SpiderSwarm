@@ -14,6 +14,7 @@ import (
 
 type RedisSpiderBusBackend struct {
 	SpiderBusBackend
+	UUID string
 
 	ctx         context.Context
 	serverAddr  string
@@ -43,6 +44,7 @@ func NewRedisSpiderBusBackend(serverAddr string, password string) *RedisSpiderBu
 	redisClient.XGroupCreateMkStream(ctx, RedisStreamNameTaskResults, RedisStreamNameTaskResults, "$")
 
 	return &RedisSpiderBusBackend{
+		UUID:        consumerId,
 		ctx:         ctx,
 		serverAddr:  serverAddr,
 		redisClient: redisClient,
