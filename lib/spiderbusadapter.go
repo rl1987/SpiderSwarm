@@ -46,6 +46,7 @@ func NewSpiderBusAdapterForManager(sb *SpiderBus, m *Manager) *SpiderBusAdapter 
 		TaskPromisesOut:  m.TaskPromisesIn,
 		TaskResultsOut:   m.TaskResultsIn,
 		ScheduledTasksIn: m.ScheduledTasksOut,
+		ItemsIn:          m.ItemsOut,
 	}
 }
 

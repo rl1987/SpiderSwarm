@@ -13,6 +13,7 @@ type Manager struct {
 	TaskPromisesIn    chan *TaskPromise
 	TaskResultsIn     chan *TaskResult
 	ScheduledTasksOut chan *ScheduledTask
+	ItemsOut          chan *Item
 	CurrentWorkflow   *Workflow // TODO: support multiple scraping jobs running concurrently
 	JobUUID           string
 	NPendingTasks     int
@@ -27,6 +28,7 @@ func NewManager() *Manager {
 		TaskPromisesIn:    make(chan *TaskPromise),
 		TaskResultsIn:     make(chan *TaskResult),
 		ScheduledTasksOut: make(chan *ScheduledTask),
+		ItemsOut:          make(chan *Item),
 		NPendingTasks:     0,
 		NFinishedTasks:    0,
 		NFailedTasks:      0,
@@ -80,7 +82,9 @@ func (m *Manager) handleTaskPromise(promise *TaskPromise) {
 }
 
 func (m *Manager) handleItem(item *Item) {
-	// TODO: push item to SpiderBus
+	for _, i := range item.Splay() {
+		m.ItemsOut <- i
+	}
 }
 
 func (m *Manager) processTaskResult(taskResult *TaskResult) {
