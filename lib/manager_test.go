@@ -7,7 +7,7 @@ import (
 )
 
 func TestNewManager(t *testing.T) {
-	manager := NewManager()
+	manager := NewManager(nil)
 
 	assert.NotNil(t, manager)
 	assert.NotNil(t, manager.TaskPromisesIn)
@@ -16,7 +16,7 @@ func TestNewManager(t *testing.T) {
 }
 
 func TestManagerStartScrapingJob(t *testing.T) {
-	manager := NewManager()
+	manager := NewManager(nil)
 
 	workflow := &Workflow{}
 
