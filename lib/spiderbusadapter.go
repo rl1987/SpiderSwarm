@@ -28,7 +28,6 @@ func NewSpiderBusAdapterForWorker(sb *SpiderBus, w *Worker) *SpiderBusAdapter {
 		ScheduledTasksOut: w.ScheduledTasksIn,
 		TaskPromisesIn:    w.TaskPromisesOut,
 		TaskResultsIn:     w.TaskResultsOut,
-		ItemsIn:           w.ItemsOut,
 	}
 }
 

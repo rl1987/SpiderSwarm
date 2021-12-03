@@ -12,7 +12,6 @@ type Worker struct {
 	ScheduledTasksIn chan *ScheduledTask
 	TaskPromisesOut  chan *TaskPromise
 	TaskResultsOut   chan *TaskResult
-	ItemsOut         chan *Item
 	Done             chan interface{}
 }
 
@@ -22,7 +21,6 @@ func NewWorker() *Worker {
 		ScheduledTasksIn: make(chan *ScheduledTask),
 		TaskPromisesOut:  make(chan *TaskPromise),
 		TaskResultsOut:   make(chan *TaskResult),
-		ItemsOut:         make(chan *Item),
 		Done:             make(chan interface{}),
 	}
 }
@@ -54,8 +52,6 @@ func (w *Worker) executeTask(task *Task) error {
 		x := outDP.Remove()
 
 		if item, okItem := x.(*Item); okItem {
-			w.ItemsOut <- item
-
 			taskResult.AddOutputItem(outputName, item)
 		}
 
@@ -92,5 +88,4 @@ func (w *Worker) Run() error {
 			return nil
 		}
 	}
-
 }
