@@ -16,7 +16,7 @@ const ValueTypeBytes = "ValueTypeBytes"
 const ValueTypeHTTPHeaders = "ValueTypeHTTPHeaders"
 
 type Value struct {
-	ValueType               string
+	ValueType               string              `yaml:"ValueType"`
 	BoolValue               bool                `yaml:"BoolValue,omitempty"`
 	IntValue                int                 `yaml:"IntValue,omitempty"`
 	StringValue             string              `yaml:"StringValue,omitempty"`

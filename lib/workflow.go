@@ -7,9 +7,9 @@ import (
 )
 
 type ActionTemplate struct {
-	Name              string
-	StructName        string
-	ConstructorParams map[string]Value
+	Name              string           `yaml:"Name"`
+	StructName        string           `yaml:"StructName"`
+	ConstructorParams map[string]Value `yaml:"ConstructorParams"`
 }
 
 func (at ActionTemplate) String() string {
@@ -18,12 +18,12 @@ func (at ActionTemplate) String() string {
 }
 
 type DataPipeTemplate struct {
-	SourceActionName string
-	SourceOutputName string
-	DestActionName   string
-	DestInputName    string
-	TaskInputName    string
-	TaskOutputName   string
+	SourceActionName string `yaml:"SourceActionName"`
+	SourceOutputName string `yaml:"SourceOutputName"`
+	DestActionName   string `yaml:"DestActionName"`
+	DestInputName    string `yaml:"DestInputName"`
+	TaskInputName    string `yaml:"TaskInputName"`
+	TaskOutputName   string `yaml:"TaskOutputName"`
 }
 
 func (dpt *DataPipeTemplate) String() string {
@@ -33,10 +33,10 @@ func (dpt *DataPipeTemplate) String() string {
 }
 
 type TaskTemplate struct {
-	TaskName          string
-	Initial           bool
-	ActionTemplates   []ActionTemplate
-	DataPipeTemplates []DataPipeTemplate
+	TaskName          string             `yaml:"TaskName"`
+	Initial           bool               `yaml:"Initial"`
+	ActionTemplates   []ActionTemplate   `yaml:"ActionTemplates"`
+	DataPipeTemplates []DataPipeTemplate `yaml:"DataPipeTemplates"`
 }
 
 func (tt TaskTemplate) String() string {
@@ -45,9 +45,9 @@ func (tt TaskTemplate) String() string {
 }
 
 type Workflow struct {
-	Name          string
-	Version       string
-	TaskTemplates []TaskTemplate
+	Name          string         `yaml:"Name"`
+	Version       string         `yaml:"Version"`
+	TaskTemplates []TaskTemplate `yaml:"TaskTemplates"`
 }
 
 func (w *Workflow) String() string {
