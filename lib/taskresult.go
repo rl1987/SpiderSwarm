@@ -3,6 +3,7 @@ package spsw
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 
 	"github.com/google/uuid"
@@ -42,6 +43,11 @@ func NewTaskResultFromJSON(raw []byte) *TaskResult {
 	}
 
 	return taskResult
+}
+
+func (tr *TaskResult) String() string {
+	return fmt.Sprintf("<TaskResult %s JobUUID: %s, TaskUUID: %s, ScheduledTaskUUID: %s, Succeeded: %v, Error: %v, OutputDataChunks: %v>",
+		tr.UUID, tr.JobUUID, tr.TaskUUID, tr.ScheduledTaskUUID, tr.Succeeded, tr.Error, tr.OutputDataChunks)
 }
 
 func (tr *TaskResult) EncodeToJSON() []byte {
