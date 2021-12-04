@@ -1,0 +1,348 @@
+Name: FCC_telecom
+Version: ""
+TaskTemplates:
+    - TaskName: ScrapeStates
+      Initial: true
+      ActionTemplates:
+        - Name: HTTP_Form
+          StructName: HTTPAction
+          ConstructorParams:
+            baseURL:
+                ValueType: ValueTypeString
+                StringValue: https://apps.fcc.gov/cgb/form499/499a.cfm
+            canFail:
+                ValueType: ValueTypeString
+            method:
+                ValueType: ValueTypeString
+                StringValue: GET
+        - Name: XPath_states
+          StructName: XPathAction
+          ConstructorParams:
+            expectMany:
+                ValueType: ValueTypeBool
+                BoolValue: true
+            xpath:
+                ValueType: ValueTypeString
+                StringValue: //select[@name="state"]/option[not(@selected)]/@value
+        - Name: TaskPromise_ScrapeList
+          StructName: TaskPromiseAction
+          ConstructorParams:
+            inputNames:
+                ValueType: ValueTypeStrings
+                StringsValue:
+                    - state
+                    - cookies
+            taskName:
+                ValueType: ValueTypeString
+                StringValue: ScrapeCompanyList
+      DataPipeTemplates:
+        - SourceActionName: HTTP_Form
+          SourceOutputName: HTTPActionOutputBody
+          DestActionName: XPath_states
+          DestInputName: XPathActionInputHTMLBytes
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: XPath_states
+          SourceOutputName: XPathActionOutputStr
+          DestActionName: TaskPromise_ScrapeList
+          DestInputName: state
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: HTTP_Form
+          SourceOutputName: HTTPActionOutputCookies
+          DestActionName: TaskPromise_ScrapeList
+          DestInputName: cookies
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: TaskPromise_ScrapeList
+          SourceOutputName: TaskPromiseActionOutputPromise
+          DestActionName: ""
+          DestInputName: ""
+          TaskInputName: ""
+          TaskOutputName: promise
+    - TaskName: ScrapeCompanyList
+      Initial: false
+      ActionTemplates:
+        - Name: Const_commType
+          StructName: ConstAction
+          ConstructorParams:
+            c:
+                ValueType: ValueTypeString
+                StringValue: Any Type
+        - Name: Const_R1
+          StructName: ConstAction
+          ConstructorParams:
+            c:
+                ValueType: ValueTypeString
+                StringValue: and
+        - Name: Const_XML
+          StructName: ConstAction
+          ConstructorParams:
+            c:
+                ValueType: ValueTypeString
+                StringValue: "FALSE"
+        - Name: JoinParams
+          StructName: FieldJoinAction
+          ConstructorParams:
+            inputNames:
+                ValueType: ValueTypeStrings
+                StringsValue:
+                    - comm_type
+                    - R1
+                    - state
+                    - XML
+            itemName:
+                ValueType: ValueTypeString
+                StringValue: params
+        - Name: HTTP_List
+          StructName: HTTPAction
+          ConstructorParams:
+            baseURL:
+                ValueType: ValueTypeString
+                StringValue: https://apps.fcc.gov/cgb/form499/499results.cfm
+            canFail:
+                ValueType: ValueTypeBool
+        - Name: XPath_Companies
+          StructName: XPathAction
+          ConstructorParams:
+            expectMany:
+                ValueType: ValueTypeBool
+                BoolValue: true
+            xpath:
+                ValueType: ValueTypeString
+                StringValue: //table[@border="1"]//a/@href
+        - Name: JoinCookies
+          StructName: HTTPCookieJoinAction
+          ConstructorParams: {}
+        - Name: TaskPromise_ScrapeCompanyPage
+          StructName: TaskPromiseAction
+          ConstructorParams:
+            inputNames:
+                ValueType: ValueTypeStrings
+                StringsValue:
+                    - relativeURL
+                    - cookies
+            taskName:
+                ValueType: ValueTypeString
+                StringValue: ScrapeCompanyPage
+      DataPipeTemplates:
+        - SourceActionName: ""
+          SourceOutputName: ""
+          DestActionName: JoinParams
+          DestInputName: state
+          TaskInputName: state
+          TaskOutputName: ""
+        - SourceActionName: ""
+          SourceOutputName: ""
+          DestActionName: HTTP_List
+          DestInputName: HTTPActionInputCookies
+          TaskInputName: cookies
+          TaskOutputName: ""
+        - SourceActionName: ""
+          SourceOutputName: ""
+          DestActionName: JoinCookies
+          DestInputName: HTTPCookieJoinActionInputOldCookies
+          TaskInputName: cookies
+          TaskOutputName: ""
+        - SourceActionName: Const_R1
+          SourceOutputName: ConstActionOutput
+          DestActionName: JoinParams
+          DestInputName: R1
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: Const_XML
+          SourceOutputName: ConstActionOutput
+          DestActionName: JoinParams
+          DestInputName: XML
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: Const_commType
+          SourceOutputName: ConstActionOutput
+          DestActionName: JoinParams
+          DestInputName: comm_type
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: JoinParams
+          SourceOutputName: FieldJoinActionOutputMap
+          DestActionName: HTTP_List
+          DestInputName: HTTPActionInputURLParams
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: HTTP_List
+          SourceOutputName: HTTPActionOutputBody
+          DestActionName: XPath_Companies
+          DestInputName: XPathActionInputHTMLBytes
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: HTTP_List
+          SourceOutputName: HTTPActionOutputCookies
+          DestActionName: JoinCookies
+          DestInputName: HTTPCookieJoinActionInputNewCookies
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: JoinCookies
+          SourceOutputName: HTTPCookieJoinActionOutputUpdatedCookies
+          DestActionName: TaskPromise_ScrapeCompanyPage
+          DestInputName: cookies
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: XPath_Companies
+          SourceOutputName: XPathActionOutputStr
+          DestActionName: TaskPromise_ScrapeCompanyPage
+          DestInputName: relativeURL
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: TaskPromise_ScrapeCompanyPage
+          SourceOutputName: TaskPromiseActionOutputPromise
+          DestActionName: ""
+          DestInputName: ""
+          TaskInputName: ""
+          TaskOutputName: promise
+    - TaskName: ScrapeCompanyPage
+      Initial: false
+      ActionTemplates:
+        - Name: URLJoin
+          StructName: URLJoinAction
+          ConstructorParams:
+            baseURL:
+                ValueType: ValueTypeString
+                StringValue: https://apps.fcc.gov/cgb/form499/
+        - Name: HTTP_Company
+          StructName: HTTPAction
+          ConstructorParams:
+            canFail:
+                ValueType: ValueTypeBool
+            method:
+                ValueType: ValueTypeString
+                StringValue: GET
+        - Name: BodyBytesToStr
+          StructName: UTF8DecodeAction
+          ConstructorParams: {}
+        - Name: GetFilerID
+          StructName: StringCutAction
+          ConstructorParams:
+            from:
+                ValueType: ValueTypeString
+                StringValue: '499 Filer ID Number:                <b>'
+            to:
+                ValueType: ValueTypeString
+                StringValue: </b>
+        - Name: GetLegalName
+          StructName: StringCutAction
+          ConstructorParams:
+            from:
+                ValueType: ValueTypeString
+                StringValue: 'Legal Name of Reporting Entity:     <b>'
+            to:
+                ValueType: ValueTypeString
+                StringValue: </b>
+        - Name: GetDBA
+          StructName: StringCutAction
+          ConstructorParams:
+            from:
+                ValueType: ValueTypeString
+                StringValue: 'Doing Business As:                  <b>'
+            to:
+                ValueType: ValueTypeString
+                StringValue: </b>
+        - Name: GetPhone
+          StructName: StringCutAction
+          ConstructorParams:
+            from:
+                ValueType: ValueTypeString
+                StringValue: 'Customer Inquiries Telephone:       <b>'
+            to:
+                ValueType: ValueTypeString
+                StringValue: </b>
+        - Name: MakeItem
+          StructName: FieldJoinAction
+          ConstructorParams:
+            inputNames:
+                ValueType: ValueTypeStrings
+                StringsValue:
+                    - filer_id
+                    - legal_name
+                    - dba
+                    - phone
+            itemName:
+                ValueType: ValueTypeString
+                StringValue: company
+      DataPipeTemplates:
+        - SourceActionName: ""
+          SourceOutputName: ""
+          DestActionName: URLJoin
+          DestInputName: URLJoinActionInputRelativeURL
+          TaskInputName: relativeURL
+          TaskOutputName: ""
+        - SourceActionName: ""
+          SourceOutputName: ""
+          DestActionName: HTTP_Company
+          DestInputName: HTTPActionInputCookies
+          TaskInputName: cookies
+          TaskOutputName: ""
+        - SourceActionName: URLJoin
+          SourceOutputName: URLJoinActionOutputAbsoluteURL
+          DestActionName: HTTP_Company
+          DestInputName: HTTPActionInputBaseURL
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: HTTP_Company
+          SourceOutputName: HTTPActionOutputBody
+          DestActionName: BodyBytesToStr
+          DestInputName: UTF8DecodeActionInputBytes
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: BodyBytesToStr
+          SourceOutputName: UTF8DecodeActionOutputStr
+          DestActionName: GetFilerID
+          DestInputName: StringCutActionInputStr
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: BodyBytesToStr
+          SourceOutputName: UTF8DecodeActionOutputStr
+          DestActionName: GetLegalName
+          DestInputName: StringCutActionInputStr
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: BodyBytesToStr
+          SourceOutputName: UTF8DecodeActionOutputStr
+          DestActionName: GetDBA
+          DestInputName: StringCutActionInputStr
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: BodyBytesToStr
+          SourceOutputName: UTF8DecodeActionOutputStr
+          DestActionName: GetPhone
+          DestInputName: StringCutActionInputStr
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: GetFilerID
+          SourceOutputName: StringCutActionOutputStr
+          DestActionName: MakeItem
+          DestInputName: filer_id
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: GetLegalName
+          SourceOutputName: StringCutActionOutputStr
+          DestActionName: MakeItem
+          DestInputName: legal_name
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: GetDBA
+          SourceOutputName: StringCutActionOutputStr
+          DestActionName: MakeItem
+          DestInputName: dba
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: GetPhone
+          SourceOutputName: StringCutActionOutputStr
+          DestActionName: MakeItem
+          DestInputName: phone
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: MakeItem
+          SourceOutputName: FieldJoinActionOutputItem
+          DestActionName: ""
+          DestInputName: ""
+          TaskInputName: ""
+          TaskOutputName: items

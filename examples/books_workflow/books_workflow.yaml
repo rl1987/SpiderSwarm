@@ -1,0 +1,270 @@
+Name: testWorkflow
+Version: v0.0.0.0.1
+TaskTemplates:
+    - TaskName: Launch
+      Initial: true
+      ActionTemplates:
+        - Name: ConstURL
+          StructName: ConstAction
+          ConstructorParams:
+            c:
+                ValueType: ValueTypeString
+                StringValue: http://104.248.27.41:8000/catalogue/category/books_1/index.html
+        - Name: Promise1
+          StructName: TaskPromiseAction
+          ConstructorParams:
+            inputNames:
+                ValueType: ValueTypeStrings
+                StringsValue:
+                    - url
+            requireFields:
+                ValueType: ValueTypeStrings
+                StringsValue:
+                    - url
+            taskName:
+                ValueType: ValueTypeString
+                StringValue: ScrapeListPage
+      DataPipeTemplates:
+        - SourceActionName: ConstURL
+          SourceOutputName: ConstActionOutput
+          DestActionName: Promise1
+          DestInputName: url
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: Promise1
+          SourceOutputName: TaskPromiseActionOutputPromise
+          DestActionName: ""
+          DestInputName: ""
+          TaskInputName: ""
+          TaskOutputName: promise1
+    - TaskName: ScrapeListPage
+      Initial: false
+      ActionTemplates:
+        - Name: GetListPage
+          StructName: HTTPAction
+          ConstructorParams:
+            baseURL:
+                ValueType: ValueTypeString
+                StringValue: http://104.248.27.41:8000/catalogue/category/books_/
+            canFail:
+                ValueType: ValueTypeBool
+            method:
+                ValueType: ValueTypeString
+                StringValue: GET
+        - Name: ExtractNextPageURL
+          StructName: XPathAction
+          ConstructorParams:
+            expectMany:
+                ValueType: ValueTypeBool
+            xpath:
+                ValueType: ValueTypeString
+                StringValue: //li[@class="next"]/a/@href
+        - Name: MakeNextPageURLAbsolute
+          StructName: URLJoinAction
+          ConstructorParams:
+            baseURL:
+                ValueType: ValueTypeString
+                StringValue: http://104.248.27.41:8000/catalogue/category/books_1/
+        - Name: ExtractBookLinks
+          StructName: XPathAction
+          ConstructorParams:
+            expectMany:
+                ValueType: ValueTypeBool
+                BoolValue: true
+            xpath:
+                ValueType: ValueTypeString
+                StringValue: //div[@class="image_container"]/a/@href
+        - Name: PromiseToScrapeBookPage
+          StructName: TaskPromiseAction
+          ConstructorParams:
+            inputNames:
+                ValueType: ValueTypeStrings
+                StringsValue:
+                    - url
+            requireFields:
+                ValueType: ValueTypeStrings
+                StringsValue:
+                    - url
+            taskName:
+                ValueType: ValueTypeString
+                StringValue: ScrapeBookPage
+        - Name: PromiseToScrapeBookList
+          StructName: TaskPromiseAction
+          ConstructorParams:
+            inputNames:
+                ValueType: ValueTypeStrings
+                StringsValue:
+                    - url
+            requireFields:
+                ValueType: ValueTypeStrings
+                StringsValue:
+                    - url
+            taskName:
+                ValueType: ValueTypeString
+                StringValue: ScrapeListPage
+      DataPipeTemplates:
+        - SourceActionName: ""
+          SourceOutputName: ""
+          DestActionName: GetListPage
+          DestInputName: HTTPActionInputBaseURL
+          TaskInputName: url
+          TaskOutputName: ""
+        - SourceActionName: GetListPage
+          SourceOutputName: HTTPActionOutputBody
+          DestActionName: ExtractNextPageURL
+          DestInputName: XPathActionInputHTMLBytes
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: GetListPage
+          SourceOutputName: HTTPActionOutputBody
+          DestActionName: ExtractBookLinks
+          DestInputName: XPathActionInputHTMLBytes
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: ExtractNextPageURL
+          SourceOutputName: XPathActionOutputStr
+          DestActionName: MakeNextPageURLAbsolute
+          DestInputName: URLJoinActionInputRelativeURL
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: ExtractBookLinks
+          SourceOutputName: XPathActionOutputStr
+          DestActionName: PromiseToScrapeBookPage
+          DestInputName: url
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: MakeNextPageURLAbsolute
+          SourceOutputName: URLJoinActionOutputAbsoluteURL
+          DestActionName: PromiseToScrapeBookList
+          DestInputName: url
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: PromiseToScrapeBookPage
+          SourceOutputName: TaskPromiseActionOutputPromise
+          DestActionName: ""
+          DestInputName: ""
+          TaskInputName: ""
+          TaskOutputName: bookPagePromises
+        - SourceActionName: PromiseToScrapeBookList
+          SourceOutputName: TaskPromiseActionOutputPromise
+          DestActionName: ""
+          DestInputName: ""
+          TaskInputName: ""
+          TaskOutputName: bookListPromises
+    - TaskName: ScrapeBookPage
+      Initial: false
+      ActionTemplates:
+        - Name: MakeBookURLAbsolute
+          StructName: URLJoinAction
+          ConstructorParams:
+            baseURL:
+                ValueType: ValueTypeString
+                StringValue: http://104.248.27.41:8000/catalogue/category/books_1/
+        - Name: GetBookPageHTML
+          StructName: HTTPAction
+          ConstructorParams:
+            baseURL:
+                ValueType: ValueTypeString
+            canFail:
+                ValueType: ValueTypeBool
+            method:
+                ValueType: ValueTypeString
+                StringValue: GET
+        - Name: ExtractBookTitle
+          StructName: XPathAction
+          ConstructorParams:
+            expectMany:
+                ValueType: ValueTypeBool
+            xpath:
+                ValueType: ValueTypeString
+                StringValue: //h1/text()
+        - Name: ExtractDescription
+          StructName: XPathAction
+          ConstructorParams:
+            expectMany:
+                ValueType: ValueTypeBool
+            xpath:
+                ValueType: ValueTypeString
+                StringValue: //article[@class="product_page"]/p/text()
+        - Name: ExtractUPC
+          StructName: XPathAction
+          ConstructorParams:
+            expectMany:
+                ValueType: ValueTypeBool
+            xpath:
+                ValueType: ValueTypeString
+                StringValue: //tr[./th[text()="UPC"]]/td/text()
+        - Name: MakeItem
+          StructName: FieldJoinAction
+          ConstructorParams:
+            inputNames:
+                ValueType: ValueTypeStrings
+                StringsValue:
+                    - title
+                    - description
+                    - upc
+                    - url
+            itemName:
+                ValueType: ValueTypeString
+                StringValue: book
+      DataPipeTemplates:
+        - SourceActionName: ""
+          SourceOutputName: ""
+          DestActionName: MakeBookURLAbsolute
+          DestInputName: URLJoinActionInputRelativeURL
+          TaskInputName: url
+          TaskOutputName: ""
+        - SourceActionName: MakeBookURLAbsolute
+          SourceOutputName: URLJoinActionOutputAbsoluteURL
+          DestActionName: GetBookPageHTML
+          DestInputName: HTTPActionInputBaseURL
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: GetBookPageHTML
+          SourceOutputName: HTTPActionOutputBody
+          DestActionName: ExtractBookTitle
+          DestInputName: XPathActionInputHTMLBytes
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: GetBookPageHTML
+          SourceOutputName: HTTPActionOutputBody
+          DestActionName: ExtractDescription
+          DestInputName: XPathActionInputHTMLBytes
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: GetBookPageHTML
+          SourceOutputName: HTTPActionOutputBody
+          DestActionName: ExtractUPC
+          DestInputName: XPathActionInputHTMLBytes
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: MakeBookURLAbsolute
+          SourceOutputName: URLJoinActionOutputAbsoluteURL
+          DestActionName: MakeItem
+          DestInputName: url
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: ExtractBookTitle
+          SourceOutputName: XPathActionOutputStr
+          DestActionName: MakeItem
+          DestInputName: title
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: ExtractDescription
+          SourceOutputName: XPathActionOutputStr
+          DestActionName: MakeItem
+          DestInputName: description
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: ExtractUPC
+          SourceOutputName: XPathActionOutputStr
+          DestActionName: MakeItem
+          DestInputName: upc
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: MakeItem
+          SourceOutputName: FieldJoinActionOutputItem
+          DestActionName: ""
+          DestInputName: ""
+          TaskInputName: ""
+          TaskOutputName: item
