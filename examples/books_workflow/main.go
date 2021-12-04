@@ -373,7 +373,7 @@ func runTestWorkflow() {
 
 	runner := spsw.NewRunner(backendAddr)
 
-	runner.RunSingleNode(4, "/tmp", workflow)
+	runner.RunSingleNode(4, "./", workflow)
 }
 
 func NewAbstractAction(actionTempl *spsw.ActionTemplate, workflowName string) spsw.Action {
