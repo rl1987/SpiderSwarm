@@ -1,12 +1,22 @@
 package main
 
 import (
+	"flag"
+	"fmt"
+	_ "net/http/pprof"
+	"os"
+	"strconv"
+
 	spsw "github.com/spiderswarm/spiderswarm/lib"
 
-	"github.com/davecgh/go-spew/spew"
+	log "github.com/sirupsen/logrus"
 )
 
-func runTestWorkflow() {
+func printUsage() {
+	fmt.Println("Read the code for now")
+}
+
+func getWorkflow() *spsw.Workflow {
 	// https://apps.fcc.gov/cgb/form499/499a.cfm
 	// https://apps.fcc.gov/cgb/form499/499results.cfm?comm_type=Any+Type&state=alaska&R1=and&XML=FALSE
 
@@ -442,19 +452,66 @@ func runTestWorkflow() {
 		},
 	}
 
-	spew.Dump(workflow)
+	return workflow
+}
+func runTestWorkflow() {
 	backendAddr := "127.0.0.1:6379"
+	workflow := getWorkflow()
 
 	runner := spsw.NewRunner(backendAddr)
 
-	runner.RunSingleNode(4, "/tmp", workflow)
+	runner.RunSingleNode(4, "./", workflow)
+}
 
-	// https://medium.com/@ashishstiwari/dont-simply-run-forever-loop-for-1594464040b1
-	for {
-		select {}
-	}
+func NewAbstractAction(actionTempl *spsw.ActionTemplate, workflowName string) spsw.Action {
+	return &spsw.AbstractAction{}
 }
 
 func main() {
-	runTestWorkflow()
+	if len(os.Args) < 2 {
+		printUsage()
+		os.Exit(0)
+	}
+
+	workflow := getWorkflow()
+
+	singleNodeCmd := flag.NewFlagSet("singlenode", flag.ExitOnError)
+	singleNodeWorkers := singleNodeCmd.Int("workers", 1, "Number of worker goroutines")
+
+	runner := &spsw.Runner{}
+
+	switch os.Args[1] {
+	case "singlenode":
+		singleNodeCmd.Parse(os.Args[2:])
+		log.Info(fmt.Sprintf("Number of worker goroutines: %d", *singleNodeWorkers))
+		log.Error("Not implemented")
+	case "worker":
+		n, _ := strconv.Atoi(os.Args[2])
+		backendAddr := os.Args[3]
+		runner.BackendAddr = backendAddr
+		runner.RunWorkers(n)
+		for {
+			select {}
+		}
+	case "manager":
+		backendAddr := os.Args[2]
+		runner.BackendAddr = backendAddr
+		runner.RunManager(workflow)
+		for {
+			select {}
+		}
+	case "exporter":
+		outputDir := os.Args[2]
+		backendAddr := os.Args[3]
+		runner.BackendAddr = backendAddr
+		runner.RunExporter(outputDir)
+		for {
+			select {}
+		}
+	case "client":
+		// TODO: client for REST API
+		log.Error("client part not implemented yet")
+	default:
+		runTestWorkflow()
+	}
 }
