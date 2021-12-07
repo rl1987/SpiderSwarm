@@ -2,6 +2,7 @@ package spsw
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -151,5 +152,16 @@ func TestItemSetField(t *testing.T) {
 	}
 
 	assert.Equal(t, expectedFields, item.Fields)
+}
 
+func TestItemJSONE2E(t *testing.T) {
+	item := NewItem("testItem", "testWorkflow", "F3B29C80-6B02-4A78-BDBC-4FC0AA3221EF", "482A0D31-3D30-449E-A20F-585594B8C838")
+	item.CreatedAt = time.Unix(0, 0) // HACK to work around time.Time not being exactly the same after converting to JSON and back.
+
+	jsonBytes := item.EncodeToJSON()
+
+	gotItem := NewItemFromJSON(jsonBytes)
+	gotItem.CreatedAt = time.Unix(0, 0)
+
+	assert.Equal(t, item, gotItem)
 }
