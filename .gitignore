@@ -26,3 +26,7 @@ examples/action/action
 examples/task/task
 examples/workflow/workflow
 examples/books_workflow/books_workflow
+e2e_testing/basic_test_webserver/basic_test_webserver
+e2e_testing/e2e_testing
+
+*.csv
