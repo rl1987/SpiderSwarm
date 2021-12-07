@@ -118,3 +118,38 @@ func TestItemSplay(t *testing.T) {
 	assert.Equal(t, expectItems[1].Fields, items[1].Fields)
 	assert.Equal(t, expectItems[2].Fields, items[2].Fields)
 }
+
+func TestItemSetField(t *testing.T) {
+	item := &Item{
+		Fields: map[string]*Value{},
+	}
+
+	item.SetField("testStr", "testStr")
+	item.SetField("testStrings", []string{"1", "2"})
+	item.SetField("testInt", 42)
+	item.SetField("testBool", false)
+
+	assert.Equal(t, 4, len(item.Fields))
+
+	expectedFields := map[string]*Value{
+		"testStr": &Value{
+			ValueType:   ValueTypeString,
+			StringValue: "testStr",
+		},
+		"testStrings": &Value{
+			ValueType:    ValueTypeStrings,
+			StringsValue: []string{"1", "2"},
+		},
+		"testInt": &Value{
+			ValueType: ValueTypeInt,
+			IntValue:  42,
+		},
+		"testBool": &Value{
+			ValueType: ValueTypeBool,
+			BoolValue: false,
+		},
+	}
+
+	assert.Equal(t, expectedFields, item.Fields)
+
+}
