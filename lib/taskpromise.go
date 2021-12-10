@@ -61,7 +61,7 @@ func (tp *TaskPromise) Hash() []byte {
 }
 
 func (tp *TaskPromise) String() string {
-	return fmt.Sprintf("<TaskPromise %s TaskName: %s, WorkflowName: %s, JobUUID: %s, InputDataChunksByInputName: %v, CreatedAt: %v",
+	return fmt.Sprintf("<TaskPromise %s TaskName: %s, WorkflowName: %s, JobUUID: %s, InputDataChunksByInputName: %v, CreatedAt: %v>",
 		tp.UUID, tp.TaskName, tp.WorkflowName, tp.JobUUID, tp.InputDataChunksByInputName, tp.CreatedAt)
 }
 
