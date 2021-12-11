@@ -1,10 +1,10 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	spsw "github.com/spiderswarm/spiderswarm/lib"
 
@@ -40,16 +40,16 @@ func main() {
 		os.Exit(0)
 	}
 
-	singleNodeCmd := flag.NewFlagSet("singlenode", flag.ExitOnError)
-	singleNodeWorkers := singleNodeCmd.Int("workers", 1, "Number of worker goroutines")
-
 	runner := &spsw.Runner{}
 
 	switch os.Args[1] {
 	case "singlenode":
-		singleNodeCmd.Parse(os.Args[2:])
-		log.Info(fmt.Sprintf("Number of worker goroutines: %d", *singleNodeWorkers))
-		log.Error("Not implemented")
+		backendAddr := os.Args[2]
+		yamlFilePath := os.Args[3]
+		workflow := getWorkflow(yamlFilePath)
+		runner.BackendAddr = backendAddr
+		runner.RunSingleNode(4, ".", workflow)
+		time.Sleep(1 * time.Second)
 	case "worker":
 		n, _ := strconv.Atoi(os.Args[2])
 		backendAddr := os.Args[3]
@@ -79,6 +79,6 @@ func main() {
 		// TODO: client for REST API
 		log.Error("client part not implemented yet")
 	default:
-		fmt.Println("Read the code!")
+		printUsage()
 	}
 }
