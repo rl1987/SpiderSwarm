@@ -13,7 +13,17 @@ import (
 )
 
 func printUsage() {
-	fmt.Println("Read the code for now")
+	fmt.Println("SpiderSwarm")
+	fmt.Println("===========")
+	fmt.Println("")
+	fmt.Println("Run in single mode mode:")
+	fmt.Println("  spiderswarm singlenode <backendAddr> <yamlFilePath>")
+	fmt.Println("Run as worker with given number of worker goroutines:")
+	fmt.Println("  spiderswarm worker <n> <backendAddr>")
+	fmt.Println("Run as manager:")
+	fmt.Println("  spiderswarm manager <backendAddr> <yamlFilePath>")
+	fmt.Println("Run as exporter:")
+	fmt.Println("  spiderswarm exporter <outputDir> <backendAddr>")
 }
 
 func getWorkflow(filePath string) *spsw.Workflow {
@@ -44,6 +54,11 @@ func main() {
 
 	switch os.Args[1] {
 	case "singlenode":
+		if len(os.Args) != 4 {
+			printUsage()
+			os.Exit(0)
+		}
+
 		backendAddr := os.Args[2]
 		yamlFilePath := os.Args[3]
 		workflow := getWorkflow(yamlFilePath)
@@ -51,6 +66,11 @@ func main() {
 		runner.RunSingleNode(4, ".", workflow)
 		time.Sleep(1 * time.Second)
 	case "worker":
+		if len(os.Args) != 4 {
+			printUsage()
+			os.Exit(0)
+		}
+
 		n, _ := strconv.Atoi(os.Args[2])
 		backendAddr := os.Args[3]
 		runner.BackendAddr = backendAddr
@@ -59,6 +79,11 @@ func main() {
 			select {}
 		}
 	case "manager":
+		if len(os.Args) != 4 {
+			printUsage()
+			os.Exit(0)
+		}
+
 		backendAddr := os.Args[2]
 		yamlFilePath := os.Args[3]
 		workflow := getWorkflow(yamlFilePath)
@@ -68,6 +93,11 @@ func main() {
 			select {}
 		}
 	case "exporter":
+		if len(os.Args) != 4 {
+			printUsage()
+			os.Exit(0)
+		}
+
 		outputDir := os.Args[2]
 		backendAddr := os.Args[3]
 		runner.BackendAddr = backendAddr
