@@ -39,7 +39,6 @@ var ActionConstructorTable = map[string]InitFunc{
 	"UTF8EncodeAction":     NewUTF8EncodeActionFromTemplate,
 	"ConstAction":          NewConstActionFromTemplate,
 	"URLJoinAction":        NewURLJoinActionFromTemplate,
-	"JQAction":             NewJQActionFromTemplate,
 	"HTTPCookieJoinAction": NewHTTPCookieJoinActionFromTemplate,
 	"URLParseAction":       NewURLParseActionFromTemplate,
 	"StringCutAction":      NewStringCutActionFromTemplate,
