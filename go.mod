@@ -10,6 +10,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/jinzhu/copier v0.3.2
 	github.com/mattn/go-sqlite3 v1.14.8
+	github.com/ohler55/ojg v1.12.11 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/net v0.0.0-20210428140749-89ef3d95e781
