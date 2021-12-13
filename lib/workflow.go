@@ -1,6 +1,7 @@
 package spsw
 
 import (
+	"errors"
 	"fmt"
 
 	yaml "gopkg.in/yaml.v3"
@@ -105,10 +106,99 @@ func (w *Workflow) validateActionStructNames() error {
 	return nil
 }
 
+// TODO: unit-testing
+func (w *Workflow) validateActionConnectedness() error {
+	// XXX: We're instantiating Task because we don't know upfront what allowed inputs/outputs will be for each action
+	// Perhaps there'a better way. We could make global tables for allowed input/output names.
+	for _, tt := range w.TaskTemplates {
+		task := NewTaskFromTemplate(&tt, "", "")
+
+		sortedActions := task.sortActionsTopologically()
+
+		if len(task.Actions) != len(sortedActions) {
+			return fmt.Errorf("Task %s seems to be not fully connected - count of actions not matching after topological sorting", task.Name)
+		}
+	}
+
+	return nil
+}
+
+func (w *Workflow) validateDataPipeConnectedness() error {
+	for _, tt := range w.TaskTemplates {
+		task := NewTaskFromTemplate(&tt, "", "")
+
+		for _, dp := range task.DataPipes {
+			hasFromAction := (dp.FromAction != nil)
+			hasToAction := (dp.ToAction != nil)
+
+			if hasFromAction && hasToAction {
+				continue
+			}
+
+			// We don't allow short-circuiting input and output.
+			if !hasFromAction && !hasToAction {
+				return errors.New("Found disconnected data pipe")
+			}
+
+			if !hasFromAction {
+				isTaskInput := false
+
+				for _, inputs := range task.Inputs {
+					for _, inDP := range inputs {
+						if dp == inDP {
+							isTaskInput = true
+							break
+						}
+					}
+
+					if isTaskInput {
+						break
+					}
+				}
+
+				if !isTaskInput {
+					return fmt.Errorf("DataPipe to action %s is disconnected", dp.ToAction.GetName())
+				} else {
+					continue
+				}
+			}
+
+			if !hasToAction {
+				isTaskOutput := false
+
+				for _, outDP := range task.Outputs {
+					if dp == outDP {
+						isTaskOutput = true
+						break
+					}
+				}
+
+				if !isTaskOutput {
+					return fmt.Errorf("DataPipe from action %s is disconnected", dp.FromAction.GetName())
+				} else {
+					continue
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
 func (w *Workflow) Validate() (bool, error) {
 	var err error
 
 	err = w.validateActionStructNames()
+	if err != nil {
+		return false, err
+	}
+
+	err = w.validateActionConnectedness()
+	if err != nil {
+		return false, err
+	}
+
+	err = w.validateDataPipeConnectedness()
 	if err != nil {
 		return false, err
 	}
