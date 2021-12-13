@@ -39,3 +39,25 @@ func TestNewJSONPathActionFromTemplate(t *testing.T) {
 	assert.Equal(t, decode, action.Decode)
 	assert.False(t, action.CanFail)
 }
+
+func TestJSONPathActionRunBasic(t *testing.T) {
+	jsonStr := "{\"name\": \"John\", \"surname\": \"Smith\"}"
+
+	dataPipeIn := NewDataPipe()
+	dataPipeOut := NewDataPipe()
+
+	dataPipeIn.Add(jsonStr)
+
+	action := NewJSONPathAction("$.name", true, false)
+
+	action.AddInput(JSONPathActionInputJSONStr, dataPipeIn)
+	action.AddOutput(JSONPathActionOutputStr, dataPipeOut)
+
+	err := action.Run()
+	assert.Nil(t, err)
+
+	resultStr, ok := dataPipeOut.Remove().(string)
+	assert.True(t, ok)
+
+	assert.Equal(t, "John", resultStr)
+}
