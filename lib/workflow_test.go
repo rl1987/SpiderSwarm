@@ -164,3 +164,30 @@ func TestWorkflowYAMLAndBack(t *testing.T) {
 
 	assert.Equal(t, workflow, gotWorkflow)
 }
+
+func TestWorkflowValidateActionStructNames(t *testing.T) {
+	workflow := &Workflow{
+		Name:    "testWorkflow",
+		Version: "v0.0.0.0.1",
+		TaskTemplates: []TaskTemplate{
+			TaskTemplate{
+				TaskName: "GetHTML",
+				Initial:  true,
+				ActionTemplates: []ActionTemplate{
+					ActionTemplate{
+						Name:       "HTTP1",
+						StructName: "HTTPActionn", // Typo!
+					},
+				},
+			},
+		},
+	}
+
+	err := workflow.validateActionStructNames()
+	assert.NotNil(t, err)
+
+	workflow.TaskTemplates[0].ActionTemplates[0].StructName = "HTTPAction"
+
+	err = workflow.validateActionStructNames()
+	assert.Nil(t, err)
+}

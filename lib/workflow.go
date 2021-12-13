@@ -1,7 +1,6 @@
 package spsw
 
 import (
-	//"errors"
 	"fmt"
 
 	yaml "gopkg.in/yaml.v3"
@@ -94,6 +93,15 @@ func (w *Workflow) ToYAML() string {
 }
 
 func (w *Workflow) validateActionStructNames() error {
+	for _, tt := range w.TaskTemplates {
+		for _, actionTempl := range tt.ActionTemplates {
+			structName := actionTempl.StructName
+			if ActionConstructorTable[structName] == nil {
+				return fmt.Errorf("No entry found in ActionConstructorTable for struct name %s", structName)
+			}
+		}
+	}
+
 	return nil
 }
 
