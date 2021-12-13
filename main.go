@@ -62,6 +62,12 @@ func main() {
 		backendAddr := os.Args[2]
 		yamlFilePath := os.Args[3]
 		workflow := getWorkflow(yamlFilePath)
+		success, err := workflow.Validate()
+		if !success {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
 		runner.BackendAddr = backendAddr
 		runner.RunSingleNode(4, ".", workflow)
 		time.Sleep(1 * time.Second)
@@ -87,6 +93,13 @@ func main() {
 		backendAddr := os.Args[2]
 		yamlFilePath := os.Args[3]
 		workflow := getWorkflow(yamlFilePath)
+
+		success, err := workflow.Validate()
+		if !success {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
 		runner.BackendAddr = backendAddr
 		runner.RunManager(workflow)
 		for {
