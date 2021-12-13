@@ -40,6 +40,15 @@ type TaskTemplate struct {
 	DataPipeTemplates []DataPipeTemplate `yaml:"DataPipeTemplates"`
 }
 
+func NewTaskTemplate(taskName string, initial bool) *TaskTemplate {
+	return &TaskTemplate{
+		TaskName:          taskName,
+		Initial:           initial,
+		ActionTemplates:   []ActionTemplate{},
+		DataPipeTemplates: []DataPipeTemplate{},
+	}
+}
+
 func (tt TaskTemplate) String() string {
 	return fmt.Sprintf("<TaskTemplate TaskName: %s, Initial: %v, ActionTemplates: %s, DataPipeTemplates: %v>",
 		tt.TaskName, tt.Initial, &tt.ActionTemplates, tt.DataPipeTemplates)
@@ -49,6 +58,18 @@ type Workflow struct {
 	Name          string         `yaml:"Name"`
 	Version       string         `yaml:"Version"`
 	TaskTemplates []TaskTemplate `yaml:"TaskTemplates"`
+}
+
+func NewWorkflow(name string, version string) *Workflow {
+	return &Workflow{
+		Name:          name,
+		Version:       version,
+		TaskTemplates: []TaskTemplate{},
+	}
+}
+
+func (w *Workflow) AddTaskTemplate(taskTempl *TaskTemplate) {
+	w.TaskTemplates = append(w.TaskTemplates, *taskTempl)
 }
 
 func (w *Workflow) String() string {
