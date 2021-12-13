@@ -1,6 +1,7 @@
 package spsw
 
 import (
+	//"errors"
 	"fmt"
 
 	yaml "gopkg.in/yaml.v3"
@@ -90,4 +91,19 @@ func (w *Workflow) ToYAML() string {
 	}
 
 	return string(yamlBytes)
+}
+
+func (w *Workflow) validateActionStructNames() error {
+	return nil
+}
+
+func (w *Workflow) Validate() (bool, error) {
+	var err error
+
+	err = w.validateActionStructNames()
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
