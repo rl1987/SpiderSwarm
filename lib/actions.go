@@ -42,6 +42,7 @@ var ActionConstructorTable = map[string]InitFunc{
 	"HTTPCookieJoinAction": NewHTTPCookieJoinActionFromTemplate,
 	"URLParseAction":       NewURLParseActionFromTemplate,
 	"StringCutAction":      NewStringCutActionFromTemplate,
+	"JSONPathAction":       NewJSONPathActionFromTemplate,
 }
 
 func NewActionFromTemplate(actionTempl *ActionTemplate, workflowName string, jobUUID string) Action {
