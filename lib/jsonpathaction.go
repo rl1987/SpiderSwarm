@@ -52,6 +52,12 @@ func NewJSONPathActionFromTemplate(actionTempl *ActionTemplate, workflowName str
 	return action
 }
 
+func (jpa *JSONPathAction) outputResult(resultStr string) {
+	for _, outDP := range jpa.Outputs[JSONPathActionOutputStr] {
+		outDP.Add(resultStr)
+	}
+}
+
 func (jpa *JSONPathAction) Run() error {
 	if jpa.Inputs[JSONPathActionInputJSONStr] == nil && jpa.Inputs[JSONPathActionInputJSONBytes] == nil {
 		return errors.New("Input not connected")
@@ -80,9 +86,20 @@ func (jpa *JSONPathAction) Run() error {
 		return err
 	}
 
+	var results []interface{}
 	var result interface{}
 
-	result = query.Get(parsed)
+	results = query.Get(parsed)
+
+	if len(results) == 0 {
+		return nil
+	}
+
+	result = results
+
+	if !jpa.ExpectMany {
+		result = results[0]
+	}
 
 	if !jpa.Decode {
 		jsonStr2 := oj.JSON(result)
@@ -91,32 +108,27 @@ func (jpa *JSONPathAction) Run() error {
 			outDP.Add(jsonStr2)
 		}
 
+		jpa.outputResult(jsonStr2)
+
 		return nil
 	}
 
-	if jpa.ExpectMany {
-		if resultStrings, okStrings := result.([]string); okStrings {
+	if resultStr, okStr := result.(string); okStr {
+		jpa.outputResult(resultStr)
+	} else {
+		if jpa.ExpectMany {
+			resultStrings := []string{}
+
+			for _, x := range results {
+				resultStrings = append(resultStrings, fmt.Sprintf("%v", x))
+			}
+
 			for _, outDP := range jpa.Outputs[JSONPathActionOutputStr] {
 				outDP.Add(resultStrings)
 			}
-		} else if resultIntfs, okIntfs := result.([]interface{}); okIntfs {
-			resultStrings := []string{}
-
-			for _, x := range resultIntfs {
-				resultStrings = append(resultStrings, fmt.Sprintf("%v", x))
-			}
-		}
-	} else {
-		if resultStr, okStr := result.(string); okStr {
-			for _, outDP := range jpa.Outputs[JSONPathActionOutputStr] {
-				outDP.Add(resultStr)
-			}
 		} else {
 			resultStr := fmt.Sprintf("%v", result)
-
-			for _, outDP := range jpa.Outputs[JSONPathActionOutputStr] {
-				outDP.Add(resultStr)
-			}
+			jpa.outputResult(resultStr)
 		}
 	}
 
