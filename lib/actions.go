@@ -45,6 +45,47 @@ var ActionConstructorTable = map[string]InitFunc{
 	"JSONPathAction":       NewJSONPathActionFromTemplate,
 }
 
+var AllowedInputNameTable = map[string][]string{
+	"HTTPAction": []string{
+		HTTPActionInputBaseURL,
+		HTTPActionInputURLParams,
+		HTTPActionInputHeaders,
+		HTTPActionInputCookies,
+		HTTPActionInputBody,
+	},
+	"XPathAction": []string{
+		XPathActionInputHTMLStr,
+		XPathActionInputHTMLBytes,
+	},
+	"FieldJoinAction":   []string{},
+	"TaskPromiseAction": []string{},
+	"UTF8DecodeAction": []string{
+		UTF8DecodeActionInputBytes,
+	},
+	"UTF8EncodeAction": []string{
+		UTF8EncodeActionInputStr,
+	},
+	"ConstAction": []string{},
+	"URLJoinAction": []string{
+		URLJoinActionInputBaseURL,
+		URLJoinActionInputRelativeURL,
+	},
+	"HTTPCookieJoinAction": []string{
+		HTTPCookieJoinActionInputOldCookies,
+		HTTPCookieJoinActionInputNewCookies,
+	},
+	"URLParseAction": []string{
+		URLParseActionInputURL,
+	},
+	"StringCutAction": []string{
+		StringCutActionInputStr,
+	},
+	"JSONPathAction": []string{
+		JSONPathActionInputJSONStr,
+		JSONPathActionInputJSONBytes,
+	},
+}
+
 func NewActionFromTemplate(actionTempl *ActionTemplate, workflowName string, jobUUID string) Action {
 	initFunc := ActionConstructorTable[actionTempl.StructName]
 	if initFunc != nil {
