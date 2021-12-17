@@ -3,6 +3,8 @@ package spsw
 import (
 	"fmt"
 	"os"
+	"runtime"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -16,7 +18,16 @@ func NewRunner(backendAddr string) *Runner {
 }
 
 func (r *Runner) initLogging() {
-	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
+	// Based on: https://github.com/sirupsen/logrus/issues/63#issuecomment-476486166
+	log.SetReportCaller(true)
+	log.SetFormatter(&log.TextFormatter{
+		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+			repopath := fmt.Sprintf("%s/src/github.com/spiderswarm/spiderswarm/", os.Getenv("GOPATH"))
+			filename := strings.Replace(f.File, repopath, "", -1)
+			return fmt.Sprintf("%s()", f.Function), fmt.Sprintf("%s:%d", filename, f.Line)
+		},
+		FullTimestamp: true,
+	})
 	log.SetOutput(os.Stdout)
 	log.SetLevel(log.DebugLevel)
 }
