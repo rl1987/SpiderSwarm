@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/davecgh/go-spew/spew"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -42,8 +41,6 @@ func (r *Runner) RunManager(workflow *Workflow) *Manager {
 	}
 
 	spiderBus := r.setupSpiderBus()
-
-	spew.Dump(spiderBus)
 
 	managerAdapter := NewSpiderBusAdapterForManager(spiderBus, manager)
 	managerAdapter.Start()

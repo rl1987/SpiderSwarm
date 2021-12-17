@@ -150,8 +150,6 @@ func (m *Manager) Run() error {
 	}
 
 	for taskResult := range m.TaskResultsIn {
-		spew.Dump(taskResult)
-
 		m.processTaskResult(taskResult)
 
 		if m.NPendingTasks == 0 {
