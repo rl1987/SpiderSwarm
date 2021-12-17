@@ -86,6 +86,44 @@ var AllowedInputNameTable = map[string][]string{
 	},
 }
 
+var AllowedOutputNameTable = map[string][]string{
+	"HTTPAction": []string{
+		HTTPActionOutputBody,
+		HTTPActionOutputHeaders,
+		HTTPActionOutputStatusCode,
+		HTTPActionOutputCookies,
+		HTTPActionOutputResponseURL,
+	},
+	"XPathAction": []string{
+		XPathActionOutputStr,
+	},
+	"FieldJoinAction": []string{
+		FieldJoinActionOutputItem,
+		FieldJoinActionOutputMap,
+	},
+	"TaskPromiseAction": []string{
+		TaskPromiseActionOutputPromise,
+	},
+	"UTF8DecodeAction": []string{
+		UTF8DecodeActionOutputStr,
+	},
+	"UTF8EncodeAction": []string{
+		UTF8EncodeActionOutputBytes,
+	},
+	"ConstAction": []string{
+		ConstActionOutput,
+	},
+	"URLJoinAction": []string{
+		URLJoinActionOutputAbsoluteURL,
+	},
+	"StringCutAction": []string{
+		StringCutActionOutputStr,
+	},
+	"JSONPathAction": []string{
+		JSONPathActionOutputStr,
+	},
+}
+
 func NewActionFromTemplate(actionTempl *ActionTemplate, workflowName string, jobUUID string) Action {
 	initFunc := ActionConstructorTable[actionTempl.StructName]
 	if initFunc != nil {
