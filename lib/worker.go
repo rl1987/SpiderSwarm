@@ -78,7 +78,7 @@ func (w *Worker) Run() error {
 				continue
 			}
 
-			log.Info(fmt.Printf("Worker %s got scheduled task %v", w.UUID, scheduledTask))
+			log.Info(fmt.Sprintf("Worker %s got scheduled task %v", w.UUID, scheduledTask))
 
 			task := NewTaskFromScheduledTask(scheduledTask)
 			log.Info(fmt.Sprintf("Worker %s running task %v", w.UUID, task))
