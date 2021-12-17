@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 )
 
 type RedisDeduplicatorBackend struct {
@@ -39,7 +39,7 @@ func (rdb *RedisDeduplicatorBackend) isHashInRedisSet(key string, hashStr string
 	resp := rdb.redisClient.SIsMember(rdb.ctx, key, hashStr)
 	res, err := resp.Result()
 	if err != nil {
-		spew.Dump(err)
+		log.Error(fmt.Sprintf("Redis SISMEMBER command failed with error: %v", err))
 		return false
 	}
 

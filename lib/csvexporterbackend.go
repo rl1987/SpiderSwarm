@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -47,14 +46,14 @@ func (ceb *CSVExporterBackend) StartExporting(jobUUID string, fieldNames []strin
 
 	csvFileHandle, err := os.OpenFile(csvFilePath, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
-		spew.Dump(err)
+		log.Error(fmt.Sprintf("File opening failed with error: %v", err))
 		return nil, err
 	}
 
 	csvWriter := csv.NewWriter(csvFileHandle)
 	err = csvWriter.Write(fieldNames)
 	if err != nil {
-		spew.Dump(err)
+		log.Error(fmt.Sprintf("Writing to CSV failed with error: %v", err))
 		csvFileHandle.Close()
 		return nil, err
 	}

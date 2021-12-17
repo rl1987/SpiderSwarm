@@ -3,7 +3,6 @@ package spsw
 import (
 	"fmt"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -104,7 +103,7 @@ func (m *Manager) processTaskResult(taskResult *TaskResult) {
 	m.NPendingTasks--
 
 	if !taskResult.Succeeded {
-		spew.Dump(taskResult.Error)
+		log.Error(fmt.Sprintf("Task %s failed with error: %v", taskResult.TaskUUID, taskResult.Error))
 		return
 	}
 
