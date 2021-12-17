@@ -117,6 +117,9 @@ var AllowedOutputNameTable = map[string][]string{
 	"URLJoinAction": []string{
 		URLJoinActionOutputAbsoluteURL,
 	},
+	"HTTPCookieJoinAction": []string{
+		HTTPCookieJoinActionOutputUpdatedCookies,
+	},
 	"StringCutAction": []string{
 		StringCutActionOutputStr,
 	},

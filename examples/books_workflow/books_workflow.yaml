@@ -48,6 +48,7 @@ TaskTemplates:
                 StringValue: http://104.248.27.41:8000/catalogue/category/books_/
             canFail:
                 ValueType: ValueTypeBool
+                BoolValue: false
             method:
                 ValueType: ValueTypeString
                 StringValue: GET
