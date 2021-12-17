@@ -3,6 +3,7 @@ package spsw
 import (
 	"errors"
 	"fmt"
+	"sort"
 
 	yaml "gopkg.in/yaml.v3"
 )
@@ -206,8 +207,61 @@ func (w *Workflow) validateDataPipeConnectedness() error {
 	return nil
 }
 
+// Based on: https://stackoverflow.com/a/33323321
+func stringIsInSlice(needle string, haystack []string) bool {
+	sort.Strings(haystack) // XXX: should we sort here or rely on haystack to be pre-sorted?
+	i := sort.Search(len(haystack), func(i int) bool { return haystack[i] >= needle })
+	if i < len(haystack) && haystack[i] == needle {
+		return true
+	}
+	return false
+}
+
+func (w *Workflow) validateInputOutputNames() error {
+	actionNameToStructName := map[string]string{}
+
+	for _, tt := range w.TaskTemplates {
+		for _, at := range tt.ActionTemplates {
+			actionNameToStructName[at.Name] = at.StructName
+		}
+	}
+
+	for _, tt := range w.TaskTemplates {
+		for _, dpt := range tt.DataPipeTemplates {
+			if dpt.SourceActionName != "" {
+				structName := actionNameToStructName[dpt.SourceActionName]
+
+				if !stringIsInSlice(dpt.SourceOutputName, AllowedOutputNameTable[structName]) {
+					return fmt.Errorf("Output name %s is not allowed for %s", dpt.SourceOutputName,
+						structName)
+				}
+			}
+
+			if dpt.DestActionName != "" {
+				structName := actionNameToStructName[dpt.DestActionName]
+
+				if structName == "FieldJoinAction" || structName == "TaskPromiseAction" {
+					continue
+				}
+
+				if !stringIsInSlice(dpt.DestInputName, AllowedInputNameTable[structName]) {
+					return fmt.Errorf("Input name %s is not allowed for %s", dpt.DestInputName,
+						structName)
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
 func (w *Workflow) Validate() (bool, error) {
 	var err error
+
+	err = w.validateInputOutputNames()
+	if err != nil {
+		return false, err
+	}
 
 	err = w.validateActionStructNames()
 	if err != nil {

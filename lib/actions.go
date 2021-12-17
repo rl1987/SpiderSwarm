@@ -48,14 +48,14 @@ var ActionConstructorTable = map[string]InitFunc{
 var AllowedInputNameTable = map[string][]string{
 	"HTTPAction": []string{
 		HTTPActionInputBaseURL,
-		HTTPActionInputURLParams,
-		HTTPActionInputHeaders,
-		HTTPActionInputCookies,
 		HTTPActionInputBody,
+		HTTPActionInputCookies,
+		HTTPActionInputHeaders,
+		HTTPActionInputURLParams,
 	},
 	"XPathAction": []string{
-		XPathActionInputHTMLStr,
 		XPathActionInputHTMLBytes,
+		XPathActionInputHTMLStr,
 	},
 	"FieldJoinAction":   []string{},
 	"TaskPromiseAction": []string{},
@@ -71,8 +71,8 @@ var AllowedInputNameTable = map[string][]string{
 		URLJoinActionInputRelativeURL,
 	},
 	"HTTPCookieJoinAction": []string{
-		HTTPCookieJoinActionInputOldCookies,
 		HTTPCookieJoinActionInputNewCookies,
+		HTTPCookieJoinActionInputOldCookies,
 	},
 	"URLParseAction": []string{
 		URLParseActionInputURL,
@@ -81,18 +81,19 @@ var AllowedInputNameTable = map[string][]string{
 		StringCutActionInputStr,
 	},
 	"JSONPathAction": []string{
-		JSONPathActionInputJSONStr,
 		JSONPathActionInputJSONBytes,
+		JSONPathActionInputJSONStr,
 	},
 }
 
+// TODO: write unit-test to check sortedness
 var AllowedOutputNameTable = map[string][]string{
 	"HTTPAction": []string{
 		HTTPActionOutputBody,
-		HTTPActionOutputHeaders,
-		HTTPActionOutputStatusCode,
 		HTTPActionOutputCookies,
+		HTTPActionOutputHeaders,
 		HTTPActionOutputResponseURL,
+		HTTPActionOutputStatusCode,
 	},
 	"XPathAction": []string{
 		XPathActionOutputStr,
