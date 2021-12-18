@@ -272,7 +272,7 @@ func TestWorkflowValidateInputOutputNames(t *testing.T) {
 						DestInputName:  HTTPActionInputURLParams,
 					},
 					DataPipeTemplate{
-						SourceActionName: "HTTTP1",
+						SourceActionName: "HTTP1",
 						SourceOutputName: HTTPActionOutputBody,
 						TaskOutputName:   "body",
 					},
@@ -282,5 +282,5 @@ func TestWorkflowValidateInputOutputNames(t *testing.T) {
 	}
 
 	err = workflow3.validateInputOutputNames()
-	assert.NotNil(t, err)
+	assert.Nil(t, err)
 }
