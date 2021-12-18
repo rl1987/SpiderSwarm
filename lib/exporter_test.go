@@ -16,10 +16,7 @@ func (teb *TestExporterBackend) WriteItem(item *Item) error {
 	return nil
 }
 
-// FIXME: fix the underlying issue that makes this test flaky.
 func TestExporterSimple(t *testing.T) {
-	t.Skip("Flaky on CI - skipping...")
-
 	backend := &TestExporterBackend{
 		Items: []*Item{},
 	}
@@ -31,10 +28,9 @@ func TestExporterSimple(t *testing.T) {
 	go exporter.Run()
 
 	testItem := NewItem("testItem", "testWorkflow", "B927B203-5A25-44DA-AABB-3D2A41085B3F", "638585AD-8280-4990-8CDD-E8CFB6788D10")
+	defer close(exporter.ItemsIn)
 
 	exporter.ItemsIn <- testItem
-
-	close(exporter.ItemsIn)
 
 	assert.Equal(t, 1, len(backend.Items))
 	assert.Equal(t, testItem, backend.Items[0])
