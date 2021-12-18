@@ -7,8 +7,6 @@ import (
 )
 
 func TestHTTPCookieJoinActionRun(t *testing.T) {
-	t.Skip("Disabled due to temporary workaround for a bug") // FIXME: re-enable this test case
-
 	oldCookies := map[string]string{
 		"session": "12211",
 		"n":       "1",
