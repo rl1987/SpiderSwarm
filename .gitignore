@@ -30,3 +30,5 @@ e2e_testing/basic_test_webserver/basic_test_webserver
 e2e_testing/e2e_testing
 
 *.csv
+cover.out
+cover.html
