@@ -191,3 +191,96 @@ func TestWorkflowValidateActionStructNames(t *testing.T) {
 	err = workflow.validateActionStructNames()
 	assert.Nil(t, err)
 }
+
+func TestWorkflowValidateInputOutputNames(t *testing.T) {
+	workflow1 := &Workflow{
+		Name:    "testWorkflow1",
+		Version: "v0.0.0.0.1",
+		TaskTemplates: []TaskTemplate{
+			TaskTemplate{
+				TaskName: "GetHTML",
+				Initial:  true,
+				ActionTemplates: []ActionTemplate{
+					ActionTemplate{
+						Name:       "HTTP1",
+						StructName: "HTTPAction",
+					},
+				},
+				DataPipeTemplates: []DataPipeTemplate{
+					DataPipeTemplate{
+						TaskInputName:  "url_params",
+						DestActionName: "HTTP1",
+						DestInputName:  "params",
+					},
+				},
+			},
+		},
+	}
+
+	err := workflow1.validateInputOutputNames()
+	assert.NotNil(t, err)
+
+	workflow2 := &Workflow{
+		Name:    "testWorkflow2",
+		Version: "v0.0.0.0.1",
+		TaskTemplates: []TaskTemplate{
+			TaskTemplate{
+				TaskName: "GetHTML",
+				Initial:  true,
+				ActionTemplates: []ActionTemplate{
+					ActionTemplate{
+						Name:       "HTTP1",
+						StructName: "HTTPAction",
+					},
+				},
+				DataPipeTemplates: []DataPipeTemplate{
+					DataPipeTemplate{
+						TaskInputName:  "url_params",
+						DestActionName: "HTTP1",
+						DestInputName:  HTTPActionInputURLParams,
+					},
+					DataPipeTemplate{
+						SourceActionName: "HTTTP1",
+						SourceOutputName: "body",
+						TaskOutputName:   "body",
+					},
+				},
+			},
+		},
+	}
+
+	err = workflow2.validateInputOutputNames()
+	assert.NotNil(t, err)
+
+	workflow3 := &Workflow{
+		Name:    "testWorkflow3",
+		Version: "v0.0.0.0.1",
+		TaskTemplates: []TaskTemplate{
+			TaskTemplate{
+				TaskName: "GetHTML",
+				Initial:  true,
+				ActionTemplates: []ActionTemplate{
+					ActionTemplate{
+						Name:       "HTTP1",
+						StructName: "HTTPAction",
+					},
+				},
+				DataPipeTemplates: []DataPipeTemplate{
+					DataPipeTemplate{
+						TaskInputName:  "url_params",
+						DestActionName: "HTTP1",
+						DestInputName:  HTTPActionInputURLParams,
+					},
+					DataPipeTemplate{
+						SourceActionName: "HTTTP1",
+						SourceOutputName: HTTPActionOutputBody,
+						TaskOutputName:   "body",
+					},
+				},
+			},
+		},
+	}
+
+	err = workflow3.validateInputOutputNames()
+	assert.NotNil(t, err)
+}
