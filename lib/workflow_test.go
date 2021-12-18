@@ -192,6 +192,53 @@ func TestWorkflowValidateActionStructNames(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestWorkflowValidateActionConnectedness(t *testing.T) {
+	workflow := &Workflow{
+		Name:    "testWorkflow",
+		Version: "v0.0.0.0.1",
+		TaskTemplates: []TaskTemplate{
+			TaskTemplate{
+				TaskName: "GetHTML",
+				Initial:  true,
+				ActionTemplates: []ActionTemplate{
+					ActionTemplate{
+						Name:       "HTTP1",
+						StructName: "HTTPAction",
+					},
+					ActionTemplate{
+						Name:       "Unconnected",
+						StructName: "ConstAction",
+					},
+				},
+				DataPipeTemplates: []DataPipeTemplate{
+					DataPipeTemplate{
+						TaskInputName:  "url_params",
+						DestActionName: "HTTP1",
+						DestInputName:  HTTPActionInputURLParams,
+					},
+					DataPipeTemplate{
+						SourceActionName: "HTTP1",
+						SourceOutputName: HTTPActionOutputBody,
+						TaskOutputName:   "body",
+					},
+				},
+			},
+		},
+	}
+
+	err := workflow.validateActionConnectedness()
+
+	assert.NotNil(t, err)
+
+	workflow.TaskTemplates[0].ActionTemplates = []ActionTemplate{
+		workflow.TaskTemplates[0].ActionTemplates[0],
+	}
+
+	err = workflow.validateActionConnectedness()
+
+	assert.Nil(t, err)
+}
+
 func TestWorkflowValidateInputOutputNames(t *testing.T) {
 	workflow1 := &Workflow{
 		Name:    "testWorkflow1",
