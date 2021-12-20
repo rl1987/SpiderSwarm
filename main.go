@@ -8,6 +8,7 @@ import (
 
 	spsw "github.com/spiderswarm/spiderswarm/lib"
 
+	"github.com/davecgh/go-spew/spew"
 	log "github.com/sirupsen/logrus"
 	yaml "gopkg.in/yaml.v3"
 )
@@ -42,6 +43,32 @@ func getWorkflow(filePath string) *spsw.Workflow {
 	}
 
 	return workflow
+}
+
+func testPost() {
+	bodyIn := spsw.NewDataPipe()
+	bodyIn.Add([]byte("aaaa"))
+
+	httpAction := spsw.NewHTTPAction("https://httpbin.org/post", "POST", false)
+
+	err := httpAction.AddInput(spsw.HTTPActionInputBody, bodyIn)
+	if err != nil {
+		spew.Dump(err)
+	}
+
+	bodyOut := spsw.NewDataPipe()
+
+	httpAction.AddOutput(spsw.HTTPActionOutputBody, bodyOut)
+
+	err = httpAction.Run()
+	if err != nil {
+		spew.Dump(err)
+	}
+
+	gotBody, ok := bodyOut.Remove().([]byte)
+	if ok {
+		spew.Dump(gotBody)
+	}
 }
 
 func main() {
@@ -118,6 +145,8 @@ func main() {
 		for {
 			select {}
 		}
+	case "diag":
+		testPost()
 	case "client":
 		// TODO: client for REST API
 		log.Error("client part not implemented yet")
