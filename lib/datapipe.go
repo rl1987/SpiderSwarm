@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 )
 
 type DataPipe struct {
@@ -45,6 +46,7 @@ func (dp *DataPipe) String() string {
 
 func (dp *DataPipe) Add(x interface{}) error {
 	if chunk, err := NewDataChunk(x); err == nil {
+		log.Debug(fmt.Sprintf("Adding chunk %v to data pipe %v", chunk, dp))
 		dp.Queue = append(dp.Queue, chunk)
 	} else {
 		return err
@@ -69,6 +71,8 @@ func (dp *DataPipe) Remove() interface{} {
 	lastIdx := len(dp.Queue) - 1
 	lastChunk := dp.Queue[lastIdx]
 	dp.Queue = dp.Queue[:lastIdx]
+
+	log.Debug(fmt.Sprintf("Removing chunk %v from data pipe %v", lastChunk, dp))
 
 	if lastChunk.Type == DataChunkTypeItem {
 		return lastChunk.PayloadItem
