@@ -8,6 +8,7 @@ import (
 	"net/url"
 
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 )
 
 const HTTPActionInputBaseURL = "HTTPActionInputBaseURL"
@@ -163,10 +164,14 @@ func (ha *HTTPAction) Run() error {
 		Transport: transport,
 	}
 
+	log.Debug(fmt.Sprintf("HTTPAction %s (%s) launching request: %v", ha.Name, ha.UUID, request))
+
 	resp, err := client.Do(request)
 	if err != nil {
 		return err
 	}
+
+	log.Debug(fmt.Sprintf("HTTPAction %s (%s) received response; %v", ha.Name, ha.UUID, resp))
 
 	if ha.Outputs[HTTPActionOutputBody] != nil {
 		body, err := ioutil.ReadAll(resp.Body)
