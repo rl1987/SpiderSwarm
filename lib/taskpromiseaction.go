@@ -16,12 +16,18 @@ type TaskPromiseAction struct {
 	RequireFields []string
 }
 
+const TaskPromiseActionInputRefrain = "TaskPromiseActionInputRefrain"
+
 const TaskPromiseActionOutputPromise = "TaskPromiseActionOutputPromise"
 
 func NewTaskPromiseAction(inputNames []string, taskName string, workflowName string, jobUUID string, requireFields []string) *TaskPromiseAction {
+	if inputNames == nil {
+		inputNames = []string{}
+	}
+
 	return &TaskPromiseAction{
 		AbstractAction: AbstractAction{
-			AllowedInputNames:  inputNames,
+			AllowedInputNames:  append(inputNames, TaskPromiseActionInputRefrain),
 			AllowedOutputNames: []string{TaskPromiseActionOutputPromise},
 			Inputs:             map[string]*DataPipe{},
 			Outputs:            map[string][]*DataPipe{},
@@ -59,7 +65,19 @@ func (tpa *TaskPromiseAction) String() string {
 func (tpa *TaskPromiseAction) Run() error {
 	inputDataChunksByInputName := map[string]*DataChunk{}
 
+	if tpa.Inputs[TaskPromiseActionInputRefrain] != nil {
+		refrain, ok := tpa.Inputs[TaskPromiseActionInputRefrain].Remove().(bool)
+		if refrain && ok {
+			// TODO: log something here
+			return nil
+		}
+	}
+
 	for name, input := range tpa.Inputs {
+		if name == TaskPromiseActionInputRefrain {
+			continue
+		}
+
 		if len(input.Queue) > 0 {
 			x := input.Remove()
 			newChunk, _ := NewDataChunk(x)

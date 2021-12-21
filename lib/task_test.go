@@ -229,7 +229,7 @@ func TestNewTaskFromTemplate(t *testing.T) {
 	assert.True(t, ok3)
 	assert.NotNil(t, promiseAction)
 
-	assert.Equal(t, []string{"htmlStr1", "htmlStr2"}, promiseAction.AllowedInputNames)
+	assert.Equal(t, []string{"htmlStr1", "htmlStr2", TaskPromiseActionInputRefrain}, promiseAction.AllowedInputNames)
 	assert.Equal(t, "ParseHTML", promiseAction.TaskName)
 
 	assert.Equal(t, 1, len(task.Inputs))

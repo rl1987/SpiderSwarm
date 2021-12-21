@@ -31,9 +31,11 @@ func TestNewTaskPromiseActionFromTemplate(t *testing.T) {
 	action, ok := NewTaskPromiseActionFromTemplate(actionTempl, workflow.Name).(*TaskPromiseAction)
 	assert.True(t, ok)
 
+	expectInputNames := []string{"page", "session", TaskPromiseActionInputRefrain}
+
 	assert.NotNil(t, action)
 	assert.Equal(t, taskName, action.TaskName)
-	assert.Equal(t, actionTempl.ConstructorParams["inputNames"].StringsValue, action.AllowedInputNames)
+	assert.Equal(t, expectInputNames, action.AllowedInputNames)
 	assert.Equal(t, workflow.Name, action.WorkflowName)
 	assert.Equal(t, []string{TaskPromiseActionOutputPromise}, action.AllowedOutputNames)
 }
