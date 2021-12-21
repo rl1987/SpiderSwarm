@@ -56,15 +56,17 @@ func (lta *LengthThresholdAction) Run() error {
 		return errors.New("Output not connected")
 	}
 
-	x := lta.Inputs[LengthThresholdActionInputSlice]
+	x := lta.Inputs[LengthThresholdActionInputSlice].Remove()
 
 	val := reflect.ValueOf(x)
 
-	if val.Kind() != reflect.Slice {
-		return errors.New("LegthThresholdAction is expecting slice")
-	}
+	var unmet bool
 
-	unmet := val.Len() < lta.Threshold
+	if val.Len() < lta.Threshold {
+		unmet = true
+	} else {
+		unmet = false
+	}
 
 	for _, outDP := range lta.Outputs[LengthThresholdActionOutputThresholdUnmet] {
 		outDP.Add(unmet)
