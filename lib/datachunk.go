@@ -75,6 +75,10 @@ func NewDataChunk(payload interface{}) (*DataChunk, error) {
 		return NewDataChunkWithType(DataChunkTypeValue, NewValueFromStrings(payload.([]string))), nil
 	}
 
+	if _, okBool := payload.(bool); okBool {
+		return NewDataChunkWithType(DataChunkTypeValue, NewValueFromBool(payload.(bool))), nil
+	}
+
 	if _, okValue := payload.(*Value); okValue {
 		return NewDataChunkWithType(DataChunkTypeValue, payload), nil
 	}

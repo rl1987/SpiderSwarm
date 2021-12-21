@@ -31,18 +31,19 @@ type AbstractAction struct {
 type InitFunc func(*ActionTemplate, string) Action
 
 var ActionConstructorTable = map[string]InitFunc{
-	"HTTPAction":           NewHTTPActionFromTemplate,
-	"XPathAction":          NewXPathActionFromTemplate,
-	"FieldJoinAction":      NewFieldJoinActionFromTemplate,
-	"TaskPromiseAction":    NewTaskPromiseActionFromTemplate,
-	"UTF8DecodeAction":     NewUTF8DecodeActionFromTemplate,
-	"UTF8EncodeAction":     NewUTF8EncodeActionFromTemplate,
-	"ConstAction":          NewConstActionFromTemplate,
-	"URLJoinAction":        NewURLJoinActionFromTemplate,
-	"HTTPCookieJoinAction": NewHTTPCookieJoinActionFromTemplate,
-	"URLParseAction":       NewURLParseActionFromTemplate,
-	"StringCutAction":      NewStringCutActionFromTemplate,
-	"JSONPathAction":       NewJSONPathActionFromTemplate,
+	"HTTPAction":            NewHTTPActionFromTemplate,
+	"XPathAction":           NewXPathActionFromTemplate,
+	"FieldJoinAction":       NewFieldJoinActionFromTemplate,
+	"TaskPromiseAction":     NewTaskPromiseActionFromTemplate,
+	"UTF8DecodeAction":      NewUTF8DecodeActionFromTemplate,
+	"UTF8EncodeAction":      NewUTF8EncodeActionFromTemplate,
+	"ConstAction":           NewConstActionFromTemplate,
+	"URLJoinAction":         NewURLJoinActionFromTemplate,
+	"HTTPCookieJoinAction":  NewHTTPCookieJoinActionFromTemplate,
+	"URLParseAction":        NewURLParseActionFromTemplate,
+	"StringCutAction":       NewStringCutActionFromTemplate,
+	"JSONPathAction":        NewJSONPathActionFromTemplate,
+	"LengthThresholdAction": NewLengthThresholdActionFromTemplate,
 }
 
 var AllowedInputNameTable = map[string][]string{
@@ -83,6 +84,9 @@ var AllowedInputNameTable = map[string][]string{
 	"JSONPathAction": []string{
 		JSONPathActionInputJSONBytes,
 		JSONPathActionInputJSONStr,
+	},
+	"LengthThresholdAction": []string{
+		LengthThresholdActionInputSlice,
 	},
 }
 
@@ -125,6 +129,9 @@ var AllowedOutputNameTable = map[string][]string{
 	},
 	"JSONPathAction": []string{
 		JSONPathActionOutputStr,
+	},
+	"LengthThresholdAction": []string{
+		LengthThresholdActionOutputThresholdUnmet,
 	},
 }
 
