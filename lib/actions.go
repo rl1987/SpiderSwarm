@@ -90,7 +90,6 @@ var AllowedInputNameTable = map[string][]string{
 	},
 }
 
-// TODO: write unit-test to check sortedness
 var AllowedOutputNameTable = map[string][]string{
 	"HTTPAction": []string{
 		HTTPActionOutputBody,

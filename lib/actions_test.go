@@ -1,6 +1,7 @@
 package spsw
 
 import (
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -102,4 +103,14 @@ func TestNewActionFromTemplate(t *testing.T) {
 	assert.True(t, ok10)
 	assert.NotNil(t, action10)
 	assert.Equal(t, actionTempl10.Name, action10.Name)
+}
+
+func TestInputTableSortedness(t *testing.T) {
+	for _, names := range AllowedInputNameTable {
+		assert.True(t, sort.StringsAreSorted(names))
+	}
+
+	for _, names := range AllowedOutputNameTable {
+		assert.True(t, sort.StringsAreSorted(names))
+	}
 }
