@@ -1,7 +1,9 @@
 package spsw
 
 import (
+	"errors"
 	"fmt"
+	"reflect"
 
 	"github.com/google/uuid"
 )
@@ -45,5 +47,28 @@ func (lta *LengthThresholdAction) String() string {
 }
 
 func (lta *LengthThresholdAction) Run() error {
+	if lta.Inputs[LengthThresholdActionInputSlice] == nil {
+		return errors.New("Input not connected")
+	}
+
+	if lta.Outputs[LengthThresholdActionOutputThresholdUnmet] == nil ||
+		len(lta.Outputs[LengthThresholdActionOutputThresholdUnmet]) == 0 {
+		return errors.New("Output not connected")
+	}
+
+	x := lta.Inputs[LengthThresholdActionInputSlice]
+
+	val := reflect.ValueOf(x)
+
+	if val.Kind() != reflect.Slice {
+		return errors.New("LegthThresholdAction is expecting slice")
+	}
+
+	unmet := val.Len() < lta.Threshold
+
+	for _, outDP := range lta.Outputs[LengthThresholdActionOutputThresholdUnmet] {
+		outDP.Add(unmet)
+	}
+
 	return nil
 }
