@@ -29,7 +29,20 @@ func (r *Runner) initLogging() {
 		FullTimestamp: true,
 	})
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.DebugLevel)
+
+	logLevelStr := os.Getenv("SPSW_LOGLEVEL")
+
+	if logLevelStr != "" {
+		logLevel, err := log.ParseLevel(logLevelStr)
+
+		if err != nil {
+			panic(err)
+		}
+
+		log.SetLevel(logLevel)
+	} else {
+		log.SetLevel(log.DebugLevel)
+	}
 }
 
 func (r *Runner) setupSpiderBus() *SpiderBus {
