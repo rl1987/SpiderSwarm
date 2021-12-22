@@ -18,10 +18,13 @@ func printUsage() {
 	fmt.Println("")
 	fmt.Println("Run in single mode mode:")
 	fmt.Println("  spiderswarm singlenode <backendAddr> <yamlFilePath>")
+	fmt.Println("")
 	fmt.Println("Run as worker with given number of worker goroutines:")
 	fmt.Println("  spiderswarm worker <n> <backendAddr>")
+	fmt.Println("")
 	fmt.Println("Run as manager:")
 	fmt.Println("  spiderswarm manager <backendAddr> <yamlFilePath>")
+	fmt.Println("")
 	fmt.Println("Run as exporter:")
 	fmt.Println("  spiderswarm exporter <outputDir> <backendAddr>")
 }
