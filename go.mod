@@ -6,10 +6,8 @@ require (
 	github.com/antchfx/htmlquery v1.2.3
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-redis/redis/v8 v8.11.4
-	github.com/go-sql-driver/mysql v1.6.0
 	github.com/google/uuid v1.3.0
 	github.com/jinzhu/copier v0.3.2
-	github.com/mattn/go-sqlite3 v1.14.8
 	github.com/ohler55/ojg v1.12.11
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
