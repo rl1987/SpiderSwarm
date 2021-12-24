@@ -17,7 +17,7 @@ func printUsage() {
 	fmt.Println("===========")
 	fmt.Println("")
 	fmt.Println("Run in single mode mode:")
-	fmt.Println("  spiderswarm singlenode <backendAddr> <yamlFilePath>")
+	fmt.Println("  spiderswarm singlenode <backendAddr> <yamlFilePath> [--validate-only]")
 	fmt.Println("")
 	fmt.Println("Run as worker with given number of worker goroutines:")
 	fmt.Println("  spiderswarm worker <n> <backendAddr>")
@@ -57,7 +57,7 @@ func main() {
 
 	switch os.Args[1] {
 	case "singlenode":
-		if len(os.Args) != 4 {
+		if len(os.Args) != 4 && len(os.Args) != 5 {
 			printUsage()
 			os.Exit(0)
 		}
@@ -69,6 +69,11 @@ func main() {
 		if !success {
 			fmt.Println(err)
 			os.Exit(1)
+		}
+
+		if len(os.Args) == 5 && os.Args[4] == "--validate-only" {
+			fmt.Println("Valid!")
+			os.Exit(0)
 		}
 
 		runner.BackendAddr = backendAddr
