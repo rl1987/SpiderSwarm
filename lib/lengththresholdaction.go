@@ -62,7 +62,7 @@ func (lta *LengthThresholdAction) Run() error {
 
 	var unmet bool
 
-	if val.IsNil() || val.Len() < lta.Threshold {
+	if !val.IsValid() || val.IsNil() || val.Len() < lta.Threshold {
 		unmet = true
 	} else {
 		unmet = false
