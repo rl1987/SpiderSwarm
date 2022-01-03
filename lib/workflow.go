@@ -128,7 +128,6 @@ func (w *Workflow) validateActionStructNames() error {
 	return nil
 }
 
-// TODO: unit-testing
 func (w *Workflow) validateActionConnectedness() error {
 	// XXX: We're instantiating Task because we don't know upfront what allowed inputs/outputs will be for each action
 	// Perhaps there'a better way. We could make global tables for allowed input/output names.
