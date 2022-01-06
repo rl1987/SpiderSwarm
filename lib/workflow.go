@@ -103,6 +103,44 @@ func (tt *TaskTemplate) RemoveActionTemplate(name string) error {
 	return nil
 }
 
+func (tt *TaskTemplate) AddDataPipeTemplate(dpt *DataPipeTemplate) error {
+	// TODO: prevalidate this
+
+	tt.DataPipeTemplates = append(tt.DataPipeTemplates, *dpt)
+	return nil
+}
+
+func (tt *TaskTemplate) ConnectActionTemplates(sourceActionName string, sourceOutputName string, destActionName string, destInputName string) error {
+	dpt := &DataPipeTemplate{
+		SourceActionName: sourceActionName,
+		SourceOutputName: sourceOutputName,
+		DestActionName:   destActionName,
+		DestInputName:    destInputName,
+	}
+
+	return tt.AddDataPipeTemplate(dpt)
+}
+
+func (tt *TaskTemplate) ConnectInputToActionTemplate(taskInputName string, destActionName string, destInputName string) error {
+	dpt := &DataPipeTemplate{
+		TaskInputName:  taskInputName,
+		DestActionName: destActionName,
+		DestInputName:  destInputName,
+	}
+
+	return tt.AddDataPipeTemplate(dpt)
+}
+
+func (tt *TaskTemplate) ConnectOutputToActionTemplate(sourceActionName string, sourceOutputName string, taskOutputName string) error {
+	dpt := &DataPipeTemplate{
+		SourceActionName: sourceActionName,
+		SourceOutputName: sourceOutputName,
+		TaskOutputName:   taskOutputName,
+	}
+
+	return tt.AddDataPipeTemplate(dpt)
+}
+
 type Workflow struct {
 	Name          string         `yaml:"Name"`
 	Version       string         `yaml:"Version"`
