@@ -6,6 +6,82 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestAddActionTemplate(t *testing.T) {
+	taskTempl := NewTaskTemplate("testTask", false)
+
+	expectTaskTempl := &TaskTemplate{
+		TaskName: "testTask",
+		Initial:  false,
+		ActionTemplates: []ActionTemplate{
+			ActionTemplate{
+				Name:              "HTTP",
+				StructName:        "HTTPAction",
+				ConstructorParams: map[string]Value{},
+			},
+			ActionTemplate{
+				Name:              "XPath",
+				StructName:        "XPathAction",
+				ConstructorParams: map[string]Value{},
+			},
+			ActionTemplate{
+				Name:              "Join",
+				StructName:        "FieldJoinAction",
+				ConstructorParams: map[string]Value{},
+			},
+		},
+		DataPipeTemplates: []DataPipeTemplate{},
+	}
+
+	taskTempl.AddActionTemplate(NewActionTemplate("HTTP", "HTTPAction", nil))
+	taskTempl.AddActionTemplate(NewActionTemplate("XPath", "XPathAction", map[string]interface{}{}))
+	taskTempl.AddActionTemplate(NewActionTemplate("Join", "FieldJoinAction", map[string]interface{}{}))
+
+	err := taskTempl.AddActionTemplate(NewActionTemplate("HTTP", "HTTPAction", nil))
+	assert.NotNil(t, err)
+
+	assert.Equal(t, expectTaskTempl, taskTempl)
+}
+
+func TestRemoveActionTemplate(t *testing.T) {
+	taskTempl := &TaskTemplate{
+		TaskName: "testTask",
+		Initial:  false,
+		ActionTemplates: []ActionTemplate{
+			ActionTemplate{
+				Name:              "HTTP",
+				StructName:        "HTTPAction",
+				ConstructorParams: map[string]Value{},
+			},
+			ActionTemplate{
+				Name:              "XPath",
+				StructName:        "XPathAction",
+				ConstructorParams: map[string]Value{},
+			},
+			ActionTemplate{
+				Name:              "Join",
+				StructName:        "FieldJoinAction",
+				ConstructorParams: map[string]Value{},
+			},
+		},
+		DataPipeTemplates: []DataPipeTemplate{},
+	}
+
+	err := taskTempl.RemoveActionTemplate("!")
+	assert.NotNil(t, err)
+
+	err = taskTempl.RemoveActionTemplate("HTTP")
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(taskTempl.ActionTemplates))
+
+	err = taskTempl.RemoveActionTemplate("XPath")
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(taskTempl.ActionTemplates))
+
+	err = taskTempl.RemoveActionTemplate("Join")
+	assert.Nil(t, err)
+	assert.Equal(t, 0, len(taskTempl.ActionTemplates))
+}
+
 func TestWorkflowYAMLAndBack(t *testing.T) {
 	workflow := &Workflow{
 		Name:    "testWorkflow",

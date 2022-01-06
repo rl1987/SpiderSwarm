@@ -71,6 +71,38 @@ func (tt TaskTemplate) String() string {
 		tt.TaskName, tt.Initial, &tt.ActionTemplates, tt.DataPipeTemplates)
 }
 
+func (tt *TaskTemplate) AddActionTemplate(actionTempl *ActionTemplate) error {
+	for _, at := range tt.ActionTemplates {
+		if at.Name == actionTempl.Name {
+			return errors.New("Action template already exists with given name")
+		}
+	}
+
+	tt.ActionTemplates = append(tt.ActionTemplates, *actionTempl)
+
+	return nil
+}
+
+func (tt *TaskTemplate) RemoveActionTemplate(name string) error {
+	idx := -1
+
+	for i, at := range tt.ActionTemplates {
+		if at.Name == name {
+			idx = i
+			break
+		}
+	}
+
+	if idx == -1 {
+		return errors.New("Action template not found with a given name")
+	}
+
+	// https://stackoverflow.com/questions/37334119/how-to-delete-an-element-from-a-slice-in-golang
+	tt.ActionTemplates = append(tt.ActionTemplates[:idx], tt.ActionTemplates[idx+1:]...)
+
+	return nil
+}
+
 type Workflow struct {
 	Name          string         `yaml:"Name"`
 	Version       string         `yaml:"Version"`
