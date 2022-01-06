@@ -75,12 +75,33 @@ func NewValueFromBytes(b []byte) *Value {
 		BytesValue: b,
 	}
 }
-
 func NewValueFromHTTPHeaders(h http.Header) *Value {
 	return &Value{
 		ValueType:        ValueTypeHTTPHeaders,
 		HTTPHeadersValue: h,
 	}
+}
+
+func NewValue(x interface{}) *Value {
+	if i, okInt := x.(int); okInt {
+		return NewValueFromInt(i)
+	} else if b, okBool := x.(bool); okBool {
+		return NewValueFromBool(b)
+	} else if s, okStr := x.(string); okStr {
+		return NewValueFromString(s)
+	} else if ss, okStrings := x.([]string); okStrings {
+		return NewValueFromStrings(ss)
+	} else if ms, okMapStr := x.(map[string]string); okMapStr {
+		return NewValueFromMapStringToString(ms)
+	} else if mss, okMapStrings := x.(map[string][]string); okMapStrings {
+		return NewValueFromMapStringToStrings(mss)
+	} else if by, okBytes := x.([]byte); okBytes {
+		return NewValueFromBytes(by)
+	} else if h, okHeaders := x.(http.Header); okHeaders {
+		return NewValueFromHTTPHeaders(h)
+	}
+
+	return nil
 }
 
 func (value *Value) Hash() []byte {
