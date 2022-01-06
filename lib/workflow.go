@@ -14,6 +14,22 @@ type ActionTemplate struct {
 	ConstructorParams map[string]Value `yaml:"ConstructorParams"`
 }
 
+func NewActionTemplate(name string, structName string, constructorParams map[string]interface{}) *ActionTemplate {
+	constructorParamsV := map[string]Value{}
+
+	if constructorParams != nil {
+		for key, valIntf := range constructorParams {
+			constructorParamsV[key] = *NewValue(valIntf)
+		}
+	}
+
+	return &ActionTemplate{
+		Name:              name,
+		StructName:        structName,
+		ConstructorParams: constructorParamsV,
+	}
+}
+
 func (at ActionTemplate) String() string {
 	return fmt.Sprintf("<ActionTemplate Name: %s, StructName: %s, ConstructorParams: %v>",
 		at.Name, at.StructName, at.ConstructorParams)
