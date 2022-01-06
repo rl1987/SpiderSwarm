@@ -141,6 +141,64 @@ func (tt *TaskTemplate) ConnectOutputToActionTemplate(sourceActionName string, s
 	return tt.AddDataPipeTemplate(dpt)
 }
 
+func (tt *TaskTemplate) DisconnectActionTemplates(sourceActionName string, sourceOutputName string, destActionName string, destInputName string) error {
+	idx := -1
+
+	for i, dpt := range tt.DataPipeTemplates {
+		if dpt.SourceActionName == sourceActionName && dpt.SourceOutputName == sourceOutputName &&
+			dpt.DestActionName == destActionName && dpt.DestInputName == destInputName {
+			idx = i
+			break
+		}
+	}
+
+	if idx == -1 {
+		return errors.New("Not found")
+	}
+
+	tt.DataPipeTemplates = append(tt.DataPipeTemplates[:idx], tt.DataPipeTemplates[idx+1:]...)
+
+	return nil
+}
+
+func (tt *TaskTemplate) DisconnectInput(taskInputName string, destActionName string, destInputName string) error {
+	idx := -1
+
+	for i, dpt := range tt.DataPipeTemplates {
+		if dpt.TaskInputName == taskInputName && dpt.DestActionName == destActionName && dpt.DestInputName == destInputName {
+			idx = i
+			break
+		}
+	}
+
+	if idx == -1 {
+		return errors.New("Not found")
+	}
+
+	tt.DataPipeTemplates = append(tt.DataPipeTemplates[:idx], tt.DataPipeTemplates[idx+1:]...)
+
+	return nil
+}
+
+func (tt *TaskTemplate) DisconnectOutput(sourceActionName string, sourceOutputName string, taskOutputName string) error {
+	idx := -1
+
+	for i, dpt := range tt.DataPipeTemplates {
+		if dpt.SourceActionName == sourceActionName && dpt.SourceOutputName == sourceOutputName && dpt.TaskOutputName == taskOutputName {
+			idx = i
+			break
+		}
+	}
+
+	if idx == -1 {
+		return errors.New("Not found")
+	}
+
+	tt.DataPipeTemplates = append(tt.DataPipeTemplates[:idx], tt.DataPipeTemplates[idx+1:]...)
+
+	return nil
+}
+
 type Workflow struct {
 	Name          string         `yaml:"Name"`
 	Version       string         `yaml:"Version"`
