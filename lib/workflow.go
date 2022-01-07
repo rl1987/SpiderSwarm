@@ -218,13 +218,23 @@ func (w *Workflow) AddTaskTemplate(taskTempl *TaskTemplate) {
 }
 
 func (w *Workflow) SetInitial(taskName string) {
-	for _, tt := range w.TaskTemplates {
+	idx := -1
+
+	for i, tt := range w.TaskTemplates {
 		if tt.TaskName == taskName {
-			tt.Initial = true
-		} else {
-			tt.Initial = false
+			idx = i
 		}
 	}
+
+	if idx == -1 {
+		return
+	}
+
+	for _, tt := range w.TaskTemplates {
+		tt.Initial = false
+	}
+
+	w.TaskTemplates[idx].Initial = true
 }
 
 func (w *Workflow) RemoveTaskTemplate(taskName string) error {
