@@ -227,6 +227,25 @@ func (w *Workflow) SetInitial(taskName string) {
 	}
 }
 
+func (w *Workflow) RemoveTaskTemplate(taskName string) error {
+	idx := -1
+
+	for i, tt := range w.TaskTemplates {
+		if tt.TaskName == taskName {
+			idx = i
+			break
+		}
+	}
+
+	if idx == -1 {
+		return errors.New("Not found")
+	}
+
+	w.TaskTemplates = append(w.TaskTemplates[:idx], w.TaskTemplates[idx+1:]...)
+
+	return nil
+}
+
 func (w *Workflow) String() string {
 	return fmt.Sprintf("<Workflow Name: %s, Version: %s, TaskTemplates: %v>", w.Name, w.Version, &w.TaskTemplates)
 }
