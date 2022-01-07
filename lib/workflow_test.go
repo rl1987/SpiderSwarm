@@ -454,3 +454,22 @@ func TestWorkflowSetInitial(t *testing.T) {
 	assert.False(t, workflow.TaskTemplates[0].Initial)
 	assert.True(t, workflow.TaskTemplates[1].Initial)
 }
+
+func TestWorkflowGetInitialTaskTemplate(t *testing.T) {
+	workflow := &Workflow{
+		TaskTemplates: []TaskTemplate{
+			TaskTemplate{
+				TaskName: "First",
+				Initial:  false,
+			},
+			TaskTemplate{
+				TaskName: "Second",
+				Initial:  true,
+			},
+		},
+	}
+
+	initialTT := workflow.GetInitialTaskTemplate()
+
+	assert.Equal(t, &workflow.TaskTemplates[1], initialTT)
+}
