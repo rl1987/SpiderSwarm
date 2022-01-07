@@ -398,6 +398,29 @@ func (w *Workflow) validateInputOutputNames() error {
 	return nil
 }
 
+func (w *Workflow) GetInitialTaskTemplate() *TaskTemplate {
+	var initialTaskTempl *TaskTemplate
+	initialTaskTempl = nil
+
+	for _, tt := range w.TaskTemplates {
+		if tt.Initial {
+			initialTaskTempl = &tt
+			break
+		}
+	}
+
+	return initialTaskTempl
+}
+
+func (w *Workflow) GetInitialTaskTemplateName() string {
+	initialTaskTempl := w.GetInitialTaskTemplate()
+	if initialTaskTempl != nil {
+		return initialTaskTempl.TaskName
+	}
+
+	return ""
+}
+
 func (w *Workflow) Validate() (bool, error) {
 	var err error
 
