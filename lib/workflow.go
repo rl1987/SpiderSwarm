@@ -217,6 +217,16 @@ func (w *Workflow) AddTaskTemplate(taskTempl *TaskTemplate) {
 	w.TaskTemplates = append(w.TaskTemplates, *taskTempl)
 }
 
+func (w *Workflow) SetInitial(taskName string) {
+	for _, tt := range w.TaskTemplates {
+		if tt.TaskName == taskName {
+			tt.Initial = true
+		} else {
+			tt.Initial = false
+		}
+	}
+}
+
 func (w *Workflow) String() string {
 	return fmt.Sprintf("<Workflow Name: %s, Version: %s, TaskTemplates: %v>", w.Name, w.Version, &w.TaskTemplates)
 }
