@@ -431,7 +431,6 @@ func TestWorkflowAddTaskTemplate(t *testing.T) {
 }
 
 func TestWorkflowSetInitial(t *testing.T) {
-	t.Skip() // FIXME - why does this fail?
 	workflow := &Workflow{
 		TaskTemplates: []TaskTemplate{
 			TaskTemplate{

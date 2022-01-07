@@ -230,8 +230,8 @@ func (w *Workflow) SetInitial(taskName string) {
 		return
 	}
 
-	for _, tt := range w.TaskTemplates {
-		tt.Initial = false
+	for i, _ := range w.TaskTemplates {
+		w.TaskTemplates[i].Initial = false
 	}
 
 	w.TaskTemplates[idx].Initial = true
