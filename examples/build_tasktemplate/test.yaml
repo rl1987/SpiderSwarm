@@ -1,0 +1,77 @@
+Name: TestWF
+Version: "1"
+TaskTemplates:
+    - TaskName: TestTask
+      Initial: true
+      ActionTemplates:
+        - Name: GetHTML
+          StructName: HTTPAction
+          ConstructorParams:
+            baseURL:
+                ValueType: ValueTypeString
+                StringValue: https://quotes.toscrape.com/
+            canFail:
+                ValueType: ValueTypeBool
+            method:
+                ValueType: ValueTypeString
+                StringValue: GET
+        - Name: XPathQuote
+          StructName: XPathAction
+          ConstructorParams:
+            expectMany:
+                ValueType: ValueTypeBool
+                BoolValue: true
+            xpath:
+                ValueType: ValueTypeString
+                StringValue: //div[@class="quote"]/span
+        - Name: XPathAuthor
+          StructName: XPathAction
+          ConstructorParams:
+            expectMany:
+                ValueType: ValueTypeBool
+                BoolValue: true
+            xpath:
+                ValueType: ValueTypeString
+                StringValue: //small[@class="author"]/text()
+        - Name: MakeItem
+          StructName: FieldJoinAction
+          ConstructorParams:
+            inputNames:
+                ValueType: ValueTypeStrings
+                StringsValue:
+                    - quote
+                    - author
+            itemName:
+                ValueType: ValueTypeString
+                StringValue: quote
+      DataPipeTemplates:
+        - SourceActionName: GetHTML
+          SourceOutputName: HTTPActionOutputBody
+          DestActionName: XPathQuote
+          DestInputName: XPathActionInputHTMLBytes
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: GetHTML
+          SourceOutputName: HTTPActionOutputBody
+          DestActionName: XPathAuthor
+          DestInputName: XPathActionInputHTMLBytes
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: XPathQuote
+          SourceOutputName: XPathActionOutputStr
+          DestActionName: MakeItem
+          DestInputName: quote
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: XPathAuthor
+          SourceOutputName: XPathActionOutputStr
+          DestActionName: MakeItem
+          DestInputName: author
+          TaskInputName: ""
+          TaskOutputName: ""
+        - SourceActionName: MakeItem
+          SourceOutputName: FieldJoinActionOutputItem
+          DestActionName: ""
+          DestInputName: ""
+          TaskInputName: ""
+          TaskOutputName: quoteItem
