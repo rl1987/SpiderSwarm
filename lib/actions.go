@@ -134,6 +134,12 @@ var AllowedOutputNameTable = map[string][]string{
 	},
 }
 
+func RegisterAction(structName string, initFunc InitFunc, allowedInputNames []string, allowedOutputNames []string) {
+	ActionConstructorTable[structName] = initFunc
+	AllowedInputNameTable[structName] = allowedInputNames
+	AllowedOutputNameTable[structName] = allowedOutputNames
+}
+
 func NewActionFromTemplate(actionTempl *ActionTemplate, workflowName string, jobUUID string) Action {
 	initFunc := ActionConstructorTable[actionTempl.StructName]
 	if initFunc != nil {

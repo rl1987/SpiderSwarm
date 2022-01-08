@@ -114,3 +114,19 @@ func TestInputTableSortedness(t *testing.T) {
 		assert.True(t, sort.StringsAreSorted(names))
 	}
 }
+
+func NewTestAction(*ActionTemplate, string) Action {
+	return &AbstractAction{}
+}
+
+func TestRegisterAction(t *testing.T) {
+	structName := "TestAction"
+	allowedInputNames := []string{"in1", "in2"}
+	allowedOutputNames := []string{"out1", "out2"}
+
+	RegisterAction(structName, NewTestAction, allowedInputNames, allowedOutputNames)
+
+	assert.NotNil(t, ActionConstructorTable[structName])
+	assert.Equal(t, allowedInputNames, AllowedInputNameTable[structName])
+	assert.Equal(t, allowedOutputNames, AllowedOutputNameTable[structName])
+}
