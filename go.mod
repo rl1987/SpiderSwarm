@@ -6,6 +6,7 @@ require (
 	github.com/antchfx/htmlquery v1.2.3
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-redis/redis/v8 v8.11.4
+	github.com/goccy/go-graphviz v0.0.9 // indirect
 	github.com/google/uuid v1.3.0
 	github.com/jinzhu/copier v0.3.2
 	github.com/ohler55/ojg v1.12.11
