@@ -26,3 +26,23 @@ func TestNewTaskResult(t *testing.T) {
 	assert.NotNil(t, taskResult.OutputDataChunks)
 	assert.Equal(t, 0, len(taskResult.OutputDataChunks))
 }
+
+func TestTaskResultAddOutputItem(t *testing.T) {
+	jobUUID := "A0"
+	taskUUID := "B1"
+	scheduledTaskUUID := "C2"
+	succeeded := true
+
+	taskResult := NewTaskResult(jobUUID, taskUUID, scheduledTaskUUID, succeeded, nil)
+
+	item := &Item{Name: "TestItem"}
+
+	taskResult.AddOutputItem("testOut", item)
+
+	assert.Equal(t, 1, len(taskResult.OutputDataChunks["testOut"]))
+
+	chunk := taskResult.OutputDataChunks["testOut"][0]
+
+	assert.Equal(t, DataChunkTypeItem, chunk.Type)
+	assert.Equal(t, item, chunk.PayloadItem)
+}
