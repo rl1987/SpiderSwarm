@@ -9,6 +9,7 @@ import (
 	spsw "github.com/spiderswarm/spiderswarm/lib"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/x-motemen/gore"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -45,6 +46,14 @@ func getWorkflow(filePath string) *spsw.Workflow {
 	}
 
 	return workflow
+}
+
+func runShell() {
+	g := gore.New(gore.AutoImport(true))
+
+	if err := g.Run(); err != nil {
+		fmt.Println(err)
+	}
 }
 
 func main() {
@@ -129,6 +138,8 @@ func main() {
 	case "client":
 		// TODO: client for REST API
 		log.Error("client part not implemented yet")
+	case "shell":
+		runShell()
 	default:
 		printUsage()
 	}

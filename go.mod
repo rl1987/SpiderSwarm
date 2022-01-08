@@ -11,6 +11,7 @@ require (
 	github.com/ohler55/ojg v1.12.11
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
+	github.com/x-motemen/gore v0.5.3 // indirect
 	golang.org/x/net v0.0.0-20210428140749-89ef3d95e781
 	golang.org/x/sys v0.0.0-20210820121016-41cdb8703e55 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
