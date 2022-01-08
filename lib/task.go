@@ -246,3 +246,37 @@ func (t *Task) Run() error {
 
 	return nil
 }
+
+func (t *Task) RunWithInputs(inputs map[string]interface{}) (error, map[string]interface{}) {
+	for key, value := range inputs {
+		chunk, err := NewDataChunk(value)
+		if err != nil {
+			continue
+		}
+
+		inputs := t.Inputs[key]
+		if inputs == nil {
+			continue
+		}
+
+		for _, inDP := range inputs {
+			inDP.Queue = append(inDP.Queue, chunk)
+		}
+	}
+
+	err := t.Run()
+	if err != nil {
+		return err, nil
+	}
+
+	outputMap := map[string]interface{}{}
+
+	for outputName, outDP := range t.Outputs {
+		x := outDP.Remove()
+		if x != nil {
+			outputMap[outputName] = x
+		}
+	}
+
+	return nil, outputMap
+}
