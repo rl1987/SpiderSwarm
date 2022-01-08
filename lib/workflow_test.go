@@ -503,3 +503,26 @@ func TestWorkflowRemoveTaskTemplate(t *testing.T) {
 	err = workflow.RemoveTaskTemplate("Fourth")
 	assert.NotNil(t, err)
 }
+
+func TestWorkflowGetInitialTaskTemplateName(t *testing.T) {
+	workflow := &Workflow{
+		TaskTemplates: []TaskTemplate{
+			TaskTemplate{
+				TaskName: "First",
+				Initial:  true,
+			},
+			TaskTemplate{
+				TaskName: "Second",
+				Initial:  false,
+			},
+			TaskTemplate{
+				TaskName: "Third",
+				Initial:  false,
+			},
+		},
+	}
+
+	taskTemplName := workflow.GetInitialTaskTemplateName()
+
+	assert.Equal(t, "First", taskTemplName)
+}
