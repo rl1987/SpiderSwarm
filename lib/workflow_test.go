@@ -526,3 +526,23 @@ func TestWorkflowGetInitialTaskTemplateName(t *testing.T) {
 
 	assert.Equal(t, "First", taskTemplName)
 }
+
+func TestTaskTemplateConnectActionTemplates(t *testing.T) {
+	tt := &TaskTemplate{
+		DataPipeTemplates: []DataPipeTemplate{},
+	}
+
+	expectDataPipeTemplate := DataPipeTemplate{
+		SourceActionName: "Action1",
+		SourceOutputName: "out1",
+		DestActionName:   "Action2",
+		DestInputName:    "in2",
+	}
+
+	err := tt.ConnectActionTemplates("Action1", "out1", "Action2", "in2")
+
+	assert.Nil(t, err)
+
+	assert.Equal(t, 1, len(tt.DataPipeTemplates))
+	assert.Equal(t, expectDataPipeTemplate, tt.DataPipeTemplates[0])
+}
