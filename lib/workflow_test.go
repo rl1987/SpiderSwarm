@@ -565,3 +565,22 @@ func TestTaskTemplateConnectInputToActionTemplate(t *testing.T) {
 	assert.Equal(t, 1, len(tt.DataPipeTemplates))
 	assert.Equal(t, expectDataPipeTemplate, tt.DataPipeTemplates[0])
 }
+
+func TestTaskTemplateConnectOutputToActionTemplate(t *testing.T) {
+	tt := &TaskTemplate{
+		DataPipeTemplates: []DataPipeTemplate{},
+	}
+
+	expectDataPipeTemplate := DataPipeTemplate{
+		SourceActionName: "Action1",
+		SourceOutputName: "out1",
+		TaskOutputName:   "out2",
+	}
+
+	err := tt.ConnectOutputToActionTemplate("Action1", "out1", "out2")
+
+	assert.Nil(t, err)
+
+	assert.Equal(t, 1, len(tt.DataPipeTemplates))
+	assert.Equal(t, expectDataPipeTemplate, tt.DataPipeTemplates[0])
+}
