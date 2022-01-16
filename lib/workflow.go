@@ -161,6 +161,7 @@ func (tt *TaskTemplate) DisconnectActionTemplates(sourceActionName string, sourc
 	return nil
 }
 
+// TODO: remove destActionName and destInputName arguments as they are redundant.
 func (tt *TaskTemplate) DisconnectInput(taskInputName string, destActionName string, destInputName string) error {
 	idx := -1
 
@@ -180,6 +181,7 @@ func (tt *TaskTemplate) DisconnectInput(taskInputName string, destActionName str
 	return nil
 }
 
+// TODO: remove sourceOutputName and taskOutputName arguments as they are redundant.
 func (tt *TaskTemplate) DisconnectOutput(sourceActionName string, sourceOutputName string, taskOutputName string) error {
 	idx := -1
 

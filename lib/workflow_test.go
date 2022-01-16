@@ -628,3 +628,24 @@ func TestDisconnectInput(t *testing.T) {
 	err = tt.DisconnectInput("in2", "Action2", "in3")
 	assert.Equal(t, errors.New("Not found"), err)
 }
+
+func TestDisconnectOutput(t *testing.T) {
+	tt := TaskTemplate{
+		DataPipeTemplates: []DataPipeTemplate{
+			DataPipeTemplate{
+				SourceActionName: "Action1",
+				SourceOutputName: "out1",
+				TaskOutputName:   "out2",
+			},
+		},
+	}
+
+	err := tt.DisconnectOutput("Action1", "out1", "out2")
+
+	assert.Nil(t, err)
+
+	assert.Equal(t, 0, len(tt.DataPipeTemplates))
+
+	err = tt.DisconnectOutput("in3", "Action2", "out4")
+	assert.Equal(t, errors.New("Not found"), err)
+}
