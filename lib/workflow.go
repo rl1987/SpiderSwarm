@@ -180,12 +180,11 @@ func (tt *TaskTemplate) DisconnectInput(taskInputName string) error {
 	return nil
 }
 
-// TODO: remove sourceOutputName and taskOutputName arguments as they are redundant.
-func (tt *TaskTemplate) DisconnectOutput(sourceActionName string, sourceOutputName string, taskOutputName string) error {
+func (tt *TaskTemplate) DisconnectOutput(taskOutputName string) error {
 	idx := -1
 
 	for i, dpt := range tt.DataPipeTemplates {
-		if dpt.SourceActionName == sourceActionName && dpt.SourceOutputName == sourceOutputName && dpt.TaskOutputName == taskOutputName {
+		if dpt.TaskOutputName == taskOutputName {
 			idx = i
 			break
 		}
