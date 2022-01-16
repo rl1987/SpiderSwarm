@@ -619,13 +619,13 @@ func TestDisconnectInput(t *testing.T) {
 		},
 	}
 
-	err := tt.DisconnectInput("in1", "Action1", "in2")
+	err := tt.DisconnectInput("in1")
 
 	assert.Nil(t, err)
 
 	assert.Equal(t, 0, len(tt.DataPipeTemplates))
 
-	err = tt.DisconnectInput("in2", "Action2", "in3")
+	err = tt.DisconnectInput("in2")
 	assert.Equal(t, errors.New("Not found"), err)
 }
 

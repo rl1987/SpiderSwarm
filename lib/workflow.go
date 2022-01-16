@@ -161,12 +161,11 @@ func (tt *TaskTemplate) DisconnectActionTemplates(sourceActionName string, sourc
 	return nil
 }
 
-// TODO: remove destActionName and destInputName arguments as they are redundant.
-func (tt *TaskTemplate) DisconnectInput(taskInputName string, destActionName string, destInputName string) error {
+func (tt *TaskTemplate) DisconnectInput(taskInputName string) error {
 	idx := -1
 
 	for i, dpt := range tt.DataPipeTemplates {
-		if dpt.TaskInputName == taskInputName && dpt.DestActionName == destActionName && dpt.DestInputName == destInputName {
+		if dpt.TaskInputName == taskInputName {
 			idx = i
 			break
 		}
