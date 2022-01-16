@@ -1,6 +1,7 @@
 package spsw
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -583,4 +584,47 @@ func TestTaskTemplateConnectOutputToActionTemplate(t *testing.T) {
 
 	assert.Equal(t, 1, len(tt.DataPipeTemplates))
 	assert.Equal(t, expectDataPipeTemplate, tt.DataPipeTemplates[0])
+}
+
+func TestTaskTemplateDisconnectActionTemplates(t *testing.T) {
+	tt := TaskTemplate{
+		DataPipeTemplates: []DataPipeTemplate{
+			DataPipeTemplate{
+				SourceActionName: "Action1",
+				SourceOutputName: "out1",
+				DestActionName:   "Action2",
+				DestInputName:    "in2",
+			},
+		},
+	}
+
+	err := tt.DisconnectActionTemplates("Action1", "out1", "Action2", "in2")
+
+	assert.Nil(t, err)
+
+	assert.Equal(t, 0, len(tt.DataPipeTemplates))
+
+	err = tt.DisconnectActionTemplates("Action2", "out3", "Action3", "in4")
+	assert.Equal(t, errors.New("Not found"), err)
+}
+
+func TestDisconnectInput(t *testing.T) {
+	tt := TaskTemplate{
+		DataPipeTemplates: []DataPipeTemplate{
+			DataPipeTemplate{
+				TaskInputName:  "in1",
+				DestActionName: "Action1",
+				DestInputName:  "in2",
+			},
+		},
+	}
+
+	err := tt.DisconnectInput("in1", "Action1", "in2")
+
+	assert.Nil(t, err)
+
+	assert.Equal(t, 0, len(tt.DataPipeTemplates))
+
+	err = tt.DisconnectInput("in2", "Action2", "in3")
+	assert.Equal(t, errors.New("Not found"), err)
 }
