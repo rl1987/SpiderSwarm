@@ -102,6 +102,7 @@ func (ha *HTTPAction) Run() error {
 	if ha.Inputs[HTTPActionInputBody] != nil && ha.Method != http.MethodGet {
 		bodyBytes, ok := ha.Inputs[HTTPActionInputBody].Remove().([]byte)
 		if ok {
+			log.Debug(fmt.Sprintf("HTTPAction %v setting request body: %v", ha, bodyBytes))
 			body = bytes.NewBuffer(bodyBytes)
 			request.Body = ioutil.NopCloser(body)
 		}
