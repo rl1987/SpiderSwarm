@@ -154,14 +154,11 @@ func (ha *HTTPAction) Run() error {
 					form.Add(key, value)
 				}
 			} else if formDataMult, okMulti := x.(map[string][]string); okMulti {
-
-				fmt.Println("!")
 				for key, values := range formDataMult {
 					for _, value := range values {
 						form.Add(key, value)
 					}
 				}
-
 			}
 
 			if len(form) > 0 {
