@@ -281,6 +281,45 @@ func TestHTTPActionRunPOSTWithFormData(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestHTTPActionRunPOSTWithMultivaluedFormData(t *testing.T) {
+	formData := map[string][]string{
+		"custname":  []string{"Misato"},
+		"custtel":   []string{"555-1212"},
+		"custemail": []string{"kusanagi@jdf.gov.jp"},
+		"size":      []string{"large"},
+		"topping":   []string{"bacon", "cheese", "onion", "mushroom"},
+		"delivery":  []string{"20:00"},
+		"comments":  []string{"Give it to Shinji."},
+	}
+
+	testServer := httptest.NewServer(
+		http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+			assert.Equal(t, http.MethodPost, req.Method)
+
+			body, err := io.ReadAll(req.Body)
+			assert.Nil(t, err)
+
+			gotFormData, err := url.ParseQuery(string(body))
+			assert.Nil(t, err)
+			assert.Equal(t, url.Values(formData), gotFormData)
+
+			res.WriteHeader(201)
+		}))
+
+	defer testServer.Close()
+
+	formDataIn := NewDataPipe()
+	formDataIn.Add(formData)
+
+	httpAction := NewHTTPAction(testServer.URL, http.MethodPost, false)
+
+	err := httpAction.AddInput(HTTPActionInputFormData, formDataIn)
+	assert.Nil(t, err)
+
+	err = httpAction.Run()
+	assert.Nil(t, err)
+}
+
 func TestHTTPActionRunCookies(t *testing.T) {
 	cookieName := "SessionID"
 	cookieValue1 := "DFB32DF6-ABB5-4877-9B6A-D7F8D9791880"

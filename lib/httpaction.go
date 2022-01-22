@@ -145,14 +145,26 @@ func (ha *HTTPAction) Run() error {
 				request.Body = ioutil.NopCloser(body)
 			}
 		} else if ha.Inputs[HTTPActionInputFormData] != nil {
-			formData, ok := ha.Inputs[HTTPActionInputFormData].Remove().(map[string]string)
-			if ok {
-				form := &url.Values{}
+			form := url.Values{}
 
+			x := ha.Inputs[HTTPActionInputFormData].Remove()
+
+			if formData, ok := x.(map[string]string); ok {
 				for key, value := range formData {
 					form.Add(key, value)
 				}
+			} else if formDataMult, okMulti := x.(map[string][]string); okMulti {
 
+				fmt.Println("!")
+				for key, values := range formDataMult {
+					for _, value := range values {
+						form.Add(key, value)
+					}
+				}
+
+			}
+
+			if len(form) > 0 {
 				bodyStr := form.Encode()
 				bodyBytes := []byte(bodyStr)
 
