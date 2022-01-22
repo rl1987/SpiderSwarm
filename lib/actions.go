@@ -39,7 +39,7 @@ var ActionConstructorTable = map[string]InitFunc{
 	"UTF8EncodeAction":      NewUTF8EncodeActionFromTemplate,
 	"ConstAction":           NewConstActionFromTemplate,
 	"URLJoinAction":         NewURLJoinActionFromTemplate,
-	"HTTPCookieJoinAction":  NewHTTPCookieJoinActionFromTemplate,
+	"StringMapUpdateAction": NewStringMapUpdateActionFromTemplate,
 	"URLParseAction":        NewURLParseActionFromTemplate,
 	"StringCutAction":       NewStringCutActionFromTemplate,
 	"JSONPathAction":        NewJSONPathActionFromTemplate,
@@ -71,9 +71,9 @@ var AllowedInputNameTable = map[string][]string{
 		URLJoinActionInputBaseURL,
 		URLJoinActionInputRelativeURL,
 	},
-	"HTTPCookieJoinAction": []string{
-		HTTPCookieJoinActionInputNewCookies,
-		HTTPCookieJoinActionInputOldCookies,
+	"StringMapUpdateAction": []string{
+		StringMapUpdateActionInputNew,
+		StringMapUpdateActionInputOld,
 	},
 	"URLParseAction": []string{
 		URLParseActionInputURL,
@@ -120,8 +120,8 @@ var AllowedOutputNameTable = map[string][]string{
 	"URLJoinAction": []string{
 		URLJoinActionOutputAbsoluteURL,
 	},
-	"HTTPCookieJoinAction": []string{
-		HTTPCookieJoinActionOutputUpdatedCookies,
+	"StringMapUpdateAction": []string{
+		StringMapUpdateActionOutputUpdated,
 	},
 	"StringCutAction": []string{
 		StringCutActionOutputStr,

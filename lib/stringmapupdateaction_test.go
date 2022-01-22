@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHTTPCookieJoinActionRun(t *testing.T) {
+func TestStringMapUpdateActionRun(t *testing.T) {
 	oldCookies := map[string]string{
 		"session": "12211",
 		"n":       "1",
@@ -30,11 +30,11 @@ func TestHTTPCookieJoinActionRun(t *testing.T) {
 	oldCookiesIn.Add(oldCookies)
 	newCookiesIn.Add(newCookies)
 
-	action := NewHTTPCookieJoinAction()
+	action := NewStringMapUpdateAction()
 
-	action.AddInput(HTTPCookieJoinActionInputOldCookies, oldCookiesIn)
-	action.AddInput(HTTPCookieJoinActionInputNewCookies, newCookiesIn)
-	action.AddOutput(HTTPCookieJoinActionOutputUpdatedCookies, updatedCookiesOut)
+	action.AddInput(StringMapUpdateActionInputOld, oldCookiesIn)
+	action.AddInput(StringMapUpdateActionInputNew, newCookiesIn)
+	action.AddOutput(StringMapUpdateActionOutputUpdated, updatedCookiesOut)
 
 	err := action.Run()
 

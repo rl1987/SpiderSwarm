@@ -178,7 +178,7 @@ func getWorkflow() *spsw.Workflow {
 					},
 					spsw.ActionTemplate{
 						Name:              "JoinCookies",
-						StructName:        "HTTPCookieJoinAction",
+						StructName:        "StringMapUpdateAction",
 						ConstructorParams: map[string]spsw.Value{},
 					},
 					spsw.ActionTemplate{
@@ -210,7 +210,7 @@ func getWorkflow() *spsw.Workflow {
 					spsw.DataPipeTemplate{
 						TaskInputName:  "cookies",
 						DestActionName: "JoinCookies",
-						DestInputName:  spsw.HTTPCookieJoinActionInputOldCookies,
+						DestInputName:  spsw.StringMapUpdateActionInputOld,
 					},
 					spsw.DataPipeTemplate{
 						SourceActionName: "Const_R1",
@@ -246,11 +246,11 @@ func getWorkflow() *spsw.Workflow {
 						SourceActionName: "HTTP_List",
 						SourceOutputName: spsw.HTTPActionOutputCookies,
 						DestActionName:   "JoinCookies",
-						DestInputName:    spsw.HTTPCookieJoinActionInputNewCookies,
+						DestInputName:    spsw.StringMapUpdateActionInputNew,
 					},
 					spsw.DataPipeTemplate{
 						SourceActionName: "JoinCookies",
-						SourceOutputName: spsw.HTTPCookieJoinActionOutputUpdatedCookies,
+						SourceOutputName: spsw.StringMapUpdateActionoOutputUpdated,
 						DestActionName:   "TaskPromise_ScrapeCompanyPage",
 						DestInputName:    "cookies",
 					},
