@@ -20,16 +20,24 @@ func TestNewHTTPAction(t *testing.T) {
 	assert.False(t, httpAction.AbstractAction.ExpectMany)
 	assert.Equal(t, httpAction.BaseURL, baseURL)
 	assert.Equal(t, httpAction.Method, method)
-	assert.Equal(t, len(httpAction.AbstractAction.AllowedInputNames), 5)
-	assert.Equal(t, httpAction.AbstractAction.AllowedInputNames[0], HTTPActionInputBaseURL)
-	assert.Equal(t, httpAction.AbstractAction.AllowedInputNames[1], HTTPActionInputURLParams)
-	assert.Equal(t, httpAction.AbstractAction.AllowedInputNames[2], HTTPActionInputHeaders)
-	assert.Equal(t, httpAction.AbstractAction.AllowedInputNames[3], HTTPActionInputCookies)
-	assert.Equal(t, httpAction.AbstractAction.AllowedInputNames[4], HTTPActionInputBody)
+	assert.Equal(t, len(httpAction.AbstractAction.AllowedInputNames), 6)
+	assert.Equal(t, []string{
+		HTTPActionInputBaseURL,
+		HTTPActionInputFormData,
+		HTTPActionInputURLParams,
+		HTTPActionInputHeaders,
+		HTTPActionInputCookies,
+		HTTPActionInputBody,
+	}, httpAction.AbstractAction.AllowedInputNames)
+
 	assert.Equal(t, len(httpAction.AbstractAction.AllowedOutputNames), 5)
-	assert.Equal(t, httpAction.AbstractAction.AllowedOutputNames[0], HTTPActionOutputBody)
-	assert.Equal(t, httpAction.AbstractAction.AllowedOutputNames[1], HTTPActionOutputHeaders)
-	assert.Equal(t, httpAction.AbstractAction.AllowedOutputNames[2], HTTPActionOutputStatusCode)
+	assert.Equal(t, []string{
+		HTTPActionOutputBody,
+		HTTPActionOutputHeaders,
+		HTTPActionOutputStatusCode,
+		HTTPActionOutputCookies,
+		HTTPActionOutputResponseURL,
+	}, httpAction.AbstractAction.AllowedOutputNames)
 
 }
 
@@ -236,6 +244,37 @@ func TestHTTPActionRunPOST(t *testing.T) {
 	httpAction := NewHTTPAction(testServer.URL, http.MethodPost, false)
 
 	err := httpAction.AddInput(HTTPActionInputBody, bodyIn)
+	assert.Nil(t, err)
+
+	err = httpAction.Run()
+	assert.Nil(t, err)
+}
+
+func TestHTTPActionRunPOSTWithFormData(t *testing.T) {
+	expectedBody := []byte("a=1&b=2")
+
+	testServer := httptest.NewServer(
+		http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+			assert.Equal(t, http.MethodPost, req.Method)
+
+			body, err := io.ReadAll(req.Body)
+			assert.Nil(t, err)
+			assert.Equal(t, expectedBody, body)
+
+			res.WriteHeader(201)
+		}))
+
+	defer testServer.Close()
+
+	formDataIn := NewDataPipe()
+	formDataIn.Add(map[string]string{
+		"a": "1",
+		"b": "2",
+	})
+
+	httpAction := NewHTTPAction(testServer.URL, http.MethodPost, false)
+
+	err := httpAction.AddInput(HTTPActionInputFormData, formDataIn)
 	assert.Nil(t, err)
 
 	err = httpAction.Run()

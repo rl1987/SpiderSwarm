@@ -13,6 +13,7 @@ import (
 
 const HTTPActionInputBaseURL = "HTTPActionInputBaseURL"
 const HTTPActionInputURLParams = "HTTPActionInputURLParams"
+const HTTPActionInputFormData = "HTTPActionInputFormData"
 const HTTPActionInputHeaders = "HTTPActionInputHeaders"
 const HTTPActionInputCookies = "HTTPActionInputCookies"
 const HTTPActionInputBody = "HTTPActionInputBody"
@@ -36,6 +37,7 @@ func NewHTTPAction(baseURL string, method string, canFail bool) *HTTPAction {
 			ExpectMany: false,
 			AllowedInputNames: []string{
 				HTTPActionInputBaseURL,
+				HTTPActionInputFormData,
 				HTTPActionInputURLParams,
 				HTTPActionInputHeaders,
 				HTTPActionInputCookies,
@@ -99,15 +101,6 @@ func (ha *HTTPAction) Run() error {
 
 	q := request.URL.Query()
 
-	if ha.Inputs[HTTPActionInputBody] != nil && ha.Method != http.MethodGet {
-		bodyBytes, ok := ha.Inputs[HTTPActionInputBody].Remove().([]byte)
-		if ok {
-			log.Debug(fmt.Sprintf("HTTPAction %v setting request body: %v", ha, bodyBytes))
-			body = bytes.NewBuffer(bodyBytes)
-			request.Body = ioutil.NopCloser(body)
-		}
-	}
-
 	if ha.Inputs[HTTPActionInputURLParams] != nil {
 		x := ha.Inputs[HTTPActionInputURLParams].Remove()
 		urlParamsOneToMany, ok1 := x.(map[string][]string)
@@ -141,6 +134,35 @@ func (ha *HTTPAction) Run() error {
 				}
 			}
 		}
+	}
+
+	if ha.Method != http.MethodGet {
+		if ha.Inputs[HTTPActionInputBody] != nil {
+			bodyBytes, ok := ha.Inputs[HTTPActionInputBody].Remove().([]byte)
+			if ok {
+				log.Debug(fmt.Sprintf("HTTPAction %v setting request body: %v", ha, bodyBytes))
+				body = bytes.NewBuffer(bodyBytes)
+				request.Body = ioutil.NopCloser(body)
+			}
+		} else if ha.Inputs[HTTPActionInputFormData] != nil {
+			formData, ok := ha.Inputs[HTTPActionInputFormData].Remove().(map[string]string)
+			if ok {
+				form := &url.Values{}
+
+				for key, value := range formData {
+					form.Add(key, value)
+				}
+
+				bodyStr := form.Encode()
+				bodyBytes := []byte(bodyStr)
+
+				body = bytes.NewBuffer(bodyBytes)
+				request.Body = ioutil.NopCloser(body)
+
+				request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+			}
+		}
+
 	}
 
 	if ha.Inputs[HTTPActionInputCookies] != nil {

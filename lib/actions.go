@@ -51,6 +51,7 @@ var AllowedInputNameTable = map[string][]string{
 		HTTPActionInputBaseURL,
 		HTTPActionInputBody,
 		HTTPActionInputCookies,
+		HTTPActionInputFormData,
 		HTTPActionInputHeaders,
 		HTTPActionInputURLParams,
 	},
