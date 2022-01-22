@@ -250,7 +250,7 @@ func getWorkflow() *spsw.Workflow {
 					},
 					spsw.DataPipeTemplate{
 						SourceActionName: "JoinCookies",
-						SourceOutputName: spsw.StringMapUpdateActionoOutputUpdated,
+						SourceOutputName: spsw.StringMapUpdateActionOutputUpdated,
 						DestActionName:   "TaskPromise_ScrapeCompanyPage",
 						DestInputName:    "cookies",
 					},
