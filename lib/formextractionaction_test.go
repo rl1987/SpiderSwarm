@@ -6,6 +6,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewFormExtractionAction(t *testing.T) {
+	action := NewFormExtractionAction("f1")
+
+	assert.NotNil(t, action)
+	assert.Equal(t, "f1", action.FormID)
+	assert.Equal(t, []string{
+		FormExtractionActionInputHTMLStr,
+		FormExtractionActionInputHTMLBytes,
+	}, action.AbstractAction.AllowedInputNames)
+	assert.Equal(t, []string{
+		FormExtractionActionOutputFormData,
+	}, action.AbstractAction.AllowedOutputNames)
+}
+
 func TestFormExtractionActionRun(t *testing.T) {
 	htmlStr := `
 <html>
