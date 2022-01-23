@@ -31,7 +31,7 @@ type AbstractAction struct {
 type InitFunc func(*ActionTemplate, string) Action
 
 var ActionConstructorTable = map[string]InitFunc{
-  	"FormExtractionAction":  NewFormExtractionActionFromTemplate,
+	"FormExtractionAction":  NewFormExtractionActionFromTemplate,
 	"HTTPAction":            NewHTTPActionFromTemplate,
 	"XPathAction":           NewXPathActionFromTemplate,
 	"FieldJoinAction":       NewFieldJoinActionFromTemplate,
@@ -48,7 +48,7 @@ var ActionConstructorTable = map[string]InitFunc{
 }
 
 var AllowedInputNameTable = map[string][]string{
-  	"FormExtractionAction": []string{
+	"FormExtractionAction": []string{
 		FormExtractionActionInputHTMLBytes,
 		FormExtractionActionInputHTMLStr,
 	},
@@ -97,7 +97,7 @@ var AllowedInputNameTable = map[string][]string{
 }
 
 var AllowedOutputNameTable = map[string][]string{
-  	"FormExtractionAction": []string{
+	"FormExtractionAction": []string{
 		FormExtractionActionOutputFormData,
 	},
 	"HTTPAction": []string{

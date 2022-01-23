@@ -1,10 +1,10 @@
 package spsw
 
 import (
-  	"errors"
-  	"fmt"
-  	"strings"
+	"errors"
+	"fmt"
 	"golang.org/x/net/html" // XXX
+	"strings"
 
 	"github.com/antchfx/htmlquery"
 	"github.com/google/uuid"
@@ -23,7 +23,7 @@ type FormExtractionAction struct {
 func NewFormExtractionAction(formID string) *FormExtractionAction {
 	return &FormExtractionAction{
 		AbstractAction: AbstractAction{
-			CanFail: false,
+			CanFail:    false,
 			ExpectMany: false,
 			AllowedInputNames: []string{
 				FormExtractionActionInputHTMLStr,
@@ -79,7 +79,7 @@ func (fea *FormExtractionAction) Run() error {
 
 	// TODO: support multi-valued inputs (e.g. checkboxes) later.
 	formData := map[string]string{}
-	
+
 	var inputNodes []*html.Node
 	// TODO: make form ID optional - not all forms have id attribute.
 	xpath := fmt.Sprintf("//form[@id=\"%s\"]//input", fea.FormID)
@@ -118,4 +118,3 @@ func (fea *FormExtractionAction) Run() error {
 
 	return nil
 }
-

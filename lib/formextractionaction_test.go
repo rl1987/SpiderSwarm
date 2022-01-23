@@ -22,11 +22,11 @@ func TestNewFormExtractionAction(t *testing.T) {
 
 func TestNewFormExtractionActionFromTemplate(t *testing.T) {
 	actionTempl := &ActionTemplate{
-		Name: "GetForm",
+		Name:       "GetForm",
 		StructName: "FormExtractionAction",
 		ConstructorParams: map[string]Value{
 			"formID": Value{
-				ValueType: ValueTypeString,
+				ValueType:   ValueTypeString,
 				StringValue: "f1",
 			},
 		},
@@ -51,7 +51,7 @@ func TestFormExtractionActionRun(t *testing.T) {
 </html>
 `
 	expectFormData := map[string]string{
-		"custId": "3487",
+		"custId":   "3487",
 		"custName": "John",
 	}
 
@@ -73,4 +73,3 @@ func TestFormExtractionActionRun(t *testing.T) {
 
 	assert.Equal(t, expectFormData, formData)
 }
-
