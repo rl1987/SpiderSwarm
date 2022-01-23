@@ -81,6 +81,7 @@ func (fea *FormExtractionAction) Run() error {
 	formData := map[string]string{}
 	
 	var inputNodes []*html.Node
+	// TODO: make form ID optional - not all forms have id attribute.
 	xpath := fmt.Sprintf("//form[@id=\"%s\"]//input", fea.FormID)
 
 	inputNodes, err = htmlquery.QueryAll(doc, xpath)
@@ -111,7 +112,7 @@ func (fea *FormExtractionAction) Run() error {
 		}
 	}
 
-	for _, outDP := range fea.Outputs[FormExtractionActionInputHTMLStr] {
+	for _, outDP := range fea.Outputs[FormExtractionActionOutputFormData] {
 		outDP.Add(formData)
 	}
 
