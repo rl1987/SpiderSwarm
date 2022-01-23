@@ -20,6 +20,25 @@ func TestNewFormExtractionAction(t *testing.T) {
 	}, action.AbstractAction.AllowedOutputNames)
 }
 
+func TestNewFormExtractionActionFromTemplate(t *testing.T) {
+	actionTempl := &ActionTemplate{
+		Name: "GetForm",
+		StructName: "FormExtractionAction",
+		ConstructorParams: map[string]Value{
+			"formID": Value{
+				ValueType: ValueTypeString,
+				StringValue: "f1",
+			},
+		},
+	}
+
+	action := NewFormExtractionActionFromTemplate(actionTempl, "").(*FormExtractionAction)
+
+	assert.NotNil(t, action)
+	assert.Equal(t, "GetForm", action.Name)
+	assert.Equal(t, "f1", action.FormID)
+}
+
 func TestFormExtractionActionRun(t *testing.T) {
 	htmlStr := `
 <html>
