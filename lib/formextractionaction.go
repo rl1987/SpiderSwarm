@@ -1,6 +1,12 @@
 package spsw
 
 import (
+  	"errors"
+  	"fmt"
+  	"strings"
+	"golang.org/x/net/html" // XXX
+
+	"github.com/antchfx/htmlquery"
 	"github.com/google/uuid"
 )
 
@@ -48,5 +54,67 @@ func NewFormExtractionActionFromTemplate(actionTempl *ActionTemplate, workflowNa
 	return action
 }
 
+func (fea *FormExtractionAction) Run() error {
+	if fea.Inputs[FormExtractionActionInputHTMLStr] == nil && fea.Inputs[FormExtractionActionInputHTMLBytes] == nil {
+		return errors.New("Input not connected")
+	}
 
+	if fea.Outputs[FormExtractionActionOutputFormData] == nil || len(fea.Outputs[FormExtractionActionOutputFormData]) == 0 {
+		return errors.New("Output not connected")
+	}
+
+	var htmlStr string
+
+	if fea.Inputs[FormExtractionActionInputHTMLStr] != nil {
+		htmlStr, _ = fea.Inputs[FormExtractionActionInputHTMLStr].Remove().(string)
+	} else {
+		htmlBytes, _ := fea.Inputs[FormExtractionActionInputHTMLStr].Remove().([]byte)
+		htmlStr = string(htmlBytes)
+	}
+
+	doc, err := htmlquery.Parse(strings.NewReader(htmlStr))
+	if err != nil {
+		return err
+	}
+
+	// TODO: support multi-valued inputs (e.g. checkboxes) later.
+	formData := map[string]string{}
+	
+	var inputNodes []*html.Node
+	xpath := fmt.Sprintf("//form[@id=\"%s\"]//input", fea.FormID)
+
+	inputNodes, err = htmlquery.QueryAll(doc, xpath)
+	if err != nil {
+		return err
+	}
+
+	for _, input := range inputNodes {
+		if input == nil {
+			continue
+		}
+
+		name := ""
+		value := ""
+
+		for _, attrib := range input.Attr {
+			if attrib.Key == "name" {
+				name = attrib.Val
+			}
+
+			if attrib.Key == "value" {
+				value = attrib.Val
+			}
+		}
+
+		if name != "" {
+			formData[name] = value
+		}
+	}
+
+	for _, outDP := range fea.Outputs[FormExtractionActionInputHTMLStr] {
+		outDP.Add(formData)
+	}
+
+	return nil
+}
 
