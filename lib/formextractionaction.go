@@ -68,7 +68,7 @@ func (fea *FormExtractionAction) Run() error {
 	if fea.Inputs[FormExtractionActionInputHTMLStr] != nil {
 		htmlStr, _ = fea.Inputs[FormExtractionActionInputHTMLStr].Remove().(string)
 	} else {
-		htmlBytes, _ := fea.Inputs[FormExtractionActionInputHTMLStr].Remove().([]byte)
+		htmlBytes, _ := fea.Inputs[FormExtractionActionInputHTMLBytes].Remove().([]byte)
 		htmlStr = string(htmlBytes)
 	}
 
