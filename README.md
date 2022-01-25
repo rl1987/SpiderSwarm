@@ -8,7 +8,7 @@ Furthermore, it exposes APIs and can be integrated into end-user-facing apps.
 There are the following key actor subsystems to SpiderSwarm:
 
 * Manager - schedules tasks based on workflow and received task results. If task results contain items(s) (pieces of scraped data) it is sent to Exporter.
-* Worker - received scheduled tasks from Manager, executed them, and sends back task results.
+* Worker - receives scheduled tasks from Manager, executes them, and sends back task results.
 * Exporter - receives items and writes them out to the external store. At this point, only CSV files are supported.
 
 The workflow consists of one or more task templates. Each task template is consisting of one or more action templates, connected by data pipe templates.
