@@ -63,8 +63,9 @@ func (sca *StringCutAction) Run() error {
 	var fromIdx int
 	var toIdx int
 
-	inputStr, ok := sca.Inputs[StringCutActionInputStr].Remove().(string)
-	if ok {
+	x := sca.Inputs[StringCutActionInputStr].Remove()
+
+	if inputStr, ok := x.(string); ok {
 		fromIdx = strings.Index(inputStr, sca.From)
 		if fromIdx == -1 {
 			return errors.New(".From not found")
@@ -83,6 +84,24 @@ func (sca *StringCutAction) Run() error {
 
 		for _, output := range sca.Outputs[StringCutActionOutputStr] {
 			output.Add(outputStr)
+		}
+	} else if inputStrings, ok2 := x.([]string); ok2 {
+		outputStrings := []string{}
+
+		for _, inputStr := range inputStrings {
+			fromIdx = strings.Index(inputStr, sca.From)
+		  	fromIdx += len(sca.From)
+
+		 	toIdx = strings.Index(inputStr[fromIdx:], sca.To)
+		  	toIdx += fromIdx
+
+		  	outputStr := inputStr[fromIdx:toIdx]
+			
+			outputStrings = append(outputStrings, outputStr)
+		}
+		
+		for _, outDP := range sca.Outputs[StringCutActionOutputStr] {
+			outDP.Add(outputStrings)
 		}
 	} else {
 		return errors.New("Cannot get input string")

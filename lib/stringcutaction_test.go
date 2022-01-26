@@ -55,3 +55,26 @@ func TestStringCutActionRun(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, expectedOutStr, gotStr)
 }
+
+func TestStringCutActionRun2(t *testing.T) {
+	inputStrings := []string{"... latitude: '12.1';", "... latitude: '3.4';"}
+	expectOutputStrings := []string{"12.1", "3.4"};
+
+	action := NewStringCutAction("latitude: '", "';")
+
+	inDP := NewDataPipe()
+	outDP := NewDataPipe()
+
+	inDP.Add(inputStrings)
+
+	action.AddInput(StringCutActionInputStr, inDP)
+	action.AddOutput(StringCutActionOutputStr, outDP)
+
+	err := action.Run()
+	assert.Nil(t, err)
+
+	gotStrings, ok := action.Outputs[StringCutActionOutputStr][0].Remove().([]string)
+	assert.True(t, ok)
+	assert.Equal(t, expectOutputStrings, gotStrings)
+}
+
