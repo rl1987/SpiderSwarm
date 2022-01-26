@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 )
 
 type TaskPromiseAction struct {
@@ -68,7 +69,8 @@ func (tpa *TaskPromiseAction) Run() error {
 	if tpa.Inputs[TaskPromiseActionInputRefrain] != nil {
 		refrain, ok := tpa.Inputs[TaskPromiseActionInputRefrain].Remove().(bool)
 		if refrain && ok {
-			// TODO: log something here
+		  	log.Info(fmt.Sprintf("Refraining from making a TaskPromise for task %s in TaskPromise %s (%s)",
+				tpa.TaskName, tpa.UUID, tpa.Name))
 			return nil
 		}
 	}
