@@ -242,7 +242,7 @@ func (ha *HTTPAction) Run() error {
 		// XXX: maybe a slice of http.Cookie structs should go into the output?
 		cookieDict := map[string]string{}
 
-		for _, cookie := range resp.Cookies() {
+		for _, cookie := range jar.Cookies(resp.Request.URL) {
 			cookieDict[cookie.Name] = cookie.Value
 		}
 
