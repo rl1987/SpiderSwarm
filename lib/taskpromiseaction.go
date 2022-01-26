@@ -86,9 +86,7 @@ func (tpa *TaskPromiseAction) Run() error {
 	}
 
 	for _, rf := range tpa.RequireFields {
-		if inputDataChunksByInputName[rf] == nil ||
-			(len(inputDataChunksByInputName[rf].PayloadValue.StringValue) == 0 && // XXX: this seems bit awkward
-				len(inputDataChunksByInputName[rf].PayloadValue.StringsValue) == 0) {
+		if inputDataChunksByInputName[rf] == nil {
 			return nil
 		}
 	}
