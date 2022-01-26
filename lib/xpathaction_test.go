@@ -136,3 +136,26 @@ func TestXPathActionAttrib(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, "/next-gen-product", gotResult)
 }
+
+func TestXPathActionRunHTMLUnescape(t *testing.T) {
+	inputStr := "<html><script src=\"/WebResource.axd?d=pynGkmcFUV13He1Qd6_TZMf3uKkrnZDqWIncPpA2JyCKNI3abPgg4VFK3aIP8IptHTidNt0q28y-r61APewz1A2&amp;t=637729441680000000\" type=\"text/javascript\"></script></html>"
+
+	inDP := NewDataPipe()
+	outDP := NewDataPipe()
+
+	inDP.Add(inputStr)
+
+	action := NewXPathAction("//script/@src", false)
+
+	action.AddInput(XPathActionInputHTMLStr, inDP)
+	action.AddOutput(XPathActionOutputStr, outDP)
+
+	err := action.Run()
+	assert.Nil(t, err)
+
+	gotResult, ok := outDP.Remove().(string)
+
+	assert.True(t, ok)
+	assert.Equal(t, "/WebResource.axd?d=pynGkmcFUV13He1Qd6_TZMf3uKkrnZDqWIncPpA2JyCKNI3abPgg4VFK3aIP8IptHTidNt0q28y-r61APewz1A2&t=637729441680000000", gotResult)
+}
+

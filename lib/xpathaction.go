@@ -64,7 +64,9 @@ func renderNode(n *html.Node) string {
 	if n != nil {
 		html.Render(w, n)
 	}
-	return buf.String()
+	str := buf.String()
+	str = html.UnescapeString(str)
+	return str
 }
 
 func extractAttribute(result string, attribName string) string {
