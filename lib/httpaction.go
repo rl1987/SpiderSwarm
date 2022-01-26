@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 
 	"github.com/google/uuid"
@@ -192,8 +193,11 @@ func (ha *HTTPAction) Run() error {
 		Proxy: http.ProxyFromEnvironment,
 	}
 
+	jar, _ := cookiejar.New(nil)
+
 	client := &http.Client{
 		Transport: transport,
+		Jar:       jar,
 	}
 
 	log.Debug(fmt.Sprintf("HTTPAction %s (%s) launching request: %v", ha.Name, ha.UUID, request))
