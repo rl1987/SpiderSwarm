@@ -175,16 +175,6 @@ func (ha *HTTPAction) Run() error {
 
 	}
 
-	if ha.Inputs[HTTPActionInputCookies] != nil {
-		cookies, ok := ha.Inputs[HTTPActionInputCookies].Remove().(map[string]string)
-
-		if ok {
-			for key, value := range cookies {
-				c := &http.Cookie{Name: key, Value: value}
-				request.AddCookie(c)
-			}
-		}
-	}
 
 	request.URL.RawQuery = q.Encode()
 
@@ -198,6 +188,20 @@ func (ha *HTTPAction) Run() error {
 	client := &http.Client{
 		Transport: transport,
 		Jar:       jar,
+	}
+
+	if ha.Inputs[HTTPActionInputCookies] != nil {
+		cookies, ok := ha.Inputs[HTTPActionInputCookies].Remove().(map[string]string)
+
+		if  ok {
+			httpCookies := []*http.Cookie{}
+			for key, value := range cookies {
+				c := &http.Cookie{Name: key, Value: value}
+				httpCookies = append(httpCookies, c)
+			}
+
+			jar.SetCookies(request.URL, httpCookies)
+		}
 	}
 
 	log.Debug(fmt.Sprintf("HTTPAction %s (%s) launching request: %v", ha.Name, ha.UUID, request))
