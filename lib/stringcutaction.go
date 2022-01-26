@@ -90,9 +90,15 @@ func (sca *StringCutAction) Run() error {
 
 		for _, inputStr := range inputStrings {
 			fromIdx = strings.Index(inputStr, sca.From)
+			if fromIdx == -1 {
+				continue
+			}
 		  	fromIdx += len(sca.From)
 
 		 	toIdx = strings.Index(inputStr[fromIdx:], sca.To)
+			if toIdx == -1 {
+				continue
+			}
 		  	toIdx += fromIdx
 
 		  	outputStr := inputStr[fromIdx:toIdx]
