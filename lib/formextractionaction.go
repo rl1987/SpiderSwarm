@@ -54,6 +54,10 @@ func NewFormExtractionActionFromTemplate(actionTempl *ActionTemplate, workflowNa
 	return action
 }
 
+func (fea *FormExtractionAction) String() string {
+	return fmt.Sprintf("<FormExtractionAction %s Name: %s, FormID: %s>", fea.UUID, fea.Name, fea.FormID)
+}
+
 func (fea *FormExtractionAction) Run() error {
 	if fea.Inputs[FormExtractionActionInputHTMLStr] == nil && fea.Inputs[FormExtractionActionInputHTMLBytes] == nil {
 		return errors.New("Input not connected")
