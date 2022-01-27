@@ -80,6 +80,7 @@ var AllowedInputNameTable = map[string][]string{
 	"StringMapUpdateAction": []string{
 		StringMapUpdateActionInputNew,
 		StringMapUpdateActionInputOld,
+		StringMapUpdateActionInputOverridenValue,
 	},
 	"URLParseAction": []string{
 		URLParseActionInputURL,
