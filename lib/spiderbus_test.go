@@ -185,7 +185,7 @@ func TestSpiderBusDequeueNoBackend(t *testing.T) {
 	assert.Equal(t, expectedErr, gotErr)
 }
 
-func TestSpiderBusEnqueuBadArh(t *testing.T) {
+func TestSpiderBusEnqueuBadArg(t *testing.T) {
 	spiderBus := NewSpiderBus()
 
 	badArg := struct{}{}
