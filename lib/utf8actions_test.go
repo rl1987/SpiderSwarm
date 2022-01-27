@@ -1,6 +1,7 @@
 package spsw
 
 import (
+  	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -59,3 +60,24 @@ func TestUTF8DecodeActionMultipleOutputs(t *testing.T) {
 	assert.True(t, ok2)
 	assert.Equal(t, "123", s2)
 }
+
+func TestUTF8DecodeActionRunErrors(t *testing.T) {
+	action := NewUTF8DecodeAction()
+
+	err := action.Run()
+
+	assert.Equal(t, errors.New("Input not connected"), err)
+
+	action.AddInput(UTF8DecodeActionInputBytes, NewDataPipe())
+	
+	err = action.Run()
+
+	assert.Equal(t, errors.New("Output not connected"), err)
+
+	action.AddOutput(UTF8DecodeActionOutputStr, NewDataPipe())
+
+	err = action.Run()
+
+	assert.Equal(t, errors.New("Failed to get binary data"), err)
+}
+

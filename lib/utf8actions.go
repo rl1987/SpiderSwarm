@@ -49,7 +49,7 @@ func (ua *UTF8DecodeAction) Run() error {
 		return errors.New("Input not connected")
 	}
 
-	if ua.Outputs[UTF8DecodeActionOutputStr] == nil {
+	if ua.Outputs[UTF8DecodeActionOutputStr] == nil || len(ua.Outputs[UTF8DecodeActionOutputStr]) == 0 {
 		return errors.New("Output not connected")
 	}
 
