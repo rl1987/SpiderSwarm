@@ -7,7 +7,6 @@ import (
 )
 
 func TestNewFieldJoinActionFromTemplate(t *testing.T) {
-	workflowName := "testWorkflow"
 	itemName := "testItem"
 
 	actionTempl := &ActionTemplate{
@@ -25,22 +24,20 @@ func TestNewFieldJoinActionFromTemplate(t *testing.T) {
 		},
 	}
 
-	action, ok := NewFieldJoinActionFromTemplate(actionTempl, workflowName).(*FieldJoinAction)
+	action, ok := NewFieldJoinActionFromTemplate(actionTempl).(*FieldJoinAction)
 	assert.True(t, ok)
 
-	assert.Equal(t, workflowName, action.WorkflowName)
 	assert.Equal(t, itemName, action.ItemName)
 	assert.Equal(t, []string{"title", "link"}, action.AllowedInputNames)
 }
 
 func TestFieldJoinActionRun(t *testing.T) {
-	workflowName := "testWorkflow"
 	jobUUID := "17C67CA0-35C6-488D-9C7B-F1AB4BAF5274"
 	taskUUID := "D6887944-5ECA-44A4-87D5-C7E364E53271"
 	itemName := "testItem"
 
 	action := NewFieldJoinAction([]string{"Name", "Surname", "Phone", "Email"},
-		workflowName, jobUUID, taskUUID, itemName)
+		jobUUID, taskUUID, itemName)
 
 	nameIn := NewDataPipe()
 	surnameIn := NewDataPipe()
@@ -83,7 +80,6 @@ func TestFieldJoinActionRun(t *testing.T) {
 	item, ok := itemOut.Remove().(*Item)
 	assert.True(t, ok)
 
-	assert.Equal(t, workflowName, item.WorkflowName)
 	assert.Equal(t, jobUUID, item.JobUUID)
 	assert.Equal(t, taskUUID, item.TaskUUID)
 	assert.Equal(t, itemName, item.Name)

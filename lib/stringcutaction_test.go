@@ -23,7 +23,7 @@ func TestNewStringCutActionFromTemplate(t *testing.T) {
 		ConstructorParams: constructorParams,
 	}
 
-	action, ok := NewStringCutActionFromTemplate(actionTempl, "").(*StringCutAction)
+	action, ok := NewStringCutActionFromTemplate(actionTempl).(*StringCutAction)
 	assert.True(t, ok)
 
 	assert.NotNil(t, action)

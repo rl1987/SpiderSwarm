@@ -34,7 +34,7 @@ func NewStringMapUpdateAction() *StringMapUpdateAction {
 	}
 }
 
-func NewStringMapUpdateActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
+func NewStringMapUpdateActionFromTemplate(actionTempl *ActionTemplate) Action {
 	action := NewStringMapUpdateAction()
 
 	action.Name = actionTempl.Name

@@ -20,7 +20,7 @@ type FieldJoinAction struct {
 
 // XXX: do we want to take all of these things as params? they seem to violate the
 // abstraction here.
-func NewFieldJoinAction(inputNames []string, workflowName string, jobUUID string, taskUUID string, itemName string) *FieldJoinAction {
+func NewFieldJoinAction(inputNames []string, jobUUID string, taskUUID string, itemName string) *FieldJoinAction {
 	return &FieldJoinAction{
 		AbstractAction: AbstractAction{
 			AllowedInputNames:  inputNames,
@@ -30,21 +30,20 @@ func NewFieldJoinAction(inputNames []string, workflowName string, jobUUID string
 			CanFail:            false,
 			UUID:               uuid.New().String(),
 		},
-		WorkflowName: workflowName,
 		JobUUID:      jobUUID,
 		TaskUUID:     taskUUID,
 		ItemName:     itemName,
 	}
 }
 
-func NewFieldJoinActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
+func NewFieldJoinActionFromTemplate(actionTempl *ActionTemplate) Action {
 	var inputNames []string
 	var itemName string
 
 	inputNames = actionTempl.ConstructorParams["inputNames"].StringsValue
 	itemName = actionTempl.ConstructorParams["itemName"].StringValue
 
-	action := NewFieldJoinAction(inputNames, workflowName, "", "", itemName)
+	action := NewFieldJoinAction(inputNames, "", "", itemName)
 
 	action.Name = actionTempl.Name
 

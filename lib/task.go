@@ -96,7 +96,7 @@ func NewTaskFromTemplate(taskTempl *TaskTemplate, workflowName string, jobUUID s
 	nameToAction := map[string]Action{}
 
 	for _, actionTempl := range taskTempl.ActionTemplates {
-		newAction := NewActionFromTemplate(&actionTempl, workflowName, jobUUID)
+		newAction := NewActionFromTemplate(&actionTempl)
 		task.Actions = append(task.Actions, newAction)
 		nameToAction[actionTempl.Name] = newAction
 	}

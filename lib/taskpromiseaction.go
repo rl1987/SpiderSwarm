@@ -21,7 +21,7 @@ const TaskPromiseActionInputRefrain = "TaskPromiseActionInputRefrain"
 
 const TaskPromiseActionOutputPromise = "TaskPromiseActionOutputPromise"
 
-func NewTaskPromiseAction(inputNames []string, taskName string, workflowName string, jobUUID string, requireFields []string) *TaskPromiseAction {
+func NewTaskPromiseAction(inputNames []string, taskName string, jobUUID string, requireFields []string) *TaskPromiseAction {
 	if inputNames == nil {
 		inputNames = []string{}
 	}
@@ -36,13 +36,12 @@ func NewTaskPromiseAction(inputNames []string, taskName string, workflowName str
 			UUID:               uuid.New().String(),
 		},
 		TaskName:      taskName,
-		WorkflowName:  workflowName,
 		JobUUID:       jobUUID,
 		RequireFields: requireFields,
 	}
 }
 
-func NewTaskPromiseActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
+func NewTaskPromiseActionFromTemplate(actionTempl *ActionTemplate) Action {
 	var inputNames []string
 	var taskName string
 	var requireFields []string
@@ -51,7 +50,7 @@ func NewTaskPromiseActionFromTemplate(actionTempl *ActionTemplate, workflowName 
 	taskName = actionTempl.ConstructorParams["taskName"].StringValue
 	requireFields = actionTempl.ConstructorParams["requireFields"].StringsValue
 
-	action := NewTaskPromiseAction(inputNames, taskName, workflowName, "", requireFields)
+	action := NewTaskPromiseAction(inputNames, taskName, "", requireFields)
 
 	action.Name = actionTempl.Name
 

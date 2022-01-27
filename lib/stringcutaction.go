@@ -33,7 +33,7 @@ func NewStringCutAction(from string, to string) *StringCutAction {
 	}
 }
 
-func NewStringCutActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
+func NewStringCutActionFromTemplate(actionTempl *ActionTemplate) Action {
 	var from string
 	var to string
 

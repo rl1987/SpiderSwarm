@@ -28,7 +28,7 @@ type AbstractAction struct {
 	UUID               string
 }
 
-type InitFunc func(*ActionTemplate, string) Action
+type InitFunc func(*ActionTemplate) Action
 
 var ActionConstructorTable = map[string]InitFunc{
 	"FormExtractionAction":  NewFormExtractionActionFromTemplate,
@@ -149,10 +149,10 @@ func RegisterAction(structName string, initFunc InitFunc, allowedInputNames []st
 	AllowedOutputNameTable[structName] = allowedOutputNames
 }
 
-func NewActionFromTemplate(actionTempl *ActionTemplate, workflowName string, jobUUID string) Action {
+func NewActionFromTemplate(actionTempl *ActionTemplate) Action {
 	initFunc := ActionConstructorTable[actionTempl.StructName]
 	if initFunc != nil {
-		return initFunc(actionTempl, workflowName)
+		return initFunc(actionTempl)
 	}
 
 	return nil

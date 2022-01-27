@@ -20,7 +20,7 @@ func TestNewLengthThresholdActionFromTemplate(t *testing.T) {
 		},
 	}
 
-	action := NewLengthThresholdActionFromTemplate(actionTempl, "").(*LengthThresholdAction)
+	action := NewLengthThresholdActionFromTemplate(actionTempl).(*LengthThresholdAction)
 
 	assert.NotNil(t, action)
 	assert.Equal(t, threshold, action.Threshold)

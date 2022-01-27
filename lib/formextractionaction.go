@@ -42,7 +42,7 @@ func NewFormExtractionAction(formID string) *FormExtractionAction {
 	}
 }
 
-func NewFormExtractionActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
+func NewFormExtractionActionFromTemplate(actionTempl *ActionTemplate) Action {
 	var formID string
 
 	formID = actionTempl.ConstructorParams["formID"].StringValue

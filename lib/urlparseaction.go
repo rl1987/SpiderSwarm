@@ -40,7 +40,7 @@ func NewURLParseAction() *URLParseAction {
 	}
 }
 
-func NewURLParseActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
+func NewURLParseActionFromTemplate(actionTempl *ActionTemplate) Action {
 	action := NewURLParseAction()
 
 	action.Name = actionTempl.Name

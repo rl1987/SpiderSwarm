@@ -43,7 +43,7 @@ func NewXPathAction(xpath string, expectMany bool) *XPathAction {
 	}
 }
 
-func NewXPathActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
+func NewXPathActionFromTemplate(actionTempl *ActionTemplate) Action {
 	var xpath string
 	var expectMany bool
 

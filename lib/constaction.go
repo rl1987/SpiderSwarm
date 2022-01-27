@@ -29,7 +29,7 @@ func NewConstAction(c *Value) *ConstAction {
 	}
 }
 
-func NewConstActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
+func NewConstActionFromTemplate(actionTempl *ActionTemplate) Action {
 	c := actionTempl.ConstructorParams["c"]
 
 	action := NewConstAction(&c)

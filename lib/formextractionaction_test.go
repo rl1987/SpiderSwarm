@@ -32,7 +32,7 @@ func TestNewFormExtractionActionFromTemplate(t *testing.T) {
 		},
 	}
 
-	action := NewFormExtractionActionFromTemplate(actionTempl, "").(*FormExtractionAction)
+	action := NewFormExtractionActionFromTemplate(actionTempl).(*FormExtractionAction)
 
 	assert.NotNil(t, action)
 	assert.Equal(t, "GetForm", action.Name)

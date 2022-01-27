@@ -32,7 +32,7 @@ func NewLengthThresholdAction(threshold int) *LengthThresholdAction {
 	}
 }
 
-func NewLengthThresholdActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
+func NewLengthThresholdActionFromTemplate(actionTempl *ActionTemplate) Action {
 	threshold := actionTempl.ConstructorParams["threshold"].IntValue
 
 	action := NewLengthThresholdAction(threshold)

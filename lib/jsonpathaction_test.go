@@ -53,7 +53,7 @@ func TestNewJSONPathActionFromTemplate(t *testing.T) {
 		ConstructorParams: constructorParams,
 	}
 
-	action, ok := NewJSONPathActionFromTemplate(actionTempl, "").(*JSONPathAction)
+	action, ok := NewJSONPathActionFromTemplate(actionTempl).(*JSONPathAction)
 	assert.True(t, ok)
 
 	assert.Equal(t, jsonPath, action.JSONPath)

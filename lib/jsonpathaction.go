@@ -40,7 +40,7 @@ func NewJSONPathAction(jsonPath string, decode bool, expectMany bool) *JSONPathA
 	}
 }
 
-func NewJSONPathActionFromTemplate(actionTempl *ActionTemplate, workflowName string) Action {
+func NewJSONPathActionFromTemplate(actionTempl *ActionTemplate) Action {
 	jsonPath := actionTempl.ConstructorParams["jsonPath"].StringValue
 	decode := actionTempl.ConstructorParams["decode"].BoolValue
 	expectMany := actionTempl.ConstructorParams["expectMany"].BoolValue

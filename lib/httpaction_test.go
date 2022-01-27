@@ -66,7 +66,7 @@ func TestNewHTTPActionFromTemplate(t *testing.T) {
 		ConstructorParams: constructorParams,
 	}
 
-	action, ok := NewHTTPActionFromTemplate(actionTempl, "").(*HTTPAction)
+	action, ok := NewHTTPActionFromTemplate(actionTempl).(*HTTPAction)
 	assert.True(t, ok)
 
 	assert.NotNil(t, action)
