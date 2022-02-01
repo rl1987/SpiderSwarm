@@ -31,6 +31,7 @@ type AbstractAction struct {
 type InitFunc func(*ActionTemplate) Action
 
 var ActionConstructorTable = map[string]InitFunc{
+  	"CSVParseAction":        NewCSVParseActionFromTemplate,
 	"FormExtractionAction":  NewFormExtractionActionFromTemplate,
 	"HTTPAction":            NewHTTPActionFromTemplate,
 	"XPathAction":           NewXPathActionFromTemplate,
@@ -48,6 +49,10 @@ var ActionConstructorTable = map[string]InitFunc{
 }
 
 var AllowedInputNameTable = map[string][]string{
+  	"CSVParseAction": []string{
+		CSVParseActionInputCSVBytes,
+		CSVParseActionInputCSVStr,
+	},
 	"FormExtractionAction": []string{
 		FormExtractionActionInputHTMLBytes,
 		FormExtractionActionInputHTMLStr,
@@ -98,6 +103,9 @@ var AllowedInputNameTable = map[string][]string{
 }
 
 var AllowedOutputNameTable = map[string][]string{
+  	"CSVParseAction": []string{
+		CSVParseActionOutputMap,
+	},
 	"FormExtractionAction": []string{
 		FormExtractionActionOutputFormData,
 	},
