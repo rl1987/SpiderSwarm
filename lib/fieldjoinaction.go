@@ -51,7 +51,8 @@ func NewFieldJoinActionFromTemplate(actionTempl *ActionTemplate) Action {
 }
 
 func (fja *FieldJoinAction) String() string {
-	return fmt.Sprintf("<FieldJoinAction %s WorkflowName: %s, ItemName: %s>", fja.UUID, fja.WorkflowName, fja.ItemName)
+	return fmt.Sprintf("<FieldJoinAction %s Name: %s WorkflowName: %s, ItemName: %s>", fja.UUID, fja.Name, 
+		fja.WorkflowName, fja.ItemName)
 }
 
 func (fja *FieldJoinAction) Run() error {
