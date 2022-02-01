@@ -10,9 +10,9 @@ func TestCSVParseActionRun(t *testing.T) {
 	csvStr := "id,name,age\r\n1,John,25\r\n2,Jane,22\r\n"
 
 	expectMap := map[string][]string{
-		"id": []string{"1", "2"},
+		"id":   []string{"1", "2"},
 		"name": []string{"John", "Jane"},
-		"age": []string{"25", "22"},
+		"age":  []string{"25", "22"},
 	}
 
 	inDP := NewDataPipe()
@@ -33,4 +33,3 @@ func TestCSVParseActionRun(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, expectMap, gotMap)
 }
-

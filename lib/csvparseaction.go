@@ -1,10 +1,10 @@
 package spsw
 
 import (
-  	"bytes"
-	"fmt"
+	"bytes"
+	"encoding/csv"
 	"errors"
-  	"encoding/csv"
+	"fmt"
 	"io"
 
 	"github.com/google/uuid"
@@ -22,12 +22,12 @@ type CSVParseAction struct {
 func NewCSVParseAction() *CSVParseAction {
 	return &CSVParseAction{
 		AbstractAction: AbstractAction{
-			AllowedInputNames: []string{CSVParseActionInputCSVBytes, CSVParseActionInputCSVStr},
+			AllowedInputNames:  []string{CSVParseActionInputCSVBytes, CSVParseActionInputCSVStr},
 			AllowedOutputNames: []string{CSVParseActionOutputMap},
-			Inputs: map[string]*DataPipe{},
-			Outputs: map[string][]*DataPipe{},
-			CanFail: false,
-			UUID: uuid.New().String(),
+			Inputs:             map[string]*DataPipe{},
+			Outputs:            map[string][]*DataPipe{},
+			CanFail:            false,
+			UUID:               uuid.New().String(),
 		},
 	}
 }
@@ -57,7 +57,7 @@ func (cpa *CSVParseAction) Run() error {
 	var row []string
 	var outputMap map[string][]string
 	var csvBytes []byte
-	
+
 	if cpa.Inputs[CSVParseActionInputCSVBytes] != nil {
 		csvBytes, _ = cpa.Inputs[CSVParseActionInputCSVBytes].Remove().([]byte)
 	} else {
@@ -66,7 +66,7 @@ func (cpa *CSVParseAction) Run() error {
 	}
 
 	csvReader := csv.NewReader(bytes.NewReader(csvBytes))
-	
+
 	fieldNames, err := csvReader.Read()
 
 	outputMap = map[string][]string{}
@@ -99,4 +99,3 @@ func (cpa *CSVParseAction) Run() error {
 
 	return err
 }
-

@@ -93,19 +93,19 @@ func (sca *StringCutAction) Run() error {
 			if fromIdx == -1 {
 				continue
 			}
-		  	fromIdx += len(sca.From)
+			fromIdx += len(sca.From)
 
-		 	toIdx = strings.Index(inputStr[fromIdx:], sca.To)
+			toIdx = strings.Index(inputStr[fromIdx:], sca.To)
 			if toIdx == -1 {
 				continue
 			}
-		  	toIdx += fromIdx
+			toIdx += fromIdx
 
-		  	outputStr := inputStr[fromIdx:toIdx]
-			
+			outputStr := inputStr[fromIdx:toIdx]
+
 			outputStrings = append(outputStrings, outputStr)
 		}
-		
+
 		for _, outDP := range sca.Outputs[StringCutActionOutputStr] {
 			outDP.Add(outputStrings)
 		}

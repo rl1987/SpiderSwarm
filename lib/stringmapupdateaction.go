@@ -42,8 +42,8 @@ func NewStringMapUpdateActionFromTemplate(actionTempl *ActionTemplate) Action {
 	action := NewStringMapUpdateAction("")
 
 	action.Name = actionTempl.Name
-	
-	// XXX: this is kinda hacky. Might need to work out more general way to have optional argument in 
+
+	// XXX: this is kinda hacky. Might need to work out more general way to have optional argument in
 	// ActionTemplate.
 	if len(actionTempl.ConstructorParams) == 1 {
 		action.OverrideKey = actionTempl.ConstructorParams["overrideKey"].StringValue
@@ -59,7 +59,7 @@ func (smua *StringMapUpdateAction) String() string {
 func (smua *StringMapUpdateAction) Run() error {
 	if smua.OverrideKey == "" {
 		if smua.Inputs[StringMapUpdateActionInputOld] == nil || smua.Inputs[StringMapUpdateActionInputNew] == nil {
-			  return errors.New("Both inputs must be connected")
+			return errors.New("Both inputs must be connected")
 		}
 	}
 
@@ -87,7 +87,7 @@ func (smua *StringMapUpdateAction) Run() error {
 		for key, value := range newMap {
 			updatedMap[key] = value
 		}
-        }
+	}
 
 	if smua.OverrideKey != "" && smua.Inputs[StringMapUpdateActionInputOverridenValue] != nil {
 		if valueStr, ok := smua.Inputs[StringMapUpdateActionInputOverridenValue].Remove().(string); ok {

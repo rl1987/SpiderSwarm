@@ -1,7 +1,7 @@
 package spsw
 
 import (
-  	"errors"
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -29,7 +29,7 @@ func TestConstActionRunErr(t *testing.T) {
 	c := "..."
 
 	action := NewConstAction(&Value{ValueType: ValueTypeString, StringValue: c})
-	
+
 	err := action.Run()
 	assert.NotNil(t, err) // fails because output is not connected.
 	assert.Equal(t, errors.New("Output not connected"), err)

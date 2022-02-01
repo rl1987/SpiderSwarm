@@ -1,7 +1,7 @@
 package spsw
 
 import (
-  	"errors"
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -102,16 +102,15 @@ func TestFieldJoinActionRunErr(t *testing.T) {
 
 	action := NewFieldJoinAction([]string{"Name", "Surname", "Phone", "Email"},
 		jobUUID, taskUUID, itemName)
-	
+
 	err := action.Run()
 
 	assert.NotNil(t, err)
 	assert.Equal(t, errors.New("No output connected"), err)
 
 	action.AddOutput(FieldJoinActionOutputItem, NewDataPipe())
-		
+
 	err = action.Run()
 
 	assert.Equal(t, errors.New("No inputs connected"), err)
 }
-

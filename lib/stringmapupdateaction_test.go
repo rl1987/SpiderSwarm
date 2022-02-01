@@ -48,15 +48,15 @@ func TestStringMapUpdateActionRun(t *testing.T) {
 
 func TestStringMapUpdateActionRunWithOverride(t *testing.T) {
 	old := map[string]string{
-		"page": "1",
+		"page":    "1",
 		"session": "5514",
-	}	
+	}
 
 	key := "page"
 	newValue := "2"
 
 	expectUpdated := map[string]string{
-		"page": "2",
+		"page":    "2",
 		"session": "5514",
 	}
 
@@ -82,4 +82,3 @@ func TestStringMapUpdateActionRunWithOverride(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, expectUpdated, gotUpdated)
 }
-

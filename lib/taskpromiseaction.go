@@ -68,7 +68,7 @@ func (tpa *TaskPromiseAction) Run() error {
 	if tpa.Inputs[TaskPromiseActionInputRefrain] != nil {
 		refrain, ok := tpa.Inputs[TaskPromiseActionInputRefrain].Remove().(bool)
 		if refrain && ok {
-		  	log.Info(fmt.Sprintf("Refraining from making a TaskPromise for task %s in TaskPromise %s (%s)",
+			log.Info(fmt.Sprintf("Refraining from making a TaskPromise for task %s in TaskPromise %s (%s)",
 				tpa.TaskName, tpa.UUID, tpa.Name))
 			return nil
 		}

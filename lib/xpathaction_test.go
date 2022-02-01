@@ -158,4 +158,3 @@ func TestXPathActionRunHTMLUnescape(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, "/WebResource.axd?d=pynGkmcFUV13He1Qd6_TZMf3uKkrnZDqWIncPpA2JyCKNI3abPgg4VFK3aIP8IptHTidNt0q28y-r61APewz1A2&t=637729441680000000", gotResult)
 }
-

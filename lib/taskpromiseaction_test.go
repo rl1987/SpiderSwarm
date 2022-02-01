@@ -100,7 +100,7 @@ func TestTaskPromiseActionRunRequireFields(t *testing.T) {
 				StringValue: taskName,
 			},
 			"requireFields": Value{
-				ValueType: ValueTypeStrings,
+				ValueType:    ValueTypeStrings,
 				StringsValue: []string{"page", "session"},
 			},
 		},
@@ -140,4 +140,3 @@ func TestTaskPromiseActionRunRequireFields(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, taskName, promise.TaskName)
 }
-

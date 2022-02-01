@@ -58,7 +58,7 @@ func TestStringCutActionRun(t *testing.T) {
 
 func TestStringCutActionRun2(t *testing.T) {
 	inputStrings := []string{"... latitude: '12.1';", "... latitude: '3.4';"}
-	expectOutputStrings := []string{"12.1", "3.4"};
+	expectOutputStrings := []string{"12.1", "3.4"}
 
 	action := NewStringCutAction("latitude: '", "';")
 
@@ -77,4 +77,3 @@ func TestStringCutActionRun2(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, expectOutputStrings, gotStrings)
 }
-

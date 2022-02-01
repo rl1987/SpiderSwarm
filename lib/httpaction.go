@@ -175,7 +175,6 @@ func (ha *HTTPAction) Run() error {
 
 	}
 
-
 	request.URL.RawQuery = q.Encode()
 
 	// https://stackoverflow.com/questions/51845690/how-to-program-go-to-use-a-proxy-when-using-a-custom-transport
@@ -193,7 +192,7 @@ func (ha *HTTPAction) Run() error {
 	if ha.Inputs[HTTPActionInputCookies] != nil {
 		cookies, ok := ha.Inputs[HTTPActionInputCookies].Remove().(map[string]string)
 
-		if  ok {
+		if ok {
 			httpCookies := []*http.Cookie{}
 			for key, value := range cookies {
 				c := &http.Cookie{Name: key, Value: value}

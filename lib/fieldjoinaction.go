@@ -30,9 +30,9 @@ func NewFieldJoinAction(inputNames []string, jobUUID string, taskUUID string, it
 			CanFail:            false,
 			UUID:               uuid.New().String(),
 		},
-		JobUUID:      jobUUID,
-		TaskUUID:     taskUUID,
-		ItemName:     itemName,
+		JobUUID:  jobUUID,
+		TaskUUID: taskUUID,
+		ItemName: itemName,
 	}
 }
 
@@ -51,7 +51,7 @@ func NewFieldJoinActionFromTemplate(actionTempl *ActionTemplate) Action {
 }
 
 func (fja *FieldJoinAction) String() string {
-	return fmt.Sprintf("<FieldJoinAction %s Name: %s WorkflowName: %s, ItemName: %s>", fja.UUID, fja.Name, 
+	return fmt.Sprintf("<FieldJoinAction %s Name: %s WorkflowName: %s, ItemName: %s>", fja.UUID, fja.Name,
 		fja.WorkflowName, fja.ItemName)
 }
 
