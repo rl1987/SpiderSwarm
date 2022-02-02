@@ -133,3 +133,22 @@ func TestTaskPromiseSplay2(t *testing.T) {
 	assert.Equal(t, "1", gotPromises[0].InputDataChunksByInputName["param2"].PayloadValue.StringValue)
 	assert.Equal(t, "2", gotPromises[1].InputDataChunksByInputName["param2"].PayloadValue.StringValue)
 }
+
+func TestTaskPromiseJSONE2E(t *testing.T) {
+	promise := &TaskPromise{
+		TaskName:     "HTTP1",
+		WorkflowName: "TestFlow",
+		JobUUID:      "",
+		InputDataChunksByInputName: map[string]*DataChunk{
+			"param1": NewDataChunk_(NewValueFromString("aa")),
+			"param2": NewDataChunk_(NewValueFromStrings([]string{"1", "2"})),
+		},
+	}
+	
+	jsonBytes := promise.EncodeToJSON()
+
+	gotPromise := NewTaskPromiseFromJSON(jsonBytes)
+
+	assert.Equal(t, promise, gotPromise)
+}
+
