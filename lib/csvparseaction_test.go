@@ -6,6 +6,28 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestNewCSVParseAction(t *testing.T) {
+	action := NewCSVParseAction()
+
+	assert.NotNil(t, action)
+
+	assert.Equal(t, []string{CSVParseActionInputCSVBytes, CSVParseActionInputCSVStr},
+		action.AllowedInputNames)
+	assert.Equal(t, []string{CSVParseActionOutputMap}, action.AllowedOutputNames)
+}
+
+func TestNewCSVParseActionFromTemplate(t *testing.T) {
+	actionTempl := &ActionTemplate{
+		Name: "TestAction",
+		StructName: "CSVParseAction",
+		ConstructorParams: map[string]Value{},
+	}
+
+	action := NewCSVParseActionFromTemplate(actionTempl)
+
+	assert.NotNil(t, action)
+}
+
 func TestCSVParseActionRun(t *testing.T) {
 	csvStr := "id,name,age\r\n1,John,25\r\n2,Jane,22\r\n"
 
