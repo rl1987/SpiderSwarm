@@ -1,6 +1,7 @@
 package spsw
 
 import (
+  	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -55,3 +56,26 @@ func TestCSVParseActionRun(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, expectMap, gotMap)
 }
+
+func TestCSVParseActionRunError(t *testing.T) {
+	t.Skip()
+
+	badCSVStr := "\xaa"
+
+	inDP := NewDataPipe()
+	outDP := NewDataPipe()
+
+	action := NewCSVParseAction()
+
+	inDP.Add([]byte(badCSVStr))
+
+	action.AddInput(CSVParseActionInputCSVBytes, inDP)
+	action.AddOutput(CSVParseActionOutputMap, outDP)
+
+	err := action.Run()
+
+	fmt.Println(err)
+
+	assert.NotNil(t, err)
+}
+
