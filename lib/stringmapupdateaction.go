@@ -11,10 +11,12 @@ const StringMapUpdateActionInputOld = "StringMapUpdateActionInputOld"
 const StringMapUpdateActionInputNew = "StringMapUpdateActionInputNew"
 const StringMapUpdateActionInputOverridenValue = "StringMapUpdateActionInputOverridenValue"
 const StringMapUpdateActionOutputUpdated = "StringMapUpdateActionOutputUpdated"
+const StringMapUpdateActionOutputItem = "StringMapUpdateActionOutputItem"
 
 type StringMapUpdateAction struct {
 	AbstractAction
 	OverrideKey string
+	ItemName    string
 }
 
 func NewStringMapUpdateAction(overrideKey string) *StringMapUpdateAction {
@@ -43,10 +45,12 @@ func NewStringMapUpdateActionFromTemplate(actionTempl *ActionTemplate) Action {
 
 	action.Name = actionTempl.Name
 
-	// XXX: this is kinda hacky. Might need to work out more general way to have optional argument in
-	// ActionTemplate.
-	if len(actionTempl.ConstructorParams) == 1 {
+	if _, ok := actionTempl.ConstructorParams["overrideKey"]; ok {
 		action.OverrideKey = actionTempl.ConstructorParams["overrideKey"].StringValue
+	}
+
+	if _, ok := actionTempl.ConstructorParams["itemName"]; ok {
+		action.ItemName = actionTempl.ConstructorParams["itemName"].StringValue
 	}
 
 	return action
@@ -63,7 +67,7 @@ func (smua *StringMapUpdateAction) Run() error {
 		}
 	}
 
-	if smua.Outputs[StringMapUpdateActionOutputUpdated] == nil || len(smua.Outputs[StringMapUpdateActionOutputUpdated]) == 0 {
+	if (smua.Outputs[StringMapUpdateActionOutputUpdated] == nil || len(smua.Outputs[StringMapUpdateActionOutputUpdated]) == 0) && (smua.Outputs[StringMapUpdateActionOutputItem] == nil || len(smua.Outputs[StringMapUpdateActionOutputItem]) == 0) {
 		return errors.New("Output not connected")
 	}
 
@@ -94,9 +98,23 @@ func (smua *StringMapUpdateAction) Run() error {
 			updatedMap[smua.OverrideKey] = valueStr
 		}
 	}
+	
+	if smua.Outputs[StringMapUpdateActionOutputUpdated] != nil {
+		for _, output := range smua.Outputs[StringMapUpdateActionOutputUpdated] {
+			output.Add(updatedMap)
+		}
+	}
 
-	for _, output := range smua.Outputs[StringMapUpdateActionOutputUpdated] {
-		output.Add(updatedMap)
+	if smua.Outputs[StringMapUpdateActionOutputItem] != nil {
+		for _, output := range smua.Outputs[StringMapUpdateActionOutputItem] {
+			item := NewItem(smua.ItemName, "", "", "")
+
+			for key, value := range updatedMap {
+				item.SetField(key, value)	
+			}
+			
+			output.Add(item)
+		}
 	}
 
 	return nil
