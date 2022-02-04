@@ -98,7 +98,7 @@ func (smua *StringMapUpdateAction) Run() error {
 			updatedMap[smua.OverrideKey] = valueStr
 		}
 	}
-	
+
 	if smua.Outputs[StringMapUpdateActionOutputUpdated] != nil {
 		for _, output := range smua.Outputs[StringMapUpdateActionOutputUpdated] {
 			output.Add(updatedMap)
@@ -110,9 +110,9 @@ func (smua *StringMapUpdateAction) Run() error {
 			item := NewItem(smua.ItemName, "", "", "")
 
 			for key, value := range updatedMap {
-				item.SetField(key, value)	
+				item.SetField(key, value)
 			}
-			
+
 			output.Add(item)
 		}
 	}

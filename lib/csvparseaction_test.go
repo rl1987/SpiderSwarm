@@ -1,7 +1,7 @@
 package spsw
 
 import (
-  	"fmt"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -19,8 +19,8 @@ func TestNewCSVParseAction(t *testing.T) {
 
 func TestNewCSVParseActionFromTemplate(t *testing.T) {
 	actionTempl := &ActionTemplate{
-		Name: "TestAction",
-		StructName: "CSVParseAction",
+		Name:              "TestAction",
+		StructName:        "CSVParseAction",
 		ConstructorParams: map[string]Value{},
 	}
 
@@ -78,4 +78,3 @@ func TestCSVParseActionRunError(t *testing.T) {
 
 	assert.NotNil(t, err)
 }
-

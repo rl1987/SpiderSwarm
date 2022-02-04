@@ -144,11 +144,10 @@ func TestTaskPromiseJSONE2E(t *testing.T) {
 			"param2": NewDataChunk_(NewValueFromStrings([]string{"1", "2"})),
 		},
 	}
-	
+
 	jsonBytes := promise.EncodeToJSON()
 
 	gotPromise := NewTaskPromiseFromJSON(jsonBytes)
 
 	assert.Equal(t, promise, gotPromise)
 }
-
