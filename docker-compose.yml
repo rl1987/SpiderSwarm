@@ -13,6 +13,8 @@ services:
   manager:
     build: .
     image: spiderswarm:latest
-    command: manager redis:6379
+    command: manager redis:6379 /examples/books_workflow/books_workflow.yaml 
+    volumes:
+      - ./examples:/examples
   redis: 
     image: "redis:alpine"
