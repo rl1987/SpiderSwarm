@@ -31,7 +31,7 @@ func getWorkflow() *spsw.Workflow {
 						ConstructorParams: map[string]spsw.Value{
 							"c": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
-								StringValue: "http://104.248.27.41:8000/catalogue/category/books_1/index.html",
+								StringValue: "http://books.toscrape.com/catalogue/category/books_1/index.html",
 							},
 						},
 					},
@@ -78,7 +78,7 @@ func getWorkflow() *spsw.Workflow {
 						ConstructorParams: map[string]spsw.Value{
 							"baseURL": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
-								StringValue: "http://104.248.27.41:8000/catalogue/category/books_/",
+								StringValue: "http://books.toscrape.com/catalogue/category/books_/",
 							},
 							"method": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
@@ -110,7 +110,7 @@ func getWorkflow() *spsw.Workflow {
 						ConstructorParams: map[string]spsw.Value{
 							"baseURL": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
-								StringValue: "http://104.248.27.41:8000/catalogue/category/books_1/",
+								StringValue: "http://books.toscrape.com/catalogue/category/books_1/",
 							},
 						},
 					},
@@ -223,7 +223,7 @@ func getWorkflow() *spsw.Workflow {
 						ConstructorParams: map[string]spsw.Value{
 							"baseURL": spsw.Value{
 								ValueType:   spsw.ValueTypeString,
-								StringValue: "http://104.248.27.41:8000/catalogue/category/books_1/",
+								StringValue: "http://books.toscrape.com/catalogue/category/books_1/",
 							},
 						},
 					},

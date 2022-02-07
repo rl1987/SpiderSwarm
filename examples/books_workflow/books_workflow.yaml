@@ -9,7 +9,7 @@ TaskTemplates:
           ConstructorParams:
             c:
                 ValueType: ValueTypeString
-                StringValue: http://104.248.27.41:8000/catalogue/category/books_1/index.html
+                StringValue: http://books.toscrape.com/catalogue/category/books_1/index.html
         - Name: Promise1
           StructName: TaskPromiseAction
           ConstructorParams:
@@ -45,7 +45,7 @@ TaskTemplates:
           ConstructorParams:
             baseURL:
                 ValueType: ValueTypeString
-                StringValue: http://104.248.27.41:8000/catalogue/category/books_/
+                StringValue: http://books.toscrape.com/catalogue/category/books_/
             canFail:
                 ValueType: ValueTypeBool
                 BoolValue: false
@@ -65,7 +65,7 @@ TaskTemplates:
           ConstructorParams:
             baseURL:
                 ValueType: ValueTypeString
-                StringValue: http://104.248.27.41:8000/catalogue/category/books_1/
+                StringValue: http://books.toscrape.com/catalogue/category/books_1/
         - Name: ExtractBookLinks
           StructName: XPathAction
           ConstructorParams:
@@ -160,7 +160,7 @@ TaskTemplates:
           ConstructorParams:
             baseURL:
                 ValueType: ValueTypeString
-                StringValue: http://104.248.27.41:8000/catalogue/category/books_1/
+                StringValue: http://books.toscrape.com/catalogue/category/books_1/
         - Name: GetBookPageHTML
           StructName: HTTPAction
           ConstructorParams:
