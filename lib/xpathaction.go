@@ -18,7 +18,8 @@ const XPathActionOutputStr = "XPathActionOutputStr"
 
 type XPathAction struct {
 	AbstractAction
-	XPath string
+	XPath           string
+	StripWhitespace bool
 }
 
 func NewXPathAction(xpath string, expectMany bool) *XPathAction {
@@ -39,7 +40,8 @@ func NewXPathAction(xpath string, expectMany bool) *XPathAction {
 			},
 			UUID: uuid.New().String(),
 		},
-		XPath: xpath,
+		XPath:           xpath,
+		StripWhitespace: false,
 	}
 }
 
@@ -53,6 +55,10 @@ func NewXPathActionFromTemplate(actionTempl *ActionTemplate) Action {
 	action := NewXPathAction(xpath, expectMany)
 
 	action.Name = actionTempl.Name
+
+	if _, ok := actionTempl.ConstructorParams["stripWhitespace"]; ok {
+		action.StripWhitespace = actionTempl.ConstructorParams["stripWhitespace"].BoolValue
+	}
 
 	return action
 }
@@ -130,6 +136,9 @@ func (xa *XPathAction) Run() error {
 		result := renderNode(n)
 		if extractAttrib {
 			result = extractAttribute(result, attribName)
+			if xa.StripWhitespace {
+				result = strings.TrimSpace(result)
+			}
 		}
 
 		for _, outDP := range xa.Outputs[XPathActionOutputStr] {
@@ -152,6 +161,10 @@ func (xa *XPathAction) Run() error {
 			result := renderNode(n)
 			if extractAttrib {
 				result = extractAttribute(result, attribName)
+			}
+
+			if xa.StripWhitespace {
+				result = strings.TrimSpace(result)
 			}
 
 			results = append(results, result)
