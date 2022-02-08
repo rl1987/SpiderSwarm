@@ -85,7 +85,9 @@ func (fja *FieldJoinAction) Run() error {
 
 	if fja.RequireFields != nil {
 		for _, rf := range fja.RequireFields {
-			if item.Fields[rf] == nil {
+			value := item.Fields[rf]
+
+			if value == nil || (value.ValueType == ValueTypeString && len(value.StringValue) == 0) || (value.ValueType == ValueTypeStrings && len(value.StringsValue) == 0) {
 				return nil
 			}
 		}
