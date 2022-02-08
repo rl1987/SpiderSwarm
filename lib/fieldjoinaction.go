@@ -12,10 +12,11 @@ const FieldJoinActionOutputMap = "FieldJoinActionOutputMap"
 
 type FieldJoinAction struct {
 	AbstractAction
-	WorkflowName string
-	JobUUID      string
-	TaskUUID     string
-	ItemName     string
+	WorkflowName  string
+	JobUUID       string
+	TaskUUID      string
+	ItemName      string
+	RequireFields []string
 }
 
 // XXX: do we want to take all of these things as params? they seem to violate the
@@ -47,6 +48,10 @@ func NewFieldJoinActionFromTemplate(actionTempl *ActionTemplate) Action {
 
 	action.Name = actionTempl.Name
 
+	if _, ok := actionTempl.ConstructorParams["requireFields"]; ok {
+		action.RequireFields = actionTempl.ConstructorParams["requireFields"].StringsValue
+	}
+
 	return action
 }
 
@@ -74,6 +79,14 @@ func (fja *FieldJoinAction) Run() error {
 			s, ok := value.(string)
 			if ok {
 				m[key] = s
+			}
+		}
+	}
+
+	if fja.RequireFields != nil {
+		for _, rf := range fja.RequireFields {
+			if item.Fields[rf] == nil {
+				return nil
 			}
 		}
 	}
