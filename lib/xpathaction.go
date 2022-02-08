@@ -136,9 +136,10 @@ func (xa *XPathAction) Run() error {
 		result := renderNode(n)
 		if extractAttrib {
 			result = extractAttribute(result, attribName)
-			if xa.StripWhitespace {
-				result = strings.TrimSpace(result)
-			}
+		}
+
+		if xa.StripWhitespace {
+			result = strings.TrimSpace(result)
 		}
 
 		for _, outDP := range xa.Outputs[XPathActionOutputStr] {
