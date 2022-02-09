@@ -205,7 +205,31 @@ func (ha *HTTPAction) Run() error {
 
 	log.Debug(fmt.Sprintf("HTTPAction %s (%s) launching request: %v", ha.Name, ha.UUID, request))
 
-	resp, err := client.Do(request)
+	retries := 5
+
+	var resp *http.Response
+	
+	for retries > 0 {
+		resp, err = client.Do(request)
+
+		if err != nil {
+			log.Error(fmt.Sprintf("HTTPAction %s (%s) got error: %s", ha.Name, ha.UUID, err))
+			log.Debug(fmt.Sprintf("Retries left at HTTPAction %s: %d", ha.UUID, retries))
+			retries -= 1
+			continue
+		}
+
+		if resp.StatusCode >= 400 {
+			log.Error(fmt.Sprintf("HTTPAction %s (%s) got response status %d on: %s", ha.Name, ha.UUID, resp.StatusCode, request.URL))
+			log.Debug(fmt.Sprintf("Retries left at HTTPAction %s: %d", ha.UUID, retries))
+			retries -= 1
+			continue
+		}
+
+		break
+      	}
+
+
 	if err != nil {
 		return err
 	}
