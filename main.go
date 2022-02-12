@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime/pprof"
 	"strconv"
 	"time"
 
@@ -60,6 +61,20 @@ func main() {
 	if len(os.Args) < 2 {
 		printUsage()
 		os.Exit(0)
+	}
+
+	cpuProfile := os.Getenv("CPUPROFILE")
+
+	if cpuProfile != "" {
+		f, err := os.Create(cpuProfile)
+		if err != nil {
+			log.Fatal("could not create CPU profile: ", err)
+		}
+		defer f.Close()
+		if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("could not start CPU profile: ", err)
+		}
+		defer pprof.StopCPUProfile()
 	}
 
 	runner := &spsw.Runner{}
